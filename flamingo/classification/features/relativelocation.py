@@ -3,7 +3,7 @@ import pandas
 import scipy.ndimage as nd
 import matplotlib.pyplot as plt
 
-import image_classification.classification.models
+import flamingo.classification.models
 
 def compute_prior(annotations, centroids, image_size, superpixel_grid, n=100):
     '''

@@ -4,9 +4,9 @@ import time
 import re
 import os
 
-from image_classification import classification as cls
-from image_classification import segmentation as seg
-from image_classification.classification.features import relativelocation
+from flamingo import classification as cls
+from flamingo import segmentation as seg
+from flamingo.classification.features import relativelocation
 import filesys
 
 from sklearn.cross_validation import train_test_split
