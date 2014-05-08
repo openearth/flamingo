@@ -14,10 +14,10 @@ def find_homography(UV, XYZ, K, distortion=0, z=0):
     R = cv2.Rodrigues(rvec)[0]
     
     # assume height of projection plane
-    R[:,2] *= z
+    R[:,2] = R[:,2] * z
 
     # add translation vector
-    R[:,2] += tvec
+    R[:,2] = R[:,2] + tvec.flatten()
 
     # compute homography
     H = np.linalg.inv(np.dot(K, R))
@@ -27,15 +27,22 @@ def find_homography(UV, XYZ, K, distortion=0, z=0):
 
     return H
 
-def rectify_image(img, H, K=None, distortion=0):
-
-    # undistort image
-    if K is not None:
-        img = cv2.undistort(img, K, distortion)
+def get_pixel_coordinates(img):
 
     # get pixel coordinates
     U, V = np.meshgrid(range(img.shape[1]),
                        range(img.shape[0]))
+
+    return U, V
+
+def rectify_image(img, H):
+
+    U, V = get_pixel_coordinates(img)
+    X, Y = rectify_coordinates(U, V, H)
+
+    return X, Y
+
+def rectify_coordinates(U, V, H):
 
     UV = np.vstack((U.flatten(),
                     V.flatten())).T
@@ -44,7 +51,7 @@ def rectify_image(img, H, K=None, distortion=0):
     XY = cv2.perspectiveTransform(np.asarray([UV]).astype(np.float32), H)[0]
     
     # reshape pixel coordinates back to image size
-    X = XY[:,0].reshape(img.shape[:2])
-    Y = XY[:,1].reshape(img.shape[:2])
+    X = XY[:,0].reshape(U.shape[:2])
+    Y = XY[:,1].reshape(V.shape[:2])
 
     return X, Y
