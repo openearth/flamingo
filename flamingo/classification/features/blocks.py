@@ -1,6 +1,7 @@
-import re
-import pandas
 import inspect
+import re
+
+import pandas
 import numpy as np
 import skimage.measure
 import skimage.feature

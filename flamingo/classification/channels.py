@@ -19,7 +19,7 @@ def add_channels(img, colorspace):
     channels = []
 
     # Create a set of gabor kernels and apply them
-    frequencies = np.arange(0.05, 0.30, 0.05)
+    frequencies = np.arange(0.05, 0.30, 0.1)
     sigmas = [3, 5, 7]
     thetas = np.arange(0, np.pi, 0.25*np.pi)
     for frequency, sigma, theta in product(frequencies, sigmas, thetas):
@@ -34,7 +34,7 @@ def add_channels(img, colorspace):
         channels.append(response)
 
     # Create relative greyishness
-    for sigma1 in range(1, 21, 3):
+    for sigma1 in range(1, 21, 7):
         # blur
         response1 = skimage.filter.gaussian_filter(gray, sigma1)
         # blur on a higher level

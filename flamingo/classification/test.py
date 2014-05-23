@@ -3,8 +3,6 @@ import pandas
 import matplotlib.pyplot as plt
 import sklearn.linear_model
 
-from .. import filesys
-
 from models import *
 from utils import *
 
