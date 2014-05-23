@@ -231,7 +231,7 @@ def compute_features(models, sets, maps, stats, features):
                 sets[j][0][k][...,idx] = 0.0
 
     # do first order prediction
-    Y_predicted = image_classification.classification.models.predict_models(models, [s[0] for s in sets])
+    Y_predicted = flamingo.classification.models.predict_models(models, [s[0] for s in sets])
     
     # do voting based on first prediction round and relative location prior
     votes = vote_sets(Y_predicted, maps)

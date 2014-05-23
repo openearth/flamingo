@@ -23,7 +23,7 @@ setup(
     ],
     test_suite='nose.collector',
     entry_points={'console_scripts': [
-        '{0} = image_classification.batch:main'.format(
+        '{0} = flamingo.batch:main'.format(
             'classify-images')
     ]},
     data_files=[
