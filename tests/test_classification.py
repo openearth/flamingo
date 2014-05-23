@@ -16,7 +16,7 @@ class TestCase(unittest.TestCase):
 
     def test_data_path(self):
         from pkg_resources import Requirement, resource_filename
-        dirname = resource_filename(Requirement.parse("flamingo"),"data")
+        dirname = resource_filename(Requirement.parse("flamingo"), "data")
         # should only contain argusnl
         self.assertEqual(1, len(os.listdir(dirname)))
         logger.info(dirname)
@@ -41,4 +41,3 @@ class TestCase(unittest.TestCase):
         all_channels = channels.add_channels(img, colorspace='rgb')
         # we should have quite a number of channels
         self.assertGreater(all_channels.shape[2], 10)
-
