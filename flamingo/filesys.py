@@ -5,19 +5,20 @@ import cPickle as pickle
 import matplotlib.pyplot as plt
 import classification.features.blocks as feature_blocks
 import numpy as np
-import uuid
 
 PATH_DATASET = '/flamingo/datasets/'
 
 def set_dataset_path(fpath):
-    PATH_DATASET = fpath
 
+    # FIXME: if it's captitalized it's a constant. 
+    # Use a config file for this or command line args 
+    PATH_DATASET = fpath
 def get_dataset_path():
     if PATH_DATASET is not None:
         if os.path.exists(PATH_DATASET):
             return PATH_DATASET
-
-    return os.path.join(os.path.dirname(__file__),'datasets') # FIXME
+    demopath = resource_filename(Requirement.parse("flamingo"),"data")
+    return demopath
 
 def get_dataset_list():
     fpath = get_dataset_path()
@@ -34,13 +35,14 @@ def get_image_path(ds):
 def get_image_location(ds, im):
     return os.path.join(get_image_path(ds),im)
 
+
 def get_image_list(ds):
     images = []
     if ds is not None:
         fpath = get_image_path(ds)
         if os.path.exists(fpath):
             for im in os.listdir(fpath):
-                if im.endswith('.jpg') or im.endswith('.png'):
+                if im.endswith('.jpg') or im.endswith('.png') or im.endswith('.jpeg'):
                     if not im.startswith('cropped_'): # skip cropped versions of image
                         images.append(im)
     return images
