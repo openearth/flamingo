@@ -10,6 +10,7 @@ from flamingo import classification as cls
 from flamingo import segmentation as seg
 from flamingo import filesys
 from flamingo.utils import printinfo
+from flamingo.classification import channels
 from flamingo.classification.features import relativelocation
 
 
