@@ -41,3 +41,6 @@ class TestCase(unittest.TestCase):
         all_channels = channels.add_channels(img, colorspace='rgb')
         # we should have quite a number of channels
         self.assertGreater(all_channels.shape[2], 10)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,18 +1,20 @@
-import log
-import numpy as np
 import time
 import re
 import os
+import logging
+
+import numpy as np
+from sklearn.cross_validation import train_test_split
 
 from flamingo import classification as cls
 from flamingo import segmentation as seg
+from flamingo import filesys
+from flamingo.utils import printinfo
 from flamingo.classification.features import relativelocation
-import filesys
 
-from sklearn.cross_validation import train_test_split
 
 # initialize log
-log.init()
+logger = logging.getLogger(__name__)
 
 
 def run_preprocessing(ds,
@@ -31,8 +33,7 @@ def run_preprocessing(ds,
                       class_aggregation=None):
     '''Batch function to preprocess a dataset'''
 
-    log.init(path=filesys.get_image_path(ds))
-    log.info('Preprocessing started for dataset "%s"...' % ds)
+    logger.info('Preprocessing started for dataset "%s"...' % ds)
 
     # make sure log file exists
     filesys.write_log_file(
@@ -72,7 +73,7 @@ def run_preprocessing(ds,
     if forcesplit or not dslog.has_key('training images'):
         run_partitioning(ds, images, n_part=n_part, test_frac=test_frac)
 
-    log.info('Preprocessing finished.')
+    logger.info('Preprocessing finished.')
 
 
 def run_classification(ds,
@@ -82,26 +83,25 @@ def run_classification(ds,
                        class_aggregation=None):
     ''' Batch function to train and test a PGM with multiple train_test partitions '''
 
-    log.init(path=filesys.get_image_path(ds))
-    log.info('Classification started for dataset "%s"...' % ds)
+    logger.info('Classification started for dataset "%s"...' % ds)
 
     if not type(modtype) is list:
         modtype = [modtype]
 
     # initialize models, training and test sets
-    log.info('Preparation of models, train and test sets started...')
+    logger.info('Preparation of models, train and test sets started...')
     models, meta, train_sets, test_sets, prior_sets = initialize_models(ds,
                                                                         images,
                                                                         feat_blocks,
                                                                         modtype=modtype,
                                                                         class_aggregation=class_aggregation)
-    log.info('Preparation of models, train and test sets finished.')
+    logger.info('Preparation of models, train and test sets finished.')
 
     # fit models
-    log.info('Fitting of models started...')
+    logger.info('Fitting of models started...')
     models = cls.models.train_models(models, train_sets, prior_sets)
     filesys.write_model_files(ds, models, meta)
-    log.info('Fitting of models finished.')
+    logger.info('Fitting of models finished.')
 
     return models, train_sets, test_sets
 
@@ -114,46 +114,50 @@ def run_scoring(ds, model=None, class_aggregation=None):
     model, meta, train_sets, test_sets, prior_sets = reinitialize_model(
         ds, model, class_aggregation=class_aggregation)
 
-    log.info('Testing of model started...')
+    logger.info('Testing of model started...')
     scores = cls.models.score_models([[model]], train_sets, test_sets)
-    log.info('Testing of model finished.')
+    logger.info('Testing of model finished.')
 
     return scores
 
 
+@printinfo
 def run_segmentation(ds, images=[]):
-    log.info('Segmentation started...')
+    logger.info('Segmentation started...')
     for i, im in enumerate(images):
-        log.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
-        log.memory_usage()
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
         segments, contours, segments_orig, meta = _segmentate(ds, im)
-        log.memory_usage()
         filesys.write_export_file(ds, im, 'meta', meta, append=True)
         filesys.write_export_file(ds, im, 'segments.original', segments_orig)
         filesys.write_export_file(ds, im, 'segments', segments)
         filesys.write_export_file(ds, im, 'contours', contours)
-        log.memory_usage()
-    log.info('Segmentation finished.')
+    logger.info('Segmentation finished.')
 
 
 def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb'):
-    log.info('Feature extraction started...')
+    logger.info('Feature extraction started...')
     for i, im in enumerate(images):
-        log.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
 
         segments = filesys.read_export_file(ds, im, 'segments')
 
         if segments is None:
-            log.warning('No segmentation found for image: %s' % im)
+            loglging.warning('No segmentation found for image: %s' % im)
             continue
 
         meta = filesys.read_export_file(ds, im, 'meta')
         if meta['superpixel_grid_error']:
-            log.warning('Invalid sedmentation found for image: %s' % im)
+            loglging.warning('Invalid sedmentation found for image: %s' % im)
             continue
 
         # load image
         img = filesys.read_image_file(ds, im)
+
+        # Add extra channels
+        # img is now [i,j,rgb]:                   grayscale channels   extra_channels
+        # img becomes [i,j, channels] channels -> gray      (r g b)    (sigmadiff gabor)
+        img = channels.add_channels(img, colorspace)
+
 
         # extract features
         features, features_in_block = \
@@ -171,17 +175,17 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb'):
         meta = {'last feature extraction': time.strftime('%d-%b-%Y %H:%M')}
         filesys.write_export_file(ds, im, 'meta', meta, append=True)
 
-    log.info('Feature extraction finished.')
+    logger.info('Feature extraction finished.')
 
 
 def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, relloc=False):
-    log.info('Updating extracted features started...')
+    logger.info('Updating extracted features started...')
 
     if relloc:
         maps = filesys.read_export_file(ds, None, 'relative_location_maps')
 
     for i, im in enumerate(images):
-        log.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
 
         # load image and features
         img = filesys.read_image_file(ds, im)
@@ -191,7 +195,7 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
         # include relative location feature if requested
         if relloc:
             try:
-                log.info('Add relative location votes')
+                logger.info('Add relative location votes')
 
                 Iann = filesys.read_export_file(ds, im, 'classes')
                 meta = filesys.read_export_file(ds, im, 'meta')
@@ -212,7 +216,7 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
                 filesys.write_feature_files(
                     ds, im, features, features_in_block)
             except:
-                log.warning(
+                loglging.warning(
                     'Adding relative location votes failed, using zeros')
                 features = relativelocation.remove_features(
                     features, maps.keys())
@@ -224,13 +228,13 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
             filesys.write_export_file(ds, im, 'meta', meta, append=True)
 
         # make features scale invariant
-        log.info('Make features scale invariant')
+        logger.info('Make features scale invariant')
         features = cls.features.scaleinvariant.scale_features(img, features)
         filesys.write_feature_files(
             ds, im, features, features_in_block, ext='invariant')
 
         # linearize features
-        log.info('Linearize features')
+        logger.info('Linearize features')
         features = cls.features.linearize(features)
         features_in_block = cls.features.extend_feature_blocks(
             features, features_in_block)
@@ -238,20 +242,20 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
             ds, im, features, features_in_block, ext='linear')
 
         # get feature stats for image
-        log.info('Compute feature statistics')
+        logger.info('Compute feature statistics')
         imstats = cls.features.normalize.compute_feature_stats(features)
 
         meta = {'stats': imstats,
                 'last stats computation': time.strftime('%d-%b-%Y %H:%M')}
         filesys.write_export_file(ds, im, 'meta', meta, append=True)
 
-    log.info('Updating extracted features finished.')
+    logger.info('Updating extracted features finished.')
 
 
 def run_feature_normalization(ds, images=[], feat_blocks=[]):
-    log.info('Normalizing features started...')
+    logger.info('Normalizing features started...')
 
-    log.info('Aggregate feature statistics')
+    logger.info('Aggregate feature statistics')
     allstats = [filesys.read_export_file(
         ds, im, 'meta')['stats'] for im in images]
     stats = cls.features.normalize.aggregate_feature_stats(allstats)
@@ -261,7 +265,7 @@ def run_feature_normalization(ds, images=[], feat_blocks=[]):
     filesys.write_log_file(ds, l)
 
     for i, im in enumerate(images):
-        log.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
         stats = filesys.read_log_file(ds, keys='stats')
 
         features, features_in_block = filesys.read_feature_files(
@@ -273,11 +277,11 @@ def run_feature_normalization(ds, images=[], feat_blocks=[]):
         meta = {'last normalized': time.strftime('%d-%b-%Y %H:%M')}
         filesys.write_export_file(ds, im, 'meta', meta, append=True)
 
-    log.info('Normalizing features finished.')
+    logger.info('Normalizing features finished.')
 
 
 def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
-    log.info('Computing relative location maps started...')
+    logger.info('Computing relative location maps started...')
 
     # get image list
     images = filesys.get_image_list(ds)
@@ -289,7 +293,7 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
         if not filesys.is_classified(ds, im):
             continue
 
-        log.info('Processing image %d of %d: %s' % (k, len(images), im))
+        logger.info('Processing image %d of %d: %s' % (k, len(images), im))
 
         annotations = filesys.read_export_file(ds, im, 'classes')
         meta = filesys.read_export_file(ds, im, 'meta')
@@ -297,7 +301,7 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
         nm, nn = meta['image_resolution_cropped'][:-1]
 
         if not len(annotations) == nx * ny:
-            log.warning('Size mismatch for image %s, skipped' % im)
+            loglging.warning('Size mismatch for image %s, skipped' % im)
             continue
 
         centroids = filesys.read_feature_files(
@@ -321,11 +325,11 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
          time.strftime('%d-%b-%Y %H:%M')}
     filesys.write_log_file(ds, l)
 
-    log.info('Computing relative location maps finished.')
+    logger.info('Computing relative location maps finished.')
 
 
 def run_partitioning(ds, images=[], n_part=5, test_frac=.25):
-    log.info('Defining %d train/test partitions' % n_part)
+    logger.info('Defining %d train/test partitions' % n_part)
     images_part = _multiple_partitions(images, n_part, test_frac)
     filesys.write_log_file(ds, images_part)
 
@@ -342,7 +346,9 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_a
     dslog = filesys.read_log_file(
         ds, keys=['training images', 'testing images'])
     if not dslog:
-        log.raise_and_log('Train and test partitions not found')
+        msg = 'Train and test partitions not found'
+        logger.error(msg)
+        raise ValueError(msg)
 
     images_train = dslog['training images']
     images_test = dslog['testing images']
@@ -354,7 +360,7 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_a
 
     # aggregate classes
     if class_aggregation is not None:
-        log.info('Aggregate classes...')
+        logger.info('Aggregate classes...')
         Y = cls.utils.aggregate_classes(Y, class_aggregation)
 
     # create category list
@@ -413,7 +419,7 @@ def reinitialize_model(ds, model, class_aggregation=None):
 
     # aggregate classes
     if class_aggregation is not None:
-        log.info('Aggregate classes...')
+        logger.info('Aggregate classes...')
         Y = cls.utils.aggregate_classes(Y, class_aggregation)
 
     # construct data arrays from dataframes and partitions
@@ -438,9 +444,9 @@ def get_data(ds, images=[], feat_blocks=[]):
     if type(feat_blocks) is dict:
         feat_blocks = feat_blocks.keys()
 
-    log.info('Preparation of features and labels started...')
+    logger.info('Preparation of features and labels started...')
     for i, im in enumerate(images):
-        log.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
 
         meta = filesys.read_export_file(ds, im, 'meta')
 
@@ -459,33 +465,31 @@ def get_data(ds, images=[], feat_blocks=[]):
         classes = filesys.read_export_file(ds, im, 'classes')
         Y.append(np.asarray(classes))
 
-    log.info('Preparation of features and labels finished.')
+    logger.info('Preparation of features and labels finished.')
 
     return X, Y, X_rlp
 
 
+@printinfo
 def _segmentate(ds, im):
-
-    log.memory_usage('start segmentation')
 
     # load image
     img = filesys.read_image_file(ds, im)
-    log.memory_usage('after image load')
 
     # first segmentation step
+    # TODO: use enforce_connectivity here when skimage 0.10 is released, segments_orig can then be removed
+    # check for feature or check for version. Usually feature checking is better.
+    # if distutils.version.LooseVersion(skimage.__version__) < distutils.version.LooseVersion('0.10'):
     segments_orig = seg.superpixels.get_superpixel(
         img, n_segments=600, compactness=20, sigma=0)
-    log.memory_usage('after initial segmentation')
 
     # compute superpixel grid
     nx, ny = seg.superpixels.get_superpixel_grid(segments_orig, img.shape[:2])
 
     # fix disjoint segments
     segments = seg.postprocess.remove_disjoint(segments_orig)
-    log.memory_usage('after removing disjoint')
 
     contours = seg.superpixels.get_contours(segments)
-    log.memory_usage('after computing contours')
 
     meta = {'image_resolution_cropped': img.shape,
             'superpixel_grid': (nx, ny),
@@ -507,7 +511,7 @@ def _create_imlist(ds, images):
         if im in images_all:
             imlist.append(im)
         else:
-            log.warning('Image not found in dataset "%s": %s' % (ds, im))
+            logger.warn('Image not found in dataset "%s": %s' % (ds, im))
     return imlist
 
 
@@ -519,8 +523,9 @@ def _create_featlist(feat_blocks):
     elif feat_blocks == 'all':
         feat_blocks = allfb
     else:
-        log.raise_and_log(
-            'Features should be a list of feature block names or the keyword "all"')
+        msg = 'Features should be a list of feature block names or the keyword "all"'
+        logger.warn(msg)
+        raise ValueError(msg)
 
     return feat_blocks
 
@@ -621,3 +626,36 @@ def _split_data(ds, images, images_train, images_test, X, Y, X_rlp=[]):
             X_test_prior.append(Xi_rlp)
 
     return X_train, X_test, Y_train, Y_test, X_train_prior, X_test_prior
+
+
+def main():
+    import docopt
+
+    usage = """
+Run the classification
+
+Usage:
+    classify-images <dataset> [--segmentation] [--extract] [--update] [--verbose]
+
+Positional arguments:
+    dataset        dataset containing the images
+
+Options:
+    -h, --help      show this help message and exit
+    --segmentation  create segmentation of images
+    --extract       extract features
+    --update        update features
+    --verbose       print logging messages
+"""
+
+    arguments = docopt.docopt(usage)
+    if arguments['--verbose']:
+        logging.basicConfig()
+        logging.root.setLevel(logging.NOTSET)
+
+    run_preprocessing(
+        arguments['<dataset>'],
+        segmentation=arguments['--segmentation'],
+        feat_extract=arguments['--extract'],
+        feat_update=arguments['--update']
+    )

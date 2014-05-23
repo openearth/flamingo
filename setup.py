@@ -11,7 +11,8 @@ setup(
     install_requires=[
         'pandas',
         'numpy',
-        'docopt'
+        'docopt',
+        'psutil'
         # also opencv but that's not available on pip
     ],
     setup_requires=[
