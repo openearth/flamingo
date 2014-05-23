@@ -2,11 +2,16 @@ import os
 import re
 import time
 import cPickle as pickle
+
+from pkg_resources import Requirement, resource_filename
+
 import matplotlib.pyplot as plt
-import classification.features.blocks as feature_blocks
 import numpy as np
 
+import classification.features.blocks as feature_blocks
+
 PATH_DATASET = '/flamingo/datasets/'
+
 
 def set_dataset_path(fpath):
 
