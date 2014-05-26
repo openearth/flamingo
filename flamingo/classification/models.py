@@ -93,6 +93,59 @@ class LogisticRegressionRLP(LogisticRegression):
     def _rlp_initialized(self):
         return self.rlp_maps is not None and self.rlp_stats is not None
 
+class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
+
+    def __init__(self, model, max_iter=10000, C=1.0, check_constraints=False, verbose=0, 
+                 negativity_constraint=None, n_jobs=1, break_on_bad=False, show_loss_every=0, tol=1e-3,
+                 inference_cache=0, inactive_threshold=1e-5, inactive_window=50, logger=None, cache_tol='auto',
+                 switch_to=None, clist=None):
+        
+        super(ConditionalRandomField,self).__init__(model, max_iter=max_iter, C=C,
+                                                    check_constraints=check_constraints, verbose=verbose,
+                                                    negativity_constraint=negativity_constraint, n_jobs=n_jobs,
+                                                    break_on_bad=break_on_bad, show_loss_every=show_loss_every,
+                                                    tol=tol, inference_cache=inference_cache,
+                                                    inactive_threshold=inactive_threshold,
+                                                    inactive_window=inactive_window, logger=logger,
+                                                    cache_tol=cache_tol, switch_to=switch_to)
+
+        self.clist = clist
+
+    def fit(self,X,Y):
+        self.clist = list({c for y in Y for c in y.ravel()})
+        self.clist.sort()
+
+        Y = self._labels2int(Y)
+
+        return super(ConditionalRandomField,self).fit(X,Y)
+
+    def predict(self,X):
+        Y = super(ConditionalRandomField,self).predict(X)
+        
+        return self._int2labels(Y)
+
+    def score(self,X,Y):
+        Y = self._labels2int(Y)
+
+        return super(ConditionalRandomField,self).score(X,Y)
+
+    def _labels2int(self,Y):
+
+        for i,y in enumerate(Y):
+            for j,c in enumerate(self.clist):
+                y[y == c] = j
+        
+        return [y.astype(int, copy=False) for y in Y]
+
+    def _int2labels(self,Y):
+        
+        Ystr = [y.astype(unicode,copy=False) for y in Y]
+        for i,y in enumerate(Ystr):
+            for j,c in enumerate(self.clist):
+                y[y == str(j)] = c
+
+        return Y
+
 def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None):
     '''Returns a bare model object
 
@@ -116,7 +169,7 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
 
     '''
 
-    if rlp_maps is not None:
+    if rlp_maps is not None and model_type == 'LR_RLP':
         n_features = n_features + len(rlp_maps.keys())
 
     if model_type == 'LR':
@@ -125,7 +178,7 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
         return LogisticRegressionRLP(rlp_maps=rlp_maps, rlp_stats=rlp_stats)
     elif model_type == 'CRF':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
-        return pystruct.learners.OneSlackSSVM(crf, verbose=1, max_iter=1000000)
+        return ConditionalRandomField(crf, verbose=1, max_iter=1000000)
     else:
         raise ValueError('Unknown model type [%s]' % model_type)
 
@@ -160,7 +213,7 @@ def train_models(models, train_sets, prior_sets=None):
     for i, row in enumerate(mtx):
         for j, model in enumerate(row):
             X_train, Y_train = train_sets[j]
-            if prior_sets is not None:
+            if prior_sets is not None and type(model) == LogisticRegressionRLP:
                 train_model(model, X_train, Y_train, prior_sets[j][0])
             else:
                 train_model(model, X_train, Y_train)
