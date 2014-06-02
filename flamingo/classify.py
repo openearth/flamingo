@@ -2,6 +2,7 @@ import time
 import re
 import os
 import logging
+import json
 
 import numpy as np
 from sklearn.cross_validation import train_test_split
@@ -636,27 +637,48 @@ def main():
 Run the classification
 
 Usage:
-    classify-images <dataset> [--segmentation] [--extract] [--update] [--verbose]
+    classify-images preprocess <dataset> [--segmentate] [--extract] [--update] [--normalize] [--aggregate=FILE] [--verbose]
+    classify-images train <dataset> [--model=TYPE] [--aggregate=FILE] [--verbose]
 
 Positional arguments:
-    dataset        dataset containing the images
+    dataset           dataset containing the images
 
 Options:
-    -h, --help      show this help message and exit
-    --segmentation  create segmentation of images
-    --extract       extract features
-    --update        update features
-    --verbose       print logging messages
+    -h, --help        show this help message and exit
+    --segmentation    create segmentation of images
+    --extract         extract features
+    --update          update features
+    --normalize       normalize features
+    --model=TYPE      model type to train [default: LR]
+    --aggregate=FILE  use class aggregation from json file
+    --verbose         print logging messages
 """
 
     arguments = docopt.docopt(usage)
+
     if arguments['--verbose']:
         logging.basicConfig()
         logging.root.setLevel(logging.NOTSET)
 
-    run_preprocessing(
-        arguments['<dataset>'],
-        segmentation=arguments['--segmentation'],
-        feat_extract=arguments['--extract'],
-        feat_update=arguments['--update']
-    )
+    class_aggregation = None
+    if arguments['--aggregate'] is not None:
+        if os.path.exists(arguments['--aggregate']):
+            with open(arguments['--aggregate'], 'r') as fp:
+                class_aggregation = json.load(fp)
+
+    if arguments['preprocess']:
+        run_preprocessing(
+            arguments['<dataset>'],
+            segmentation=arguments['--segmentation'],
+            feat_extract=arguments['--extract'],
+            feat_update=arguments['--update'],
+            feat_normalize=arguments['--normalize'],
+            class_aggregation=class_aggregation
+        )
+    
+    if arguments['train']:
+        run_classification(
+            arguments['<dataset>'],
+            modtype=arguments['--model'],
+            class_aggregation=class_aggregation
+        )

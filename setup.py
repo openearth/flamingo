@@ -24,8 +24,12 @@ setup(
     ],
     test_suite='nose.collector',
     entry_points={'console_scripts': [
-        '{0} = flamingo.batch:main'.format(
-            'classify-images')
+        '{0} = flamingo.classify:main'.format(
+            'classify-images'),
+        '{0} = flamingo.rectify:main'.format(
+            'rectify-images'),
+        '{0} = flamingo.calibrate:main'.format(
+            'calibrate-camera')
     ]},
     data_files=[
         ('images', [

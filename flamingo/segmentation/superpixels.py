@@ -6,7 +6,7 @@ import numpy as np
 import pandas
 import cv2
 
-from argus2 import image
+from argus2 import plot
 
 def get_superpixel(img, method='slic', **kwargs):
     'Run segmentation algorithm'
@@ -93,7 +93,7 @@ def plot(img, img_superpix, mark_boundaries=True, shuffle=False, average=False, 
             img_superpix[boundaries] = 0
     
     # render superpixel image
-    img_superpix = image.plot.plot_image(img_superpix, slice=slice)
+    img_superpix = plot.plot_image(img_superpix, slice=slice)
     
     return img_superpix
     
@@ -113,7 +113,7 @@ def mark(img_superpix, cat=1):
     
     img = np.concatenate((img_ones,img,img,img_alpha),axis=2);
     
-    return image.plot.plot_image(img, transparent=True)
+    return plot.plot_image(img, transparent=True)
 
 def get_superpixel_grid(segments, img_shape):
     '''Return shape of superpixels grid'''
