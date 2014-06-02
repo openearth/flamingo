@@ -29,9 +29,6 @@ def run_preprocessing(ds,
                       colorspace='rgb',
                       relloc_maps=False,
                       relloc=False,
-                      forcesplit=False,
-                      test_frac=0.25,
-                      n_part=5,
                       class_aggregation=None):
     '''Batch function to preprocess a dataset'''
 
@@ -70,12 +67,24 @@ def run_preprocessing(ds,
     if feat_normalize:
         run_feature_normalization(ds, images, feat_blocks=feat_blocks)
 
+    logger.info('Preprocessing finished.')
+
+
+def run_partitioning(ds,
+                     images='all',
+                     n_part=5,
+                     test_frac=.25,
+                     forcesplit=False):
+
+    images = _create_imlist(ds, images)
+
+    logger.info('Defining %d train/test partitions' % n_part)
+
     # make train test partitions if requested
     dslog = filesys.read_log_file(ds)
     if forcesplit or not dslog.has_key('training images'):
-        run_partitioning(ds, images, n_part=n_part, test_frac=test_frac)
-
-    logger.info('Preprocessing finished.')
+        images_part = _multiple_partitions(images, n_part, test_frac)
+        filesys.write_log_file(ds, images_part)
 
 
 def run_classification(ds,
@@ -328,12 +337,6 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
     filesys.write_log_file(ds, l)
 
     logger.info('Computing relative location maps finished.')
-
-
-def run_partitioning(ds, images=[], n_part=5, test_frac=.25):
-    logger.info('Defining %d train/test partitions' % n_part)
-    images_part = _multiple_partitions(images, n_part, test_frac)
-    filesys.write_log_file(ds, images_part)
 
 
 def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_aggregation=None):
@@ -638,7 +641,9 @@ Run the classification
 
 Usage:
     classify-images preprocess <dataset> [--segmentate] [--extract] [--update] [--normalize] [--aggregate=FILE] [--verbose]
-    classify-images train <dataset> [--model=TYPE] [--aggregate=FILE] [--verbose]
+    classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
+    classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--verbose]
+    classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
 
 Positional arguments:
     dataset           dataset containing the images
@@ -649,7 +654,10 @@ Options:
     --extract         extract features
     --update          update features
     --normalize       normalize features
-    --model=TYPE      model type to train [default: LR]
+    --n=N             number of partitions [default: 5]
+    --frac=FRAC       fraction of images used for testing [default: 0.25]
+    --type=NAME       model type to train [default: LR]
+    --model=NAME      name of model to be scored
     --aggregate=FILE  use class aggregation from json file
     --verbose         print logging messages
 """
@@ -676,9 +684,24 @@ Options:
             class_aggregation=class_aggregation
         )
     
+    if arguments['partition']:
+        run_partitioning(
+            arguments['<dataset>'],
+            n_part=int(arguments['--n']),
+            test_frac=float(arguments['--frac']),
+            forcesplit=True
+        )
+    
     if arguments['train']:
         run_classification(
             arguments['<dataset>'],
-            modtype=arguments['--model'],
+            modtype=arguments['--type'],
             class_aggregation=class_aggregation
         )
+
+    if arguments['score']:
+        print run_scoring(
+            arguments['<dataset>'],
+            model=arguments['--model'],
+            class_aggregation=class_aggregation
+        ).to_string()
