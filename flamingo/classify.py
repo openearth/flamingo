@@ -5,6 +5,7 @@ import logging
 import json
 
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.cross_validation import train_test_split
 
 from flamingo import classification as cls
@@ -130,6 +131,75 @@ def run_scoring(ds, model=None, class_aggregation=None):
     logger.info('Testing of model finished.')
 
     return scores
+
+
+def run_prediction(ds, im, model=None, colorspace='rgb', blocks='all'):
+
+    if model is None:
+        model = filesys.get_model_list(ds)[-1]
+
+    if os.path.exists(im):
+        img = plt.imread(im)
+    else:
+        raise IOError('Image not found: %s' % im)
+
+    logger.info('Prediction started...')
+
+    # create feature block list
+    blocks = _create_featlist(blocks)
+
+    # segmentation
+    logger.info('Segmentate image')
+    segments_orig = seg.superpixels.get_superpixel(
+        img, n_segments=600, compactness=20, sigma=0)
+
+    # compute superpixel grid
+    nx, ny = seg.superpixels.get_superpixel_grid(segments_orig, img.shape[:2])
+
+    # fix disjoint segments
+    logger.info('Remove disjoint segments')
+    segments = seg.postprocess.remove_disjoint(segments_orig)
+
+    # add channels
+#    logger.info('Add image channels')
+#    img = channels.add_channels(img, colorspace)
+
+    # extract features
+    logger.info('Extrect features')
+    features, features_in_block = \
+        cls.features.blocks.extract_blocks(img,
+                                           segments,
+                                           colorspace=colorspace,
+                                           blocks=blocks)
+
+    # remove too large features
+    logger.info('Remove large features')
+    features = cls.features.remove_large_features(features)
+
+    # make features scale invariant
+    logger.info('Make features scale invariant')
+    features = cls.features.scaleinvariant.scale_features(img, features)
+
+    # linearize features
+    logger.info('Linearize features')
+    features = cls.features.linearize(features)
+    features_in_block = cls.features.extend_feature_blocks(
+        features, features_in_block)
+
+    # get feature stats for image
+    logger.info('Compute feature statistics')
+    stats = cls.features.normalize.compute_feature_stats(features)
+
+    # normalize features
+    logger.info('Normalize features')
+    features = cls.features.normalize.normalize_features(features, stats)
+
+    # make prediction
+    classes = model.predict(features)
+    
+    logger.info('Prediction finished.')
+
+    return classes
 
 
 @printinfo
@@ -637,16 +707,18 @@ def main():
     import docopt
 
     usage = """
-Run the classification
+Train, score and use classification models on image datasets.
 
 Usage:
     classify-images preprocess <dataset> [--segmentate] [--extract] [--update] [--normalize] [--aggregate=FILE] [--verbose]
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
     classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--verbose]
     classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
+    classify-images predict <dataset> <image> [--model=NAME] [--verbose]
 
 Positional arguments:
     dataset           dataset containing the images
+    image             image file to be classified
 
 Options:
     -h, --help        show this help message and exit
@@ -657,7 +729,7 @@ Options:
     --n=N             number of partitions [default: 5]
     --frac=FRAC       fraction of images used for testing [default: 0.25]
     --type=NAME       model type to train [default: LR]
-    --model=NAME      name of model to be scored
+    --model=NAME      name of model to be scored, uses last trained if omitted
     --aggregate=FILE  use class aggregation from json file
     --verbose         print logging messages
 """
@@ -705,3 +777,10 @@ Options:
             model=arguments['--model'],
             class_aggregation=class_aggregation
         ).to_string()
+
+    if arguments['predict']:
+        print run_prediction(
+            arguments['<dataset>'],
+            arguments['<image>'],
+            model=arguments['--model']
+        )
