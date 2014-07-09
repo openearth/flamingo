@@ -114,20 +114,12 @@ def __extract_blocks(grayscale=True, channel=False, derived_from=()):
 
             # compute feature for grayscale channel
             if grayscale:
-                if colorspace.lower() == 'rgb':
-                    gs = data.mean(-1)
-                elif colorspace.lower() == 'hsv':
-                    gs = data[..., -1]
-                else:
-                    raise ValueError(
-                        'Unsupported colorspace [%s]' % colorspace)
-
                 if type(features0) is pandas.DataFrame:
                     f0 = features0.filter(derived_from)
                 else:
                     f0 = None
 
-                features.append(f(gs,
+                features.append(f(data[:,:,0],
                                   segments,
                                   features=f0))
 

@@ -45,7 +45,7 @@ def extend_feature_blocks(features, features_in_block):
 
 def remove_large_features(features):
     for k, v in features.ix[1].iteritems():
-        if type(v) is np.ndarray:
+        if type(v) is np.ndarray or type(v) is np.ma.core.MaskedArray:
             if np.prod(v.shape) > _MAX_SIZE:
                 del features[k]
 

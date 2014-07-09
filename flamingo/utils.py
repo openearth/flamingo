@@ -8,7 +8,7 @@ def printinfo(f):
     """print before and after a function is called"""
     @wraps(f)
     def wrapper(*args, **kwds):
-        name = getattr(f, __name__)
+        name = getattr(f, '__name__')
         logger = logging.getLogger(name)
         logger.debug("available physical memory before call of {}: {}".format(
             name,

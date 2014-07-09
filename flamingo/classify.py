@@ -236,9 +236,9 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb'):
 
         # Add extra channels
         # img is now [i,j,rgb]:                   grayscale channels   extra_channels
-        # img becomes [i,j, channels] channels -> gray      (r g b)    (sigmadiff gabor)
+        # img becomes [i,j, channels] channels -> gray      (r g b)    (gabor sigmadiff)
         img = channels.add_channels(img, colorspace)
-
+        filesys.write_export_file(ds, im, 'channels', img)
 
         # extract features
         features, features_in_block = \
@@ -722,7 +722,7 @@ Positional arguments:
 
 Options:
     -h, --help        show this help message and exit
-    --segmentation    create segmentation of images
+    --segmentate      create segmentation of images
     --extract         extract features
     --update          update features
     --normalize       normalize features
@@ -749,7 +749,7 @@ Options:
     if arguments['preprocess']:
         run_preprocessing(
             arguments['<dataset>'],
-            segmentation=arguments['--segmentation'],
+            segmentation=arguments['--segmentate'],
             feat_extract=arguments['--extract'],
             feat_update=arguments['--update'],
             feat_normalize=arguments['--normalize'],

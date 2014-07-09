@@ -11,9 +11,13 @@ def add_channels(img, colorspace):
     - greyscale
     - extra channels
     """
-    assert colorspace == 'rgb', 'channels only supported for rgb for now'
-    gray = skimage.color.rgb2gray(img)
-    # add the greyscale after the colors
+    if colorspace.lower() == 'rgb':
+        gray = img.mean(-1)
+    elif colorspace.lower() == 'hsv':
+        gray = img[..., -1]
+    else:
+        raise ValueError(
+            'Unsupported colorspace [%s]' % colorspace)
 
     # create extra channels
     channels = []
@@ -31,6 +35,8 @@ def add_channels(img, colorspace):
             theta=theta
         )
         response = np.sqrt(real ** 2 + imag ** 2)
+
+        response = _normalize_channel(response,frequency,sigma,theta)
         channels.append(response)
 
     # Create relative greyishness
@@ -41,19 +47,39 @@ def add_channels(img, colorspace):
         response2 = skimage.filter.gaussian_filter(gray, sigma1 + 1)
         # create relative darkness
         response = response2 - response1
-        channels.append(response)
 
+        response = _normalize_channel(response)
+        channels.append(response)
+        
+    # Combine all channels
     allchannels = np.concatenate([
-        # color
-        img,
         # greyscale
-        gray[..., np.newaxis]
+        np.uint8(gray)[..., np.newaxis],
+        # color
+        img
     ] + [
         # other channels
         channel[..., np.newaxis]
         for channel
         in channels
     ], -1)
+
     return allchannels
 
-
+def _normalize_channel(channel, frequency=None, sigma=None, theta=None):
+    # Determine maximum possible filter response
+    if any([frequency,sigma,theta]):
+        k = skimage.filter.gabor_kernel(frequency=frequency, theta=theta, sigma_x=sigma, sigma_y=sigma)
+        resp = np.zeros(k.shape) + 255.
+        resp[np.real(k) < 0] = 0.
+        resp_real = sum(resp*np.real(k))
+        resp_imag = sum(resp*np.imag(k))
+        resp = np.sqrt(resp_real**2 + resp_imag**2)
+        maxval = resp.max()
+        minval = 0.
+    else:
+        maxval = 255.
+        minval = -255.
+    
+    # Scale channel between 0 and 255 based on maximum possible filter response
+    return np.uint8((channel-minval)/(maxval-minval)*255)
