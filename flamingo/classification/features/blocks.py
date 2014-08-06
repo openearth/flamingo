@@ -85,12 +85,13 @@ def extract_blocks(data, segments, colorspace='rgb', blocks=None):
 
         if len(done) == n:
             # nothing done, raise error
+            print e
             raise StopIteration('Cannot determine order of blocks')
 
     return features, features_in_block
 
 
-def __extract_blocks(grayscale=True, channel=False, derived_from=()):
+def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()):
     '''Feature extraction decorator.'''
     def wrapper(f):
         def extract(data, segments, features=None, colorspace='rgb', **kwargs):
@@ -121,13 +122,45 @@ def __extract_blocks(grayscale=True, channel=False, derived_from=()):
 
                 features.append(f(data[:,:,0],
                                   segments,
-                                  features=f0))
+                                  features=f0))  
 
-            # compute feature for each channel individually
+            # compute feature for each color channel individually
+            if color:
+
+                df_sum = None
+                for i in np.arange(3)+1:
+                    if type(features0) is pandas.DataFrame:
+                        f0 = features0.filter(['%s.%d' % (x, i) if '%s.%d' % (x, i) in features0.keys() else x for x in derived_from]) \
+                                      .rename(columns=lambda x: re.sub('\.\d+$', '', x))
+                    else:
+                        f0 = None
+
+                    df = f(data[..., i],
+                           segments,
+                           features=f0)
+
+                    # incremental sum of all channel values
+
+                    if df_sum is None:
+                        df_sum = df.copy()
+                    else:
+                        df_sum += df
+
+                    # add channel index to column name
+                    df.columns = ['%s.%d' % (x, i) for x in df.columns]
+
+                    features.append(df)
+
+                df_sum.columns = ['%s.sum' % x for x in df_sum.columns]
+
+                features.append(df_sum)
+
+
+            # compute feature for each additional channel individually
             if channel:
 
                 df_sum = None
-                for i in range(data.shape[-1]):
+                for i in np.arange(data.shape[-1] - 4) + 4:
                     if type(features0) is pandas.DataFrame:
                         f0 = features0.filter(['%s.%d' % (x, i) if '%s.%d' % (x, i) in features0.keys() else x for x in derived_from]) \
                                       .rename(columns=lambda x: re.sub('\.\d+$', '', x))
@@ -176,7 +209,7 @@ def _empty_block_frame(block, n=1, columns=[], data=None, fill_value=np.empty((0
     return df
 
 
-@__extract_blocks(grayscale=True, channel=False)
+@__extract_blocks(grayscale=True, color=False, channel=False)
 def extract_blocks_pixel(data, segments, **kwargs):
 
     regionprops = skimage.measure.regionprops(
@@ -190,7 +223,7 @@ def extract_blocks_pixel(data, segments, **kwargs):
     return df
 
 
-@__extract_blocks(grayscale=False, channel=True)
+@__extract_blocks(grayscale=True, color=True, channel=True)
 def extract_blocks_intensity(data, segments, **kwargs):
 
     regionprops = skimage.measure.regionprops(
@@ -204,7 +237,7 @@ def extract_blocks_intensity(data, segments, **kwargs):
     return df
 
 
-@__extract_blocks(grayscale=True, channel=False, derived_from=['area', 'centroid', 'perimeter', 'convex_area'])
+@__extract_blocks(grayscale=True, color=False, channel=False, derived_from=['area', 'centroid', 'perimeter', 'convex_area'])
 def extract_blocks_shape(data, segments, features=[], **kwargs):
 
     df = _empty_block_frame('shape', np.max(
@@ -230,10 +263,10 @@ def extract_blocks_shape(data, segments, features=[], **kwargs):
     return df
 
 
-@__extract_blocks(grayscale=True, channel=True, derived_from=['bbox', 'image'])
+@__extract_blocks(grayscale=True, color=False, channel=False, derived_from=['bbox', 'image'])
 def extract_blocks_mask(data, segments, features=[], **kwargs):
 
-    df = _empty_block_frame('mask', np.max(segments) + 1, ['image_masked'])
+    df = _empty_block_frame('mask', np.max(segments) + 1, ['image_masked','image_masked.sum'])
 
     for i, feature in features.iterrows():
 
@@ -247,10 +280,12 @@ def extract_blocks_mask(data, segments, features=[], **kwargs):
         df.ix[i, 'image_masked'] = np.ma.masked_array(
             data[minn:maxn, minm:maxm], mask=mask)
 
+        df.ix[i, 'image_masked.sum'] = df.ix[i, 'image_masked'].sum()
+
     return df
 
 
-@__extract_blocks(grayscale=True, channel=True, derived_from=['image_masked'])
+@__extract_blocks(grayscale=True, color=True, channel=False, derived_from=['image_masked'])
 def extract_blocks_grey(data,
                         segments,
                         features=[],
@@ -273,7 +308,7 @@ def extract_blocks_grey(data,
     return df
 
 
-@__extract_blocks(grayscale=True, channel=True, derived_from=['image_masked', 'image_masked.sum'])
+@__extract_blocks(grayscale=True, color=True, channel=False, derived_from=['image_masked', 'image_masked.sum'])
 def extract_blocks_intensitystatistics(data, segments, features=[], histogram_bins=5, **kwargs):
 
     df = _empty_block_frame('intensitystatistics', np.max(

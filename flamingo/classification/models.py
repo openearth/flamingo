@@ -93,6 +93,20 @@ class LogisticRegressionRLP(LogisticRegression):
     def _rlp_initialized(self):
         return self.rlp_maps is not None and self.rlp_stats is not None
 
+class SupportVectorMachine(sklearn.svm.LinearSVC):
+
+    def fit(self, X, Y):
+        X, Y = linearize_data(X, Y)
+        return super(SupportVectorMachine, self).fit(X, Y)
+
+    def predict(self, X):
+        X = linearize_data(X)
+        return super(SupportVectorMachine, self).predict(X)
+
+    def score(self, X, Y):
+        Y = linearize_data(Y=Y)
+        return super(SupportVectorMachine, self).score(X, Y)
+
 class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
 
     def __init__(self, model, max_iter=10000, C=1.0, check_constraints=False, verbose=0, 
@@ -153,7 +167,7 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
     ----------
     model_type : string, optional
         String indicating the type of model to be constructed.
-        LR = Linear Regressor (default), CRF = Conditional Random Field
+        LR = Logistic Regressor (default), LR_RLP = Logistic Regressor with Relative Location Prior, SVM = Support Vector Machine, CRF = Conditional Random Field
     
     Returns
     -------
@@ -176,6 +190,8 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
         return LogisticRegression()
     elif model_type == 'LR_RLP':
         return LogisticRegressionRLP(rlp_maps=rlp_maps, rlp_stats=rlp_stats)
+    elif model_type == 'SVM':
+        return SupportVectorMachine()
     elif model_type == 'CRF':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
         return ConditionalRandomField(crf, verbose=1, max_iter=1000000)

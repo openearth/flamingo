@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 def run_preprocessing(ds,
                       images='all',
                       segmentation=False,
+                      channel_stats=False,
                       feat_extract=False,
                       feat_update=False,
                       feat_normalize=False,
@@ -48,6 +49,10 @@ def run_preprocessing(ds,
     # segmentation
     if segmentation:
         run_segmentation(ds, images)
+        
+    # channel normalization
+    if channel_stats:
+        run_channel_statistics(ds,images)
 
     # feature extraction first part
     if feat_extract:
@@ -214,6 +219,18 @@ def run_segmentation(ds, images=[]):
         filesys.write_export_file(ds, im, 'contours', contours)
     logger.info('Segmentation finished.')
 
+def run_channel_statistics(ds,images=[]):
+    logger.info('Channel statistics computation started...')
+    channelstats = [{'max': 0., 'min': 255.} for i in range(channels.get_number_channels())]
+    for i,im in enumerate(images):
+        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
+        img = filesys.read_image_file(ds,im)
+        img = channels.add_channels(img, 'rgb')
+        channelstats = [{'max': np.max([channelstats[j]['max'],img[:,:,j+4].max()]), 'min': np.min([channelstats[j]['min'],img[:,:,j+4].min()])} for j in range(img.shape[-1] - 4)]
+    
+    filesys.write_log_file(ds, {'channelstats': channelstats})
+    logger.info('Channel statistics computation finished.')
+
 
 def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb'):
     logger.info('Feature extraction started...')
@@ -223,21 +240,26 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb'):
         segments = filesys.read_export_file(ds, im, 'segments')
 
         if segments is None:
-            loglging.warning('No segmentation found for image: %s' % im)
+            logging.warning('No segmentation found for image: %s' % im)
             continue
 
         meta = filesys.read_export_file(ds, im, 'meta')
         if meta['superpixel_grid_error']:
-            loglging.warning('Invalid sedmentation found for image: %s' % im)
+            logging.warning('Invalid sedmentation found for image: %s' % im)
             continue
 
         # load image
         img = filesys.read_image_file(ds, im)
 
         # Add extra channels
+        channelstats = filesys.read_log_file(ds,'channelstats')
+        if not channelstats:
+            logger.info('Using theoretical channel boundaries for normalization.')
+            channelstats = channels.get_channel_bounds()
+
         # img is now [i,j,rgb]:                   grayscale channels   extra_channels
         # img becomes [i,j, channels] channels -> gray      (r g b)    (gabor sigmadiff)
-        img = channels.add_channels(img, colorspace)
+        img = channels.add_channels(img, colorspace, channelstats)
         filesys.write_export_file(ds, im, 'channels', img)
 
         # extract features
@@ -297,7 +319,7 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
                 filesys.write_feature_files(
                     ds, im, features, features_in_block)
             except:
-                loglging.warning(
+                logging.warning(
                     'Adding relative location votes failed, using zeros')
                 features = relativelocation.remove_features(
                     features, maps.keys())
@@ -382,7 +404,7 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
         nm, nn = meta['image_resolution_cropped'][:-1]
 
         if not len(annotations) == nx * ny:
-            loglging.warning('Size mismatch for image %s, skipped' % im)
+            logging.warning('Size mismatch for image %s, skipped' % im)
             continue
 
         centroids = filesys.read_feature_files(
@@ -710,7 +732,7 @@ def main():
 Train, score and use classification models on image datasets.
 
 Usage:
-    classify-images preprocess <dataset> [--segmentate] [--extract] [--update] [--normalize] [--aggregate=FILE] [--verbose]
+    classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--aggregate=FILE] [--verbose]
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
     classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--verbose]
     classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
@@ -723,9 +745,12 @@ Positional arguments:
 Options:
     -h, --help        show this help message and exit
     --segmentate      create segmentation of images
+    --channelstats    compute channel statistics for normalization
     --extract         extract features
     --update          update features
     --normalize       normalize features
+    --relloc          include relative location features
+    --relloc_maps     compute new relative location maps
     --n=N             number of partitions [default: 5]
     --frac=FRAC       fraction of images used for testing [default: 0.25]
     --type=NAME       model type to train [default: LR]
@@ -750,9 +775,12 @@ Options:
         run_preprocessing(
             arguments['<dataset>'],
             segmentation=arguments['--segmentate'],
+            channel_stats=arguments['--channelstats'],
             feat_extract=arguments['--extract'],
             feat_update=arguments['--update'],
             feat_normalize=arguments['--normalize'],
+            relloc=arguments['--relloc'],
+            relloc_maps=arguments['--relloc_maps'],
             class_aggregation=class_aggregation
         )
     

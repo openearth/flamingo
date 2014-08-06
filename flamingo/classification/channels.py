@@ -3,12 +3,16 @@ from itertools import product
 import numpy as np
 import skimage.color
 
+_FREQS = np.arange(0.05, 0.30, 0.1)
+_SIGMAS = [3, 5, 7]
+_SIGMA1 = range(1, 21, 7)
+_THETAS = np.arange(0, np.pi, 0.25*np.pi)
 
-def add_channels(img, colorspace):
+def add_channels(img, colorspace, channelstats=None):
     """add channels to an image.
     Channels are:
-    - 0:2/3 colorspace
-    - greyscale
+    - 0: greyscale
+    - 1,2,3: colorspace
     - extra channels
     """
     if colorspace.lower() == 'rgb':
@@ -23,32 +27,35 @@ def add_channels(img, colorspace):
     channels = []
 
     # Create a set of gabor kernels and apply them
-    frequencies = np.arange(0.05, 0.30, 0.1)
-    sigmas = [3, 5, 7]
-    thetas = np.arange(0, np.pi, 0.25*np.pi)
-    for frequency, sigma, theta in product(frequencies, sigmas, thetas):
-        real, imag = skimage.filter.gabor_filter(
-            gray,
-            frequency=frequency,
-            sigma_x=sigma,
-            sigma_y=sigma,
-            theta=theta
-        )
-        response = np.sqrt(real ** 2 + imag ** 2)
+    for i,(frequency, sigma) in enumerate(product(_FREQS,_SIGMAS)):
+        response = []
+        for theta in _THETAS:
+            real, imag = skimage.filter.gabor_filter(
+                gray,
+                frequency=frequency,
+                sigma_x=sigma,
+                sigma_y=sigma,
+                theta=theta
+                )
+            response.append(np.sqrt(real ** 2 + imag ** 2))
+        
+        response = np.array(response).max(axis=0)
 
-        response = _normalize_channel(response,frequency,sigma,theta)
+        if channelstats:
+            response = _normalize_channel(response, channelstats[i])
         channels.append(response)
 
     # Create relative greyishness
-    for sigma1 in range(1, 21, 7):
+    for i,sigma1 in enumerate(_SIGMA1):
         # blur
         response1 = skimage.filter.gaussian_filter(gray, sigma1)
         # blur on a higher level
         response2 = skimage.filter.gaussian_filter(gray, sigma1 + 1)
         # create relative darkness
         response = response2 - response1
-
-        response = _normalize_channel(response)
+        
+        if channelstats:
+            response = _normalize_channel(response,channelstats[i + len(_FREQS)*len(_SIGMAS)])
         channels.append(response)
         
     # Combine all channels
@@ -66,20 +73,24 @@ def add_channels(img, colorspace):
 
     return allchannels
 
-def _normalize_channel(channel, frequency=None, sigma=None, theta=None):
-    # Determine maximum possible filter response
-    if any([frequency,sigma,theta]):
-        k = skimage.filter.gabor_kernel(frequency=frequency, theta=theta, sigma_x=sigma, sigma_y=sigma)
+def get_channel_bounds():
+    channelstats = [{'min': 0., 'max': []} for i in range(len(_FREQS)*len(_SIGMAS))]
+    for i,(frequency,sigma) in enumerate(product(_FREQS,_SIGMAS)):
+        k = skimage.filter.gabor_kernel(frequency=frequency,theta=0, sigma_x=sigma, sigma_y=sigma)
         resp = np.zeros(k.shape) + 255.
         resp[np.real(k) < 0] = 0.
         resp_real = sum(resp*np.real(k))
         resp_imag = sum(resp*np.imag(k))
         resp = np.sqrt(resp_real**2 + resp_imag**2)
-        maxval = resp.max()
-        minval = 0.
-    else:
-        maxval = 255.
-        minval = -255.
+        channelstats[i]['max'] = resp.max()
     
-    # Scale channel between 0 and 255 based on maximum possible filter response
-    return np.uint8((channel-minval)/(maxval-minval)*255)
+    channelstats.append([{'min':-255.,'max':255.},{'min':-255.,'max':255.},{'min':-255.,'max':255.}])
+
+    return channelstats
+
+def get_number_channels():
+    return len(_FREQS)*len(_SIGMAS) + len(_SIGMA1)
+
+def _normalize_channel(channel, channelstats):
+    # Scale channel to uint8 based on maximum possible filter response
+    return np.uint8((channel-channelstats['min'])/(channelstats['max']-channelstats['min'])*255)
