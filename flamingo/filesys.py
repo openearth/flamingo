@@ -176,7 +176,6 @@ def write_model_files(ds, models, meta, ext=''):
     if len(ext) > 0 and not ext.startswith('.'):
         ext = '.%s' % ext
     for i, model in enumerate(models):
-
         for j in range(len(model)):
             write_model_file(ds, model[j], meta[i][j], ext='.%d%s' % (j, ext))
 

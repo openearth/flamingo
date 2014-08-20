@@ -85,7 +85,6 @@ def extract_blocks(data, segments, colorspace='rgb', blocks=None):
 
         if len(done) == n:
             # nothing done, raise error
-            print e
             raise StopIteration('Cannot determine order of blocks')
 
     return features, features_in_block

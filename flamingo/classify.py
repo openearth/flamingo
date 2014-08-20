@@ -97,7 +97,8 @@ def run_classification(ds,
                        images='all',
                        feat_blocks='all',
                        modtype='LR',
-                       class_aggregation=None):
+                       class_aggregation=None,
+                       partition_start=0):
     ''' Batch function to train and test a PGM with multiple train_test partitions '''
 
     logger.info('Classification started for dataset "%s"...' % ds)
@@ -111,12 +112,15 @@ def run_classification(ds,
                                                                         images,
                                                                         feat_blocks,
                                                                         modtype=modtype,
-                                                                        class_aggregation=class_aggregation)
+                                                                        class_aggregation=class_aggregation,
+                                                                        partition_start=partition_start)
     logger.info('Preparation of models, train and test sets finished.')
 
     # fit models
+    # TODO: add partition_start
     logger.info('Fitting of models started...')
-    models = cls.models.train_models(models, train_sets, prior_sets)
+    models = cls.models.train_models(models, train_sets, prior_sets,
+                                     callback=lambda m,(i,j): filesys.write_model_file(ds, m, meta[i][j], ext='.%d.backup' % (partition_start + j)))
     filesys.write_model_files(ds, models, meta)
     logger.info('Fitting of models finished.')
 
@@ -431,7 +435,8 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
     logger.info('Computing relative location maps finished.')
 
 
-def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_aggregation=None):
+def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
+                      class_aggregation=None, partition_start=0):
 
     # create image list
     images = _create_imlist(ds, images)
@@ -491,7 +496,8 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_a
                                                            images_test,
                                                            X,
                                                            Y,
-                                                           X_rlp)
+                                                           X_rlp,
+                                                           partition_start=partition_start)
 
     # collect meta information
     meta = [[{'dataset': ds,
@@ -501,7 +507,7 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR', class_a
               'feature_blocks':[re.sub('^extract_blocks_', '', x) for x in feat_blocks.keys()],
               'features':list(X[0].columns),
               'classes':list(classes),
-              'model_type':m} for i in range(len(images_train))] for m in modtype]
+              'model_type':m} for i in range(partition_start, len(images_train))] for m in modtype]
 
     return models, meta, train_sets, test_sets, prior_sets
 
@@ -664,12 +670,12 @@ def _multiple_partitions(images, n_part=5, test_frac=0.25):
     return {'training images': images_train, 'testing images': images_test}
 
 
-def _features_to_input(ds, images, images_train, images_test, X, Y, X_rlp=[]):
+def _features_to_input(ds, images, images_train, images_test, X, Y, X_rlp=[], partition_start=0):
 
     train_sets = []
     test_sets = []
     prior_sets = []
-    for i in range(len(images_train)):
+    for i in range(partition_start, len(images_train)):
 
         X_train, X_test, \
             Y_train, Y_test, \
@@ -734,7 +740,7 @@ Train, score and use classification models on image datasets.
 Usage:
     classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--aggregate=FILE] [--verbose]
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
-    classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--verbose]
+    classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--partition=N] [--verbose]
     classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
     classify-images predict <dataset> <image> [--model=NAME] [--verbose]
 
@@ -754,6 +760,7 @@ Options:
     --n=N             number of partitions [default: 5]
     --frac=FRAC       fraction of images used for testing [default: 0.25]
     --type=NAME       model type to train [default: LR]
+    --partition=N     start training at this partition [default: 0]
     --model=NAME      name of model to be scored, uses last trained if omitted
     --aggregate=FILE  use class aggregation from json file
     --verbose         print logging messages
@@ -796,7 +803,8 @@ Options:
         run_classification(
             arguments['<dataset>'],
             modtype=arguments['--type'],
-            class_aggregation=class_aggregation
+            class_aggregation=class_aggregation,
+            partition_start=partition_start
         )
 
     if arguments['score']:

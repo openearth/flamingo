@@ -128,6 +128,7 @@ class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
     def fit(self,X,Y):
         self.clist = list({c for y in Y for c in y.ravel()})
         self.clist.sort()
+        print self.clist
 
         Y = self._labels2int(Y)
 
@@ -198,7 +199,7 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
     else:
         raise ValueError('Unknown model type [%s]' % model_type)
 
-def train_models(models, train_sets, prior_sets=None):
+def train_models(models, train_sets, prior_sets=None, callback=None):
     '''Trains a set of model against a series of training sets
 
     Parameters
@@ -211,6 +212,15 @@ def train_models(models, train_sets, prior_sets=None):
             while each column is a feature.
         The second item in a tuple is an array containing class annotations for each
             training instance.
+    prior_sets: list
+        List of 2D arrays containing prior data.
+        Similar to first tuple item in train_sets
+        Each item is a 2D array. Each row is a training instance,
+            while each column is a feature.
+    callback: function
+        Callback function that is called after training of a model finished.
+        Function accepts two parameters: the model object and a tuple with location
+            indices in the resulting model matrix.
 
     Returns
     -------
@@ -233,6 +243,10 @@ def train_models(models, train_sets, prior_sets=None):
                 train_model(model, X_train, Y_train, prior_sets[j][0])
             else:
                 train_model(model, X_train, Y_train)
+
+            # callback after training
+            if callback is not None:
+                callback(model, (i,j))
 
     return mtx
 
