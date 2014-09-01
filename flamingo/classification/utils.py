@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import logging
 
 def linearize_data(X=None, Y=None):
 
@@ -27,7 +28,7 @@ def aggregate_classes(Y, aggregation=None):
                 for i in range(len(Y)):
                     Y[i] = aggregate_classes(Y[i], aggregation)
             except:
-                print "Unexpected aggregation error:", sys.exc_info()[0].message
+                logging.error('Unexpected aggregation error')
         elif type(Y) is np.ndarray:
             try:
                 if np.all([type(y) is np.ndarray for y in Y]):
@@ -38,9 +39,9 @@ def aggregate_classes(Y, aggregation=None):
                         for vi in v:
                             Y[np.where(Y == vi)] = k
             except:
-                print "Unexpected aggregation error:", sys.exc_info()[0].message
+                logging.error('Unexpected aggregation error')
         else:
-            print "Unexpected type found for Y during class aggregation"
+            logging.warn('Unexpected type found for Y during class aggregation')
     return Y
 
 def get_classes(Y):

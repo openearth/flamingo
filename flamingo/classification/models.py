@@ -48,15 +48,14 @@ class LogisticRegressionRLP(LogisticRegression):
         shp = X.shape[:2]
         X = self.compute_rlp_features(X)
         Y = super(LogisticRegressionRLP, self).predict(X)
-        with open('/flamingo/debug/%d_final.pkl' % self.n,'wb') as fp:
+        with open('/flamingo/debug/%d_final.pkl' % self.n,'wb') as fp: # BAS: WHAT THE HELL IS THIS ?!?!
             pickle.dump(Y.reshape(shp), fp)
         return Y
 
     def score(self, X, Y):
         scores = []
         for Xi, Yi in zip(X, Y):
-            print self.n
-            with open('/flamingo/debug/%d_annotated.pkl' % self.n,'wb') as fp:
+            with open('/flamingo/debug/%d_annotated.pkl' % self.n,'wb') as fp: # BAS: OH, SYSTEMATIC BULLSHIT...
                 pickle.dump(Yi, fp)
             scores.append(super(LogisticRegressionRLP, self).score(Xi, Yi))
             self.n += 1
@@ -71,12 +70,12 @@ class LogisticRegressionRLP(LogisticRegression):
 
             # first prediction round
             Y = super(LogisticRegressionRLP, self).predict(X_ext).reshape(X.shape[:-1])
-            with open('/flamingo/debug/%d_firstprediction.pkl' % self.n,'wb') as fp:
+            with open('/flamingo/debug/%d_firstprediction.pkl' % self.n,'wb') as fp: # BAS: SHOW ME THE WAY TO THE NEXT DEBUG FLAG
                 pickle.dump(Y, fp)
 
             # voting based on first prediction round and relative location prior
             votes, ivote = relativelocation.vote_image(Y, self.rlp_maps)
-            with open('/flamingo/debug/%d_votes.pkl' % self.n,'wb') as fp:
+            with open('/flamingo/debug/%d_votes.pkl' % self.n,'wb') as fp: # BAS: REALLY? REALLY, REALLY, REALLY?
                 pickle.dump(ivote, fp)
 
             # translate voted probabilities to relative location features
@@ -125,41 +124,44 @@ class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
 
         self.clist = clist
 
-    def fit(self,X,Y):
+    def fit(self, X, Y):
         self.clist = list({c for y in Y for c in y.ravel()})
         self.clist.sort()
-        print self.clist
+
+        X = X[:2]
+        Y = Y[:2]
 
         Y = self._labels2int(Y)
 
         return super(ConditionalRandomField,self).fit(X,Y)
 
-    def predict(self,X):
+    def predict(self, X):
         Y = super(ConditionalRandomField,self).predict(X)
         
         return self._int2labels(Y)
 
-    def score(self,X,Y):
+    def score(self, X, Y):
         Y = self._labels2int(Y)
 
         return super(ConditionalRandomField,self).score(X,Y)
 
-    def _labels2int(self,Y):
+    def _labels2int(self, Y):
 
-        for i,y in enumerate(Y):
-            for j,c in enumerate(self.clist):
+        Yint = Y.copy()
+        for i, y in enumerate(Yint):
+            for j, c in enumerate(self.clist):
                 y[y == c] = j
         
-        return [y.astype(int, copy=False) for y in Y]
+        return [y.astype(int, copy=False) for y in Yint]
 
-    def _int2labels(self,Y):
+    def _int2labels(self, Y):
         
-        Ystr = [y.astype(unicode,copy=False) for y in Y]
-        for i,y in enumerate(Ystr):
-            for j,c in enumerate(self.clist):
-                y[y == str(j)] = c
+        Ystr = Y.copy()
+        for i, y in enumerate(Y):
+            for j, c in enumerate(self.clist):
+                Ystr[i][y == j] = c
 
-        return Y
+        return Ystr
 
 def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None):
     '''Returns a bare model object

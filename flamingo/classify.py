@@ -769,7 +769,7 @@ Options:
     arguments = docopt.docopt(usage)
 
     if arguments['--verbose']:
-        logging.basicConfig()
+        logging.basicConfig(format='%(asctime)-15s %(name)-8s %(levelname)-8s %(message)s')
         logging.root.setLevel(logging.NOTSET)
 
     class_aggregation = None
@@ -804,7 +804,7 @@ Options:
             arguments['<dataset>'],
             modtype=arguments['--type'],
             class_aggregation=class_aggregation,
-            partition_start=partition_start
+            partition_start=int(arguments['--partition'])
         )
 
     if arguments['score']:
