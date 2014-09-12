@@ -14,6 +14,7 @@ from flamingo import filesys
 from flamingo.utils import printinfo
 from flamingo.classification import channels
 from flamingo.classification.features import relativelocation
+from flamingo.classification import plot
 
 
 # initialize log
@@ -117,7 +118,6 @@ def run_classification(ds,
     logger.info('Preparation of models, train and test sets finished.')
 
     # fit models
-    # TODO: add partition_start
     logger.info('Fitting of models started...')
     models = cls.models.train_models(models, train_sets, prior_sets,
                                      callback=lambda m,(i,j): filesys.write_model_file(ds, m, meta[i][j], ext='.%d.backup' % (partition_start + j)))
@@ -147,66 +147,18 @@ def run_prediction(ds, im, model=None, colorspace='rgb', blocks='all'):
     if model is None:
         model = filesys.get_model_list(ds)[-1]
 
-    if os.path.exists(im):
-        img = plt.imread(im)
-    else:
-        raise IOError('Image not found: %s' % im)
+    model = filesys.read_model_file(ds, model)[0]
 
-    logger.info('Prediction started...')
-
-    # create feature block list
     blocks = _create_featlist(blocks)
 
-    # segmentation
-    logger.info('Segmentate image')
-    segments_orig = seg.superpixels.get_superpixel(
-        img, n_segments=600, compactness=20, sigma=0)
+    X = get_data(ds,
+                 [im],
+                 feat_blocks=blocks)[0][0]
 
-    # compute superpixel grid
-    nx, ny = seg.superpixels.get_superpixel_grid(segments_orig, img.shape[:2])
+    shp = filesys.read_export_file(ds, im, 'meta')['superpixel_grid']
+    X = np.asarray(X).reshape((shp[0], shp[1], -1))
 
-    # fix disjoint segments
-    logger.info('Remove disjoint segments')
-    segments = seg.postprocess.remove_disjoint(segments_orig)
-
-    # add channels
-#    logger.info('Add image channels')
-#    img = channels.add_channels(img, colorspace)
-
-    # extract features
-    logger.info('Extrect features')
-    features, features_in_block = \
-        cls.features.blocks.extract_blocks(img,
-                                           segments,
-                                           colorspace=colorspace,
-                                           blocks=blocks)
-
-    # remove too large features
-    logger.info('Remove large features')
-    features = cls.features.remove_large_features(features)
-
-    # make features scale invariant
-    logger.info('Make features scale invariant')
-    features = cls.features.scaleinvariant.scale_features(img, features)
-
-    # linearize features
-    logger.info('Linearize features')
-    features = cls.features.linearize(features)
-    features_in_block = cls.features.extend_feature_blocks(
-        features, features_in_block)
-
-    # get feature stats for image
-    logger.info('Compute feature statistics')
-    stats = cls.features.normalize.compute_feature_stats(features)
-
-    # normalize features
-    logger.info('Normalize features')
-    features = cls.features.normalize.normalize_features(features, stats)
-
-    # make prediction
-    classes = model.predict(features)
-    
-    logger.info('Prediction finished.')
+    classes = model.predict([X])[0]
 
     return classes
 
@@ -222,6 +174,7 @@ def run_segmentation(ds, images=[]):
         filesys.write_export_file(ds, im, 'segments', segments)
         filesys.write_export_file(ds, im, 'contours', contours)
     logger.info('Segmentation finished.')
+
 
 def run_channel_statistics(ds,images=[]):
     logger.info('Channel statistics computation started...')
@@ -528,10 +481,8 @@ def reinitialize_model(ds, model, class_aggregation=None):
     # construct data arrays from dataframes and partitions
     train_sets, test_sets, prior_sets = _features_to_input(ds,
                                                            meta['images'],
-                                                           [meta[
-                                                               'images_train']],
-                                                           [meta[
-                                                               'images_test']],
+                                                           [meta['images_train']],
+                                                           [meta['images_test']],
                                                            X,
                                                            Y,
                                                            X_rlp)
@@ -815,8 +766,20 @@ Options:
         ).to_string()
 
     if arguments['predict']:
-        print run_prediction(
+        Y = run_prediction(
             arguments['<dataset>'],
             arguments['<image>'],
             model=arguments['--model']
         )
+
+        fig, axs = plot.plot_prediction(arguments['<dataset>'],
+                                        arguments['<image>'],
+                                        Y)
+
+        plot.save_figure(fig,
+                         arguments['<image>'],
+                         ext='.classes',
+                         figsize=(1.30*1392, 1.30*1024))
+        
+
+

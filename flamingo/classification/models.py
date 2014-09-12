@@ -128,40 +128,26 @@ class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
         self.clist = list({c for y in Y for c in y.ravel()})
         self.clist.sort()
 
-        X = X[:2]
-        Y = Y[:2]
+        Y = labels2int(Y, self.clist)
 
-        Y = self._labels2int(Y)
-
-        return super(ConditionalRandomField,self).fit(X,Y)
+        return super(ConditionalRandomField,self).fit(X, Y)
 
     def predict(self, X):
         Y = super(ConditionalRandomField,self).predict(X)
         
-        return self._int2labels(Y)
+        return int2labels(Y, self.clist)
 
     def score(self, X, Y):
-        Y = self._labels2int(Y)
+        # FIXME
+        #Y = labels2int(Y)
+        #return super(ConditionalRandomField,self).score(X, Y)
 
-        return super(ConditionalRandomField,self).score(X,Y)
+        m = []
+        for Xi, Yi in zip(X, Y):
+            m.append(float(np.sum(Yi == self.predict([Xi]))) / np.prod(Yi.shape))
 
-    def _labels2int(self, Y):
+        return np.mean(m)
 
-        Yint = Y.copy()
-        for i, y in enumerate(Yint):
-            for j, c in enumerate(self.clist):
-                y[y == c] = j
-        
-        return [y.astype(int, copy=False) for y in Yint]
-
-    def _int2labels(self, Y):
-        
-        Ystr = Y.copy()
-        for i, y in enumerate(Y):
-            for j, c in enumerate(self.clist):
-                Ystr[i][y == j] = c
-
-        return Ystr
 
 def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None):
     '''Returns a bare model object

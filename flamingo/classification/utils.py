@@ -16,8 +16,10 @@ def linearize_data(X=None, Y=None):
     elif Y is not None:
         return Y
 
+
 def delinearize_data(Y, X):
     return [Yi.reshape(Xi.shape[:2]) for Xi, Yi in zip(X, Y)]
+
 
 def aggregate_classes(Y, aggregation=None):
     if aggregation is not None:
@@ -28,7 +30,7 @@ def aggregate_classes(Y, aggregation=None):
                 for i in range(len(Y)):
                     Y[i] = aggregate_classes(Y[i], aggregation)
             except:
-                logging.error('Unexpected aggregation error')
+                logging.error('Unexpected aggregation error (list)')
         elif type(Y) is np.ndarray:
             try:
                 if np.all([type(y) is np.ndarray for y in Y]):
@@ -39,10 +41,11 @@ def aggregate_classes(Y, aggregation=None):
                         for vi in v:
                             Y[np.where(Y == vi)] = k
             except:
-                logging.error('Unexpected aggregation error')
+                logging.error('Unexpected aggregation error (numpy)')
         else:
             logging.warn('Unexpected type found for Y during class aggregation')
     return Y
+
 
 def get_classes(Y):
     classes = []
@@ -58,23 +61,6 @@ def get_classes(Y):
 
     return classes
 
-def save_figure(fig, filename, ext=''):
-    '''Save figure to file
-
-    Parameters
-    ----------
-    fig : object
-        Figure object
-    filename : string
-        Path to output file
-    ext : string, optional
-        String to be added to the filename before the file extension
-
-    '''
-
-    if filename is not None:
-        filename = re.sub('\..+$', ext + '\g<0>', filename)
-        fig.savefig(filename)
 
 def check_sets(train_sets, test_sets, models=None):
     '''Checks if train sets, test sets and models have matching dimensions
@@ -97,3 +83,29 @@ def check_sets(train_sets, test_sets, models=None):
     if models is not None:
         if np.any([len(x) < len(train_sets) for x in models]):
             raise ValueError('Not as many models as training sets defined')
+
+
+def labels2int(Y, classes=None):
+
+    if classes is None:
+        classes = np.unique(linearize_data(Y=Y))
+
+    Yint = [(np.zeros(y.shape)-1).astype(int, copy=True) for y in Y]
+    for i, y in enumerate(Y):
+        for j, c in enumerate(classes):
+            Yint[i][y == c] = j
+        
+    return np.asarray(Yint)
+
+
+def int2labels(Y, classes=None):
+
+    if classes is None:
+        classes = np.unique(linearize_data(Y=Y))
+
+    Ystr = [y.astype(unicode, copy=True) for y in Y]
+    for i, y in enumerate(Y):
+        for j, c in enumerate(classes):
+            Ystr[i][y == j] = c
+            
+    return np.asarray(Ystr)
