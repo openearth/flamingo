@@ -149,6 +149,41 @@ class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
         return np.mean(m)
 
 
+class ConditionalRandomFieldPerceptron(pystruct.learners.StructuredPerceptron):
+
+    def __init__(self, model, max_iter=100, verbose=0, batch=False, decay_exponent=0., decay_t0=0., average=False, clist=None):
+        
+        super(ConditionalRandomFieldPerceptron, self).__init__(model, max_iter=max_iter, verbose=verbose,
+                                                               batch=batch, decay_exponent=decay_exponent,
+                                                               decay_t0=decay_t0, average=average)
+
+        self.clist = clist
+
+    def fit(self, X, Y):
+        self.clist = list({c for y in Y for c in y.ravel()})
+        self.clist.sort()
+
+        Y = labels2int(Y, self.clist)
+
+        return super(ConditionalRandomFieldPerceptron, self).fit(X, Y)
+
+    def predict(self, X):
+        Y = super(ConditionalRandomFieldPerceptron, self).predict(X)
+        
+        return int2labels(Y, self.clist)
+
+    def score(self, X, Y):
+        # FIXME
+        #Y = labels2int(Y)
+        #return super(ConditionalRandomFieldPerceptron, self).score(X, Y)
+
+        m = []
+        for Xi, Yi in zip(X, Y):
+            m.append(float(np.sum(Yi == self.predict([Xi]))) / np.prod(Yi.shape))
+
+        return np.mean(m)
+
+
 def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None):
     '''Returns a bare model object
 
@@ -184,6 +219,9 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
     elif model_type == 'CRF':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
         return ConditionalRandomField(crf, verbose=1, max_iter=1000000)
+    elif model_type == 'CRFP':
+        crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
+        return ConditionalRandomFieldPerceptron(crf, verbose=1, max_iter=100)
     else:
         raise ValueError('Unknown model type [%s]' % model_type)
 
@@ -366,8 +404,8 @@ def predict_models(models, sets):
 def predict_model(model, X):
 
     Y = model.predict(X)
-
-    return Y.reshape((X.shape[:-1]))
+    
+    return Y  #Y.reshape((X.shape[:-1]))
 
 def __enumerate_sets(i, train_sets, test_sets):
     'Set generator'
