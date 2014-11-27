@@ -1,29 +1,24 @@
 import re
-from flamingo import filesys
+from flamingo import filesys, classify
 from flamingo.classification import utils
 from matplotlib import pyplot as plt
+import matplotlib.colors
 import numpy as np
 
-def plot_prediction(ds, im, Y, axs=None):
+def plot_prediction(ds, im, Y, cl, cm='jet', axs=None):
 
     Y = Y.flatten()
-
-    classes = list(np.unique(Y))
-
-    img = filesys.read_image_file(ds, im)
+    
     seg = filesys.read_export_file(ds, im, 'segments')
-        
-    prediction = np.empty(seg.shape)
 
-    for i, c in enumerate(Y):
-        prediction[seg == i] = classes.index(c)
+    prediction = utils.labels2image(Y, seg, cl)
 
     if axs is None:
         fig, axs = plt.subplots()
     else:
         fig = axs.get_figure()
-
-    axs.imshow(prediction, vmin=0, vmax=len(classes))
+        
+    axs.imshow(prediction, vmin=0, vmax=len(cl), cmap=cm)
 
     return fig, axs
 
@@ -40,34 +35,51 @@ def plot_predictions(ds,model,part=0,class_aggregation=None):
 
     classlist = filesys.read_default_categories(ds)
     classlist = utils.aggregate_classes(np.array(classlist),class_aggregation)
-    classlist = np.unique(classlist)
+    classlist = list(np.unique(classlist))
 
-    n = np.shape(test_sets)[1]
+    eqinds = resolve_indices(ds,test_sets[0][1],meta,class_aggregation)
+
+    n = np.shape(test_sets)[-1]
 
     fig,axs = plt.subplots(n,3,figsize=(20,10 * round(n / 2)))
 
-    for i, fname in enumerate(meta['images_test']):
+    cdict = {
+        'red'  :  ((0., .5, .5), (.2, .5, 1.), (.4, 1., .66), (.6, .66, .13), (.8, .13, .02), (1., .02, .02)),
+        'green':  ((0., .5, .5), (.2, .5, .95), (.4, .95, 1.), (.6, 1., .69), (.8, .69, .24), (1., .24, .24)),
+        'blue' :  ((0., .5, .5), (.2, .5, 0.), (.4, 0., 1.), (.6, 1., .30), (.8, .30, .75), (1., .75, .75))
+        }
+    cmap_argus = matplotlib.colors.LinearSegmentedColormap('argus_classes', cdict, 5)
 
-        grnd = test_sets[part][0][i]
-        pred = model.predict(test_sets[part][0][i])
-        score = float(np.sum(pred == grnd)) / len(grnd) * 100
+    for i, fname in enumerate(meta['images_test'][:-1]):
+        print 'Processing image number %i' %i
+        if any(eqinds[:,1] == i):
+            gind = np.where(eqinds[:,1] == i)[0][0]
+            grnd = test_sets[part][1][gind]
+            pred = model.predict([test_sets[part][0][gind]])[0]
+            score = float(np.sum(pred == grnd)) / np.prod(grnd.shape) * 100
+        
+            img = filesys.read_image_file(ds,fname)
+            axs[i,0].imshow(img)
 
-        axs[i,0].imshow(img)
-
-        plot_prediction(ds,
+            plot_prediction(ds,
                         fname,
                         grnd,
+                        classlist,
+                        cmap_argus,
                         axs=axs[i,1])
 
-        plot_prediction(ds,
+            plot_prediction(ds,
                         fname,
                         pred,
+                        classlist,
+                        cmap_argus,
                         axs=axs[i,2])
         
-        axs[i,0].set_title(fname)
-        axs[i,1].set_title('groundtruth')
-        axs[i,2].set_title('prediction (%0.1f%%)' % score)
+            axs[i,0].set_title(fname)
+            axs[i,1].set_title('groundtruth')
+            axs[i,2].set_title('prediction (%0.1f%%)' % score)
 
+    return fig,axs
 
 def save_figure(fig, filename, ext='', figsize=None, dpi=30, **kwargs):
     '''Save figure to file
@@ -119,3 +131,21 @@ def save_figure(fig, filename, ext='', figsize=None, dpi=30, **kwargs):
                 transparent=True,
                 bbox_inches='tight',
                 pad_inches=0)
+
+def resolve_indices(ds,Ytest,meta,agg):
+    eqinds = np.empty((len(Ytest),2))
+    for i in range(len(Ytest)):
+        for j in range(len(meta['images_test'])):
+            Y = filesys.read_export_file(ds,meta['images_test'][j],'classes')
+            if Y:
+                metim = filesys.read_export_file(ds,meta['images_test'][j],'meta')
+                Ya = np.array(Y)
+                if np.prod(metim['superpixel_grid']) == len(Ya):
+                    Yr = Ya.reshape((metim['superpixel_grid']))
+                    Ya = utils.aggregate_classes(Yr,agg)
+                    if np.prod(Yr.shape) == np.prod(Ytest[i].shape):
+                        if np.all(Yr == Ytest[i]):
+                            eqinds[i,:] = np.array([i,j])
+                            break
+
+    return eqinds

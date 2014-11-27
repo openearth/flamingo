@@ -85,7 +85,7 @@ def compute_confusion_matrix(models, train_sets, test_sets):
     check_sets(train_sets, test_sets)
 
     # get model predictions
-    Y = predict_models(models, [s[0] for s in test_sets])
+    Y = predict_models(models, [[s[0] for s in test_sets]])[0]
 
     # get all classes
     classes = list(np.unique(np.concatenate([np.unique(yi) for (x,y) in test_sets for yi in y])))

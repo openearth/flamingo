@@ -109,3 +109,18 @@ def int2labels(Y, classes=None):
             Ystr[i][y == j] = c
             
     return np.asarray(Ystr)
+
+def labels2image(Y, seg, classes=None):
+    
+    Y = Y.flatten()
+    prediction = np.empty(seg.shape)
+    
+    if classes is None:
+        classes = list(np.unique(Y))
+    
+    for i, c in enumerate(Y):
+        prediction[seg == i] = classes.index(c)
+
+    return prediction
+
+    

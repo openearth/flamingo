@@ -14,7 +14,7 @@ def compute_feature_stats(features):
                              'n':features.shape[0]})
 
 def aggregate_feature_stats(stats):
-
+     
     df_concat = pandas.concat(stats)
     df_concat.index.name = 'feature'
     df_concat = df_concat.set_index('uuid', append=True)

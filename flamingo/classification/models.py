@@ -218,10 +218,10 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
         return SupportVectorMachine()
     elif model_type == 'CRF':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
-        return ConditionalRandomField(crf, verbose=1, max_iter=1000000)
+        return ConditionalRandomField(crf, verbose=1, max_iter=5000)
     elif model_type == 'CRFP':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
-        return ConditionalRandomFieldPerceptron(crf, verbose=1, max_iter=100)
+        return ConditionalRandomFieldPerceptron(crf, verbose=1, max_iter=5000)
     else:
         raise ValueError('Unknown model type [%s]' % model_type)
 

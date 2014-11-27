@@ -52,7 +52,9 @@ def get_image_list(ds):
         fpath = get_image_path(ds)
         if os.path.exists(fpath):
             for im in os.listdir(fpath):
-                if im.endswith('.jpg') or im.endswith('.png') or im.endswith('.jpeg'):
+                if im.endswith('.jpg') or im.endswith('.JPG') or \
+                   im.endswith('.png') or im.endswith('.PNG') or \
+                   im.endswith('.jpeg') or im.endswith('.JPEG'):
                     # skip cropped versions of image
                     if not im.startswith('cropped_'):
                         images.append(im)

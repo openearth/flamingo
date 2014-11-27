@@ -79,8 +79,8 @@ def get_channel_bounds():
         k = skimage.filter.gabor_kernel(frequency=frequency,theta=0, sigma_x=sigma, sigma_y=sigma)
         resp = np.zeros(k.shape) + 255.
         resp[np.real(k) < 0] = 0.
-        resp_real = sum(resp*np.real(k))
-        resp_imag = sum(resp*np.imag(k))
+        resp_real = np.sum(resp*np.real(k))
+        resp_imag = np.sum(resp*np.imag(k))
         resp = np.sqrt(resp_real**2 + resp_imag**2)
         channelstats[i]['max'] = resp.max()
     
