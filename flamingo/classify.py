@@ -32,6 +32,7 @@ def run_preprocessing(ds,
                       colorspace='rgb',
                       relloc_maps=False,
                       relloc=False,
+                      ds_model=None,
                       overwrite=False,
                       class_aggregation=None):
     '''Batch function to preprocess a dataset'''
@@ -59,7 +60,8 @@ def run_preprocessing(ds,
     # feature extraction first part
     if feat_extract:
         run_feature_extraction(
-            ds, images, feat_blocks=feat_blocks, colorspace=colorspace, overwrite=overwrite)
+            ds, images, feat_blocks=feat_blocks, colorspace=colorspace,
+            ds_model=ds_model, overwrite=overwrite)
 
     # relative location prior maps, requires centroids from feature extraction
     if relloc and relloc_maps:
@@ -73,7 +75,7 @@ def run_preprocessing(ds,
 
     # normalize features
     if feat_normalize:
-        run_feature_normalization(ds, images, feat_blocks=feat_blocks)
+        run_feature_normalization(ds, images, feat_blocks=feat_blocks, ds_model=ds_model)
 
     logger.info('Preprocessing finished.')
 
@@ -195,7 +197,7 @@ def run_channel_statistics(ds,images=[]):
     logger.info('Channel statistics computation finished.')
 
 
-def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', overwrite=False):
+def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', ds_model=None, overwrite=False):
     logger.info('Feature extraction started...')
     for i, im in enumerate(images):
         if not overwrite and all([os.path.isfile(filesys.get_export_file(ds,im,'features.' + re.findall('(?<=extract_blocks_).*',k)[0])) for k,v in feat_blocks.iteritems()]):
@@ -218,7 +220,7 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', over
         img = filesys.read_image_file(ds, im)
 
         # Add extra channels
-        channelstats = filesys.read_log_file(ds,'channelstats')
+        channelstats = filesys.read_log_file(ds_model if ds_model is not None else ds, 'channelstats')
         if not channelstats:
             logger.info('Using theoretical channel boundaries for normalization.')
             channelstats = channels.get_channel_bounds()
@@ -321,13 +323,17 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
     logger.info('Updating extracted features finished.')
 
 
-def run_feature_normalization(ds, images=[], feat_blocks=[], stats=None):
+def run_feature_normalization(ds, images=[], feat_blocks=[], ds_model=None, stats=None):
     logger.info('Normalizing features started...')
 
     logger.info('Aggregate feature statistics')
     
     if stats is None:
-        allstats = [filesys.read_export_file(ds, im, 'meta')['stats'] for im in images]
+        if ds_model is not None and ds_model != ds:
+            images_model = filesys.get_image_list(ds_model)
+        else:
+            images_model = images
+        allstats = [filesys.read_export_file(ds, im, 'meta')['stats'] for im in images_model]
         stats = cls.features.normalize.aggregate_feature_stats(allstats)
         l = {'stats': stats,
              'last stats computation': time.strftime('%d-%b-%Y %H:%M')}
@@ -698,34 +704,35 @@ def main():
 Train, score and use classification models on image datasets.
 
 Usage:
-    classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--aggregate=FILE] [--images=FILES] [--overwrite] [--verbose]
+    classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--model-dataset=DS] [--aggregate=FILE] [--images=FILES] [--overwrite] [--verbose]
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
     classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--partition=N] [--verbose]
     classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
     classify-images predict <dataset> <image> [--model=NAME] [--verbose]
 
 Positional arguments:
-    dataset           dataset containing the images
-    image             image file to be classified
+    dataset            dataset containing the images
+    image              image file to be classified
 
 Options:
-    -h, --help        show this help message and exit
-    --segmentate      create segmentation of images
-    --channelstats    compute channel statistics for normalization
-    --extract         extract features
-    --update          update features
-    --normalize       normalize features
-    --relloc          include relative location features
-    --relloc_maps     compute new relative location maps
-    --n=N             number of partitions [default: 5]
-    --frac=FRAC       fraction of images used for testing [default: 0.25]
-    --type=NAME       model type to train [default: LR]
-    --partition=N     start training at this partition [default: 0]
-    --model=NAME      name of model to be scored, uses last trained if omitted
-    --aggregate=FILE  use class aggregation from json file
-    --images=FILES    use only these image files
-    --overwrite       overwrite existing segments, features and relloc maps
-    --verbose         print logging messages
+    -h, --help         show this help message and exit
+    --segmentate       create segmentation of images
+    --channelstats     compute channel statistics for normalization
+    --extract          extract features
+    --update           update features
+    --normalize        normalize features
+    --relloc           include relative location features
+    --relloc_maps      compute new relative location maps
+    --model-dataset=DS dataset used to train model and used for normalization
+    --n=N              number of partitions [default: 5]
+    --frac=FRAC        fraction of images used for testing [default: 0.25]
+    --type=NAME        model type to train [default: LR]
+    --partition=N      start training at this partition [default: 0]
+    --model=NAME       name of model to be scored, uses last trained if omitted
+    --aggregate=FILE   use class aggregation from json file
+    --images=FILES     use only these image files
+    --overwrite        overwrite existing segments, features and relloc maps
+    --verbose          print logging messages
 """
 
     arguments = docopt.docopt(usage)
@@ -756,6 +763,7 @@ Options:
             feat_normalize=arguments['--normalize'],
             relloc=arguments['--relloc'],
             relloc_maps=arguments['--relloc_maps'],
+            ds_model=arguments['--model-dataset'],
             overwrite=arguments['--overwrite'],
             class_aggregation=class_aggregation
         )
