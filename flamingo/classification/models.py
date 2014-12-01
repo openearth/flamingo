@@ -184,7 +184,7 @@ class ConditionalRandomFieldPerceptron(pystruct.learners.StructuredPerceptron):
         return np.mean(m)
 
 
-def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None):
+def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rlp_stats=None, C=1.0):
     '''Returns a bare model object
 
     Parameters
@@ -211,14 +211,14 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
         n_features = n_features + len(rlp_maps.keys())
 
     if model_type == 'LR':
-        return LogisticRegression()
+        return LogisticRegression(C=C)
     elif model_type == 'LR_RLP':
-        return LogisticRegressionRLP(rlp_maps=rlp_maps, rlp_stats=rlp_stats)
+        return LogisticRegressionRLP(rlp_maps=rlp_maps, rlp_stats=rlp_stats, C=C)
     elif model_type == 'SVM':
-        return SupportVectorMachine()
+        return SupportVectorMachine(C=C)
     elif model_type == 'CRF':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
-        return ConditionalRandomField(crf, verbose=1, max_iter=5000)
+        return ConditionalRandomField(crf, verbose=1, max_iter=5000, C=C)
     elif model_type == 'CRFP':
         crf = pystruct.models.GridCRF(n_states=n_states, n_features=n_features)
         return ConditionalRandomFieldPerceptron(crf, verbose=1, max_iter=5000)

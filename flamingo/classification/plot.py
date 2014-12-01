@@ -1,17 +1,17 @@
 import re
-from flamingo import filesys, classify
+from flamingo import filesys #, classify # FIXME: do not do this!
 from flamingo.classification import utils
 from matplotlib import pyplot as plt
 import matplotlib.colors
 import numpy as np
 
-def plot_prediction(ds, im, Y, cl, cm='jet', axs=None):
+def plot_prediction(ds, im, Y, cm='jet', axs=None):
 
     Y = Y.flatten()
     
     seg = filesys.read_export_file(ds, im, 'segments')
 
-    prediction = utils.labels2image(Y, seg, cl)
+    prediction = utils.labels2image(Y, seg)
 
     if axs is None:
         fig, axs = plt.subplots()
@@ -23,10 +23,11 @@ def plot_prediction(ds, im, Y, cl, cm='jet', axs=None):
     return fig, axs
 
 
-def plot_predictions(ds,model,part=0,class_aggregation=None):
+def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None):
  
-    model, meta, train_sets, test_sets, prior_sets = classify.reinitialize_model(
-        ds, model, class_aggregation=class_aggregation)
+    # TODO: kick Max for doing this
+    #model, meta, train_sets, test_sets, prior_sets = classify.reinitialize_model(
+    #    ds, model, class_aggregation=class_aggregation)
 
     if model is list:
         model = model[part]
@@ -34,10 +35,10 @@ def plot_predictions(ds,model,part=0,class_aggregation=None):
         raise IOError
 
     classlist = filesys.read_default_categories(ds)
-    classlist = utils.aggregate_classes(np.array(classlist),class_aggregation)
+    classlist = utils.aggregate_classes(np.array(classlist), class_aggregation)
     classlist = list(np.unique(classlist))
 
-    eqinds = resolve_indices(ds,test_sets[0][1],meta,class_aggregation)
+    eqinds = resolve_indices(ds, test_sets[0][1], meta, class_aggregation)
 
     n = np.shape(test_sets)[-1]
 

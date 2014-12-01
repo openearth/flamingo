@@ -3,6 +3,7 @@ import re
 import os
 import logging
 import json
+import pandas
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +15,7 @@ from flamingo import filesys
 from flamingo.utils import printinfo
 from flamingo.classification import channels
 from flamingo.classification.features import relativelocation
-#from flamingo.classification import plot
+from flamingo.classification import plot
 
 
 # initialize log
@@ -129,7 +130,7 @@ def run_classification(ds,
 
     return models, train_sets, test_sets
 
-
+ 
 def run_scoring(ds, model=None, class_aggregation=None):
 
     if model is None:
@@ -145,27 +146,50 @@ def run_scoring(ds, model=None, class_aggregation=None):
     return scores
 
 
-def run_prediction(ds, im, model=None, colorspace='rgb', blocks='all'):
+def run_prediction(ds, images='all', model=None, ds_model=None, colorspace='rgb', blocks='all', overwrite=False):
+
+    if ds_model is None:
+        ds_model = ds
 
     if model is None:
-        model = filesys.get_model_list(ds)[-1]
-    elif type(model) is str:
-        model = filesys.read_model_file(ds, model)[0]
-    elif not hasattr(model,'predict'):
+        model = filesys.get_model_list(ds_model)[-1]
+    if type(model) is str:
+        logging.info('Using model %s' % model)
+        model = filesys.read_model_file(ds_model, model)[0]
+    if not hasattr(model,'predict'):
         raise IOError('Invalid model input type') 
 
+    # create image list
+    images = _create_imlist(ds, images)
+
+    # create block list
     blocks = _create_featlist(blocks)
 
+    # read feature data
     X = get_data(ds,
-                 [im],
-                 feat_blocks=blocks)[0][0]
+                 images,
+                 feat_blocks=blocks)[0]
 
-    shp = filesys.read_export_file(ds, im, 'meta')['superpixel_grid']
-    X = np.asarray(X).reshape((shp[0], shp[1], -1))
+    for i, im in enumerate(images):
 
-    classes = model.predict([X])[0]
+        if not overwrite and os.path.isfile(filesys.get_export_file(ds, im, 'predict')):
+            logger.info('Skipping image %d of %d: %s. Already predicted' % (i + 1, len(images), im))
+            continue
 
-    return classes
+        logger.info('Predicting image %d of %d: %s' % (i + 1, len(images), im))
+
+        shp = filesys.read_export_file(ds, im, 'meta')['superpixel_grid']
+        X[i] = np.asarray(X[i]).reshape((shp[0], shp[1], -1))
+
+        # run prediction
+        classes = model.predict([X[i]])[0]
+
+        # save raw data
+        filesys.write_export_file(ds, im, 'predict', classes)
+
+        # save plot
+        fig, axs = plot.plot_prediction(ds, im, classes)
+        plot.save_figure(fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
 
 
 @printinfo
@@ -402,9 +426,44 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
 
     logger.info('Computing relative location maps finished.')
 
+def run_regularization(ds, images='all', feat_blocks='all', modtype='LR',
+                       class_aggregation=None, partition=0, C=[.1,1,10,100,1000,10000]):
+    logger.info('Optimization of regularization coefficient started...')
+
+    if not type(modtype) is list:
+        modtype = [modtype]
+        
+    if not type(partition) is list:
+        partition = [partition]
+
+    if not type(C) is list:
+        C = [C]
+
+    scores = pandas.DataFrame(data=np.empty((len(C),2)), columns=['Train', 'Test'], index=C)
+    # loop over range of regularization coefficients, train model and determine score
+    for i,cval in enumerate(C):
+        # initialize models, training and test sets
+        logger.info('Regularization value %d of %d: C = %f' % (i, len(C), cval))
+        
+        logger.info('Preparing model...')
+        models, meta, train_sets, test_sets, prior_sets = initialize_models(ds,
+                                                                        images,
+                                                                        feat_blocks,
+                                                                        modtype=modtype,
+                                                                        class_aggregation=class_aggregation,
+                                                                        partition_start=partition,
+                                                                        C=cval)
+        # fit models
+        logger.info('Fitting model...')
+        models = cls.models.train_models(models, train_sets, prior_sets,
+                                         callback=lambda m,(i,j): filesys.write_model_file(ds, m, meta[i][j], ext='.%d.backup' % (partition_start[0])))
+        filesys.write_model_files(ds, models, meta)
+        
+    logger.info('Finished fitting models with various regularization coefficients.')
+
 
 def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
-                      class_aggregation=None, partition_start=0):
+                      class_aggregation=None, partition_start=0, C=1.0):
 
     # create image list
     images = _create_imlist(ds, images)
@@ -455,7 +514,8 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
                                    n_states=len(classes),
                                    n_features=nfeat,
                                    rlp_maps=rlp_maps,
-                                   rlp_stats=rlp_stats) for m in modtype]
+                                   rlp_stats=rlp_stats,
+                                   C=C) for m in modtype]
 
     # construct data arrays from dataframes and partitions
     train_sets, test_sets, prior_sets = _features_to_input(ds,
@@ -467,6 +527,10 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
                                                            X_rlp,
                                                            partition_start=partition_start)
 
+    if type(partition_start) is list:
+        parts = partition_start
+    else:
+        parts = range(partition_start, len(images_train))
     # collect meta information
     meta = [[{'dataset': ds,
               'images': list(images),
@@ -475,7 +539,7 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
               'feature_blocks':[re.sub('^extract_blocks_', '', x) for x in feat_blocks.keys()],
               'features':list(X[0].columns),
               'classes':list(classes),
-              'model_type':m} for i in range(partition_start, len(images_train))] for m in modtype]
+              'model_type':m} for i in parts] for m in modtype]
 
     return models, meta, train_sets, test_sets, prior_sets
 
@@ -641,7 +705,13 @@ def _features_to_input(ds, images, images_train, images_test, X, Y, X_rlp=[], pa
     train_sets = []
     test_sets = []
     prior_sets = []
-    for i in range(partition_start, len(images_train)):
+    
+    if type(partition_start) is list:
+        parts = partition_start
+    else:
+        parts = range(partition_start, len(images_train))
+
+    for i in parts:
 
         X_train, X_test, \
             Y_train, Y_test, \
@@ -708,7 +778,8 @@ Usage:
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
     classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--partition=N] [--verbose]
     classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
-    classify-images predict <dataset> <image> [--model=NAME] [--verbose]
+    classify-images predict <dataset> [--images=FILES] [--model=NAME] [--model-dataset=DS] [--overwrite] [--verbose]
+    classify-images regularization <dataset> [--type=NAME] [--partition=N] [--aggregate=FILE] [--verbose]
 
 Positional arguments:
     dataset            dataset containing the images
@@ -728,10 +799,11 @@ Options:
     --frac=FRAC        fraction of images used for testing [default: 0.25]
     --type=NAME        model type to train [default: LR]
     --partition=N      start training at this partition [default: 0]
+    --C=clist          list with regularization coefficients to test
     --model=NAME       name of model to be scored, uses last trained if omitted
     --aggregate=FILE   use class aggregation from json file
     --images=FILES     use only these image files
-    --overwrite        overwrite existing segments, features and relloc maps
+    --overwrite        overwrite existing files
     --verbose          print logging messages
 """
 
@@ -792,20 +864,18 @@ Options:
         ).to_string()
 
     if arguments['predict']:
-        Y = run_prediction(
+        run_prediction(
             arguments['<dataset>'],
-            arguments['<image>'],
-            model=arguments['--model']
+            images=images,
+            model=arguments['--model'],
+            ds_model=arguments['--model-dataset'],
+            overwrite=arguments['--overwrite']
         )
 
-        fig, axs = plot.plot_prediction(arguments['<dataset>'],
-                                        arguments['<image>'],
-                                        Y)
-
-        plot.save_figure(fig,
-                         arguments['<image>'],
-                         ext='.classes',
-                         figsize=(1.30*1392, 1.30*1024))
-        
-
-
+    if arguments['regularization']:
+        run_regularization(
+            arguments['<dataset>'],
+            modtype=arguments['--type'],
+            class_aggregation=class_aggregation,
+            partition = int(arguments['--partition'])
+        )

@@ -1,14 +1,15 @@
 import numpy as np
 import cv2
 
-def find_homography(UV, XYZ, K, distortion=0, z=0):
+def find_homography(UV, XYZ, K, distortion=np.zeros((1,4)), z=0):
 
     UV = np.asarray(UV).astype(np.float32)
     XYZ = np.asarray(XYZ).astype(np.float32)
     K = np.asarray(K).astype(np.float32)
     
     # compute camera pose
-    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)[1:]
+#    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)[1:]
+    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)
     
     # convert rotation vector to rotation matrix
     R = cv2.Rodrigues(rvec)[0]
