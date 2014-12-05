@@ -11,7 +11,7 @@ from sklearn.cross_validation import train_test_split
 
 from flamingo import classification as cls
 from flamingo import segmentation as seg
-from flamingo import filesys
+from flamingo import filesys, config
 from flamingo.utils import printinfo
 from flamingo.classification import channels
 from flamingo.classification.features import relativelocation
@@ -25,17 +25,18 @@ logger = logging.getLogger(__name__)
 def run_preprocessing(ds,
                       images='all',
                       segmentation=False,
-                      channel_stats=False,
+                      channel_extract=False,
+                      channel_normalize=False,
                       feat_extract=False,
                       feat_update=False,
                       feat_normalize=False,
-                      feat_blocks='all',
+                      feature_blocks='all',
                       colorspace='rgb',
                       relloc_maps=False,
                       relloc=False,
-                      ds_model=None,
                       overwrite=False,
-                      class_aggregation=None):
+                      class_aggregation=None,
+                      cfg=None):
     '''Batch function to preprocess a dataset'''
 
     logger.info('Preprocessing started for dataset "%s"...' % ds)
@@ -48,21 +49,26 @@ def run_preprocessing(ds,
     images = _create_imlist(ds, images)
 
     # create feature block list
-    feat_blocks = _create_featlist(feat_blocks)
+    feature_blocks = _create_featlist(feature_blocks)
 
     # segmentation
     if segmentation:
-        run_segmentation(ds, images, overwrite=overwrite)
+        args = config.get_function_args(run_segmentation, cfg, 'segmentation')
+        run_segmentation(ds, images, overwrite=overwrite, **args)
         
+    # channel extraction
+    if channel_extract:
+        run_channel_extraction(ds, images, colorspace=colorspace)
+
     # channel normalization
-    if channel_stats:
-        run_channel_statistics(ds, images)
+    if channel_normalize:
+        run_channel_normalization(ds, images, model_dataset=model_dataset)
 
     # feature extraction first part
     if feat_extract:
         run_feature_extraction(
-            ds, images, feat_blocks=feat_blocks, colorspace=colorspace,
-            ds_model=ds_model, overwrite=overwrite)
+            ds, images, feature_blocks=feature_blocks, colorspace=colorspace,
+            model_dataset=model_dataset, overwrite=overwrite)
 
     # relative location prior maps, requires centroids from feature extraction
     if relloc and relloc_maps:
@@ -71,21 +77,22 @@ def run_preprocessing(ds,
 
     # feature extraction, second part, requires relative location prior maps
     if feat_update:
-        run_feature_update(ds, images, feat_blocks=feat_blocks,
+        run_feature_update(ds, images, feature_blocks=feature_blocks,
                            class_aggregation=class_aggregation, relloc=relloc)
 
     # normalize features
     if feat_normalize:
-        run_feature_normalization(ds, images, feat_blocks=feat_blocks, ds_model=ds_model)
+        run_feature_normalization(ds, images, feature_blocks=feature_blocks, model_dataset=model_dataset)
 
     logger.info('Preprocessing finished.')
 
 
 def run_partitioning(ds,
                      images='all',
-                     n_part=5,
-                     test_frac=.25,
-                     forcesplit=False):
+                     n_partitions=5,
+                     frac_validation=0.0,
+                     frac_test=0.25,
+                     force_split=False):
 
     images = _create_imlist(ds, images)
 
@@ -100,10 +107,10 @@ def run_partitioning(ds,
 
 def run_classification(ds,
                        images='all',
-                       feat_blocks='all',
-                       modtype='LR',
+                       feature_blocks='all',
+                       model_type='LR',
                        class_aggregation=None,
-                       partition_start=0):
+                       partitions='all'):
     ''' Batch function to train and test a PGM with multiple train_test partitions '''
 
     logger.info('Classification started for dataset "%s"...' % ds)
@@ -113,12 +120,9 @@ def run_classification(ds,
 
     # initialize models, training and test sets
     logger.info('Preparation of models, train and test sets started...')
-    models, meta, train_sets, test_sets, prior_sets = initialize_models(ds,
-                                                                        images,
-                                                                        feat_blocks,
-                                                                        modtype=modtype,
-                                                                        class_aggregation=class_aggregation,
-                                                                        partition_start=partition_start)
+    models, meta, train_sets, test_sets, prior_sets = initialize_models(
+        ds, images, feature_blocks, modtype=modtype,
+        class_aggregation=class_aggregation, partition_start=partition_start)
     logger.info('Preparation of models, train and test sets finished.')
 
     # fit models
@@ -146,16 +150,17 @@ def run_scoring(ds, model=None, class_aggregation=None):
     return scores
 
 
-def run_prediction(ds, images='all', model=None, ds_model=None, colorspace='rgb', blocks='all', overwrite=False):
+def run_prediction(ds, images='all', model=None,
+                   model_dataset=None, colorspace='rgb', blocks='all', overwrite=False):
 
-    if ds_model is None:
-        ds_model = ds
+    if model_dataset is None:
+        model_dataset = ds
 
     if model is None:
-        model = filesys.get_model_list(ds_model)[-1]
+        model = filesys.get_model_list(model_dataset)[-1]
     if type(model) is str:
         logging.info('Using model %s' % model)
-        model = filesys.read_model_file(ds_model, model)[0]
+        model = filesys.read_model_file(model_dataset, model)[0]
     if not hasattr(model,'predict'):
         raise IOError('Invalid model input type') 
 
@@ -168,7 +173,7 @@ def run_prediction(ds, images='all', model=None, ds_model=None, colorspace='rgb'
     # read feature data
     X = get_data(ds,
                  images,
-                 feat_blocks=blocks)[0]
+                 feature_blocks=blocks)[0]
 
     for i, im in enumerate(images):
 
@@ -192,39 +197,87 @@ def run_prediction(ds, images='all', model=None, ds_model=None, colorspace='rgb'
         plot.save_figure(fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
 
 
-@printinfo
-def run_segmentation(ds, images=[], overwrite=False):
+def run_segmentation(ds, images=[], method='slic', method_params={},
+                     extract_contours=False, remove_disjoint=True, overwrite=False):
+
     logger.info('Segmentation started...')
+
     for i, im in enumerate(images):
-        if not overwrite and os.path.isfile(filesys.get_export_file(ds,im,'segments')):
-            logger.info('Skipping image %d of %d: %s. Already segmented' % (i + 1, len(images), im))
+
+        if not overwrite and filesys.check_export_file(ds, im, 'segments'):
+            logger.info(
+                'Skipping image %d of %d: %s. Already segmented' % (i+1,
+                                                                    len(images), im))
             continue
-        logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
-        segments, contours, segments_orig, meta = _segmentate(ds, im)
+
+        logger.info('Processing image %d of %d: %s' % (i+1, len(images), im))
+
+        img = filesys.read_image_file(ds, im)
+
+        segments, contours = seg.superpixels.get_segmentation(
+            img, method=method, method_params=method_params,
+            extract_contours=extract_contours, remove_disjoint=remove_disjoint)
+
+        nx, ny = seg.superpixels.get_superpixel_grid(segments, img.shape[:2])
+        err = not seg.superpixels.check_segmentation(segments, nx, ny)
+
+        meta = {'image_resolution_cropped': img.shape,
+                'superpixel_grid': (nx, ny),
+                'superpixel_grid_error': err,
+                'last_segmented': time.strftime('%d-%b-%Y %H:%M')}
+
         filesys.write_export_file(ds, im, 'meta', meta, append=True)
-        filesys.write_export_file(ds, im, 'segments.original', segments_orig)
         filesys.write_export_file(ds, im, 'segments', segments)
         filesys.write_export_file(ds, im, 'contours', contours)
+
     logger.info('Segmentation finished.')
 
 
-def run_channel_statistics(ds,images=[]):
-    logger.info('Channel statistics computation started...')
-    channelstats = [{'max': 0., 'min': 255.} for i in range(channels.get_number_channels())]
+def run_channel_extraction(ds, images=[], colorspace='rgb'):
+    logger.info('Channel extraction started...')
+
+    stats = [{'max': 0., 'min': 255.}
+             for i in range(channels.get_number_channels())]
+
+    for i, im in enumerate(images):
+        logger.info('Processing image %d of %d: %s' % (i+1, len(images), im))
+        img = filesys.read_image_file(ds,im)
+
+        # img is now [i,j,rgb]:                   grayscale channels   extra_channels
+        # img becomes [i,j, channels] channels -> gray      (r g b)    (gabor sigmadiff)
+        img = channels.add_channels(img, colorspace)
+        filesys.write_export_file(ds, im, 'channels', img)
+
+        stats = [{'max': np.max([stats[j]['max'], img[:,:,j+4].max()]),
+                  'min': np.min([stats[j]['min'], img[:,:,j+4].min()])}
+                 for j in range(img.shape[-1] - 4)]
+    
+    filesys.write_log_file(ds, {'channelstats': stats})
+
+    logger.info('Channel extraction finished.')
+
+
+def run_channel_normalization(ds, images=[], model_dataset=None):
+
+    stats = filesys.read_log_file(model_dataset
+                                  if model_dataset is not None else ds, 'channelstats')
+    if not stats:
+        logger.info('Using theoretical channel boundaries for normalization.')
+        stats = channels.get_channel_bounds()
+
     for i, im in enumerate(images):
         logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
-        img = filesys.read_image_file(ds,im)
-        img = channels.add_channels(img, 'rgb')
-        channelstats = [{'max': np.max([channelstats[j]['max'],img[:,:,j+4].max()]), 'min': np.min([channelstats[j]['min'],img[:,:,j+4].min()])} for j in range(img.shape[-1] - 4)]
-    
-    filesys.write_log_file(ds, {'channelstats': channelstats})
-    logger.info('Channel statistics computation finished.')
+        img = filesys.write_export_file(ds, im, 'channels')
+        for j in range(4, img.shape[-1]):
+            img[...,j] = channels.normalize_channel(img[...,j], stats[i-4])
+        filesys.write_export_file(ds, im, 'channels.normalized', img)
 
 
-def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', ds_model=None, overwrite=False):
+def run_feature_extraction(ds, images=[], feature_blocks=[],
+                           colorspace='rgb', model_dataset=None, overwrite=False):
     logger.info('Feature extraction started...')
     for i, im in enumerate(images):
-        if not overwrite and all([os.path.isfile(filesys.get_export_file(ds,im,'features.' + re.findall('(?<=extract_blocks_).*',k)[0])) for k,v in feat_blocks.iteritems()]):
+        if not overwrite and all([os.path.isfile(filesys.get_export_file(ds,im,'features.' + re.findall('(?<=extract_blocks_).*',k)[0])) for k,v in feature_blocks.iteritems()]):
             logger.info('Skipping image %d of %d: %s. Features already extracted' % (i + 1, len(images), im))
             continue
         logger.info('Processing image %d of %d: %s' % (i + 1, len(images), im))
@@ -243,23 +296,12 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', ds_m
         # load image
         img = filesys.read_image_file(ds, im)
 
-        # Add extra channels
-        channelstats = filesys.read_log_file(ds_model if ds_model is not None else ds, 'channelstats')
-        if not channelstats:
-            logger.info('Using theoretical channel boundaries for normalization.')
-            channelstats = channels.get_channel_bounds()
-
-        # img is now [i,j,rgb]:                   grayscale channels   extra_channels
-        # img becomes [i,j, channels] channels -> gray      (r g b)    (gabor sigmadiff)
-        img = channels.add_channels(img, colorspace, channelstats)
-        filesys.write_export_file(ds, im, 'channels', img)
-
         # extract features
         features, features_in_block = \
             cls.features.blocks.extract_blocks(img,
                                                segments,
                                                colorspace=colorspace,
-                                               blocks=feat_blocks)
+                                               blocks=feature_blocks)
 
         # remove too large features
         features = cls.features.remove_large_features(features)
@@ -273,7 +315,8 @@ def run_feature_extraction(ds, images=[], feat_blocks=[], colorspace='rgb', ds_m
     logger.info('Feature extraction finished.')
 
 
-def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, relloc=False):
+def run_feature_update(ds, images=[], feature_blocks=[],
+                       class_aggregation=None, relloc=False):
     logger.info('Updating extracted features started...')
 
     if relloc:
@@ -285,7 +328,7 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
         # load image and features
         img = filesys.read_image_file(ds, im)
         features, features_in_block = filesys.read_feature_files(
-            ds, im, feat_blocks.keys())
+            ds, im, feature_blocks.keys())
 
         # include relative location feature if requested
         if relloc:
@@ -347,17 +390,19 @@ def run_feature_update(ds, images=[], feat_blocks=[], class_aggregation=None, re
     logger.info('Updating extracted features finished.')
 
 
-def run_feature_normalization(ds, images=[], feat_blocks=[], ds_model=None, stats=None):
+def run_feature_normalization(ds, images=[], feature_blocks=[],
+                              model_dataset=None, stats=None):
     logger.info('Normalizing features started...')
 
     logger.info('Aggregate feature statistics')
     
     if stats is None:
-        if ds_model is not None and ds_model != ds:
-            images_model = filesys.get_image_list(ds_model)
+        if model_dataset is not None and model_dataset != ds:
+            images_model = filesys.get_image_list(model_dataset)
         else:
             images_model = images
-        allstats = [filesys.read_export_file(ds, im, 'meta')['stats'] for im in images_model]
+        allstats = [filesys.read_export_file(ds, im, 'meta')['stats']
+                    for im in images_model]
         stats = cls.features.normalize.aggregate_feature_stats(allstats)
         l = {'stats': stats,
              'last stats computation': time.strftime('%d-%b-%Y %H:%M')}
@@ -368,7 +413,7 @@ def run_feature_normalization(ds, images=[], feat_blocks=[], ds_model=None, stat
         stats = filesys.read_log_file(ds, keys='stats')
 
         features, features_in_block = filesys.read_feature_files(
-            ds, im, feat_blocks.keys() + ['relloc'], ext='linear')
+            ds, im, feature_blocks.keys() + ['relloc'], ext='linear')
         features = cls.features.normalize.normalize_features(features, stats)
         filesys.write_feature_files(
             ds, im, features, features_in_block, ext='normalized')
@@ -426,7 +471,8 @@ def run_relative_location_mapping(ds, n=100, sigma=2, class_aggregation=None):
 
     logger.info('Computing relative location maps finished.')
 
-def run_regularization(ds, images='all', feat_blocks='all', modtype='LR',
+
+def run_regularization(ds, images='all', feature_blocks='all', modtype='LR',
                        class_aggregation=None, partition=0, C=[.1,1,10,100,1000,10000]):
     logger.info('Optimization of regularization coefficient started...')
 
@@ -446,30 +492,32 @@ def run_regularization(ds, images='all', feat_blocks='all', modtype='LR',
         logger.info('Regularization value %d of %d: C = %f' % (i, len(C), cval))
         
         logger.info('Preparing model...')
-        models, meta, train_sets, test_sets, prior_sets = initialize_models(ds,
-                                                                        images,
-                                                                        feat_blocks,
-                                                                        modtype=modtype,
-                                                                        class_aggregation=class_aggregation,
-                                                                        partition_start=partition,
-                                                                        C=cval)
+        models, meta, train_sets, test_sets, prior_sets = initialize_models(
+            ds,
+            images,
+            feature_blocks,
+            modtype=modtype,
+            class_aggregation=class_aggregation,
+            partition_start=partition,
+            C=cval)
+
         # fit models
         logger.info('Fitting model...')
         models = cls.models.train_models(models, train_sets, prior_sets,
-                                         callback=lambda m,(i,j): filesys.write_model_file(ds, m, meta[i][j], ext='.%d.backup' % (partition_start[0])))
+                                         callback=lambda m,(i,j): filesys.write_model_file(ds, m, meta[i][j], ext='.%d.backup' % (partition[0])))
         filesys.write_model_files(ds, models, meta)
         
     logger.info('Finished fitting models with various regularization coefficients.')
 
 
-def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
+def initialize_models(ds, images='all', feature_blocks='all', modtype='LR',
                       class_aggregation=None, partition_start=0, C=1.0):
 
     # create image list
     images = _create_imlist(ds, images)
 
     # create feature block list
-    feat_blocks = _create_featlist(feat_blocks)
+    feature_blocks = _create_featlist(feature_blocks)
 
     # retreive train test partitions
     dslog = filesys.read_log_file(
@@ -485,7 +533,7 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
     # get data
     X, Y, X_rlp = get_data(ds,
                            images,
-                           feat_blocks=feat_blocks)
+                           feature_blocks=feature_blocks)
 
     # aggregate classes
     if class_aggregation is not None:
@@ -536,7 +584,7 @@ def initialize_models(ds, images='all', feat_blocks='all', modtype='LR',
               'images': list(images),
               'images_train': list(images_train[i]),
               'images_test':list(images_test[i]),
-              'feature_blocks':[re.sub('^extract_blocks_', '', x) for x in feat_blocks.keys()],
+              'feature_blocks':[re.sub('^extract_blocks_', '', x) for x in feature_blocks.keys()],
               'features':list(X[0].columns),
               'classes':list(classes),
               'model_type':m} for i in parts] for m in modtype]
@@ -550,7 +598,7 @@ def reinitialize_model(ds, model, class_aggregation=None):
 
     X, Y, X_rlp = get_data(ds,
                            meta['images'],
-                           feat_blocks=meta['feature_blocks'])
+                           feature_blocks=meta['feature_blocks'])
 
     # aggregate classes
     if class_aggregation is not None:
@@ -569,13 +617,13 @@ def reinitialize_model(ds, model, class_aggregation=None):
     return models, meta, train_sets, test_sets, prior_sets
 
 
-def get_data(ds, images=[], feat_blocks=[]):
+def get_data(ds, images=[], feature_blocks=[]):
     X = []
     Y = []
     X_rlp = []
 
-    if type(feat_blocks) is dict:
-        feat_blocks = feat_blocks.keys()
+    if type(feature_blocks) is dict:
+        feature_blocks = feature_blocks.keys()
 
     logger.info('Preparation of features and labels started...')
     for i, im in enumerate(images):
@@ -590,7 +638,7 @@ def get_data(ds, images=[], feat_blocks=[]):
 
         # read feature blocks
         X.append(filesys.read_feature_files(
-            ds, im, feat_blocks, ext='normalized')[0])
+            ds, im, feature_blocks, ext='normalized')[0])
         X_rlp.append(
             filesys.read_feature_files(ds, im, ['relloc'], ext='normalized')[0])
 
@@ -601,35 +649,6 @@ def get_data(ds, images=[], feat_blocks=[]):
     logger.info('Preparation of features and labels finished.')
 
     return X, Y, X_rlp
-
-
-@printinfo
-def _segmentate(ds, im):
-
-    # load image
-    img = filesys.read_image_file(ds, im)
-
-    # first segmentation step
-    # TODO: use enforce_connectivity here when skimage 0.10 is released, segments_orig can then be removed
-    # check for feature or check for version. Usually feature checking is better.
-    # if distutils.version.LooseVersion(skimage.__version__) < distutils.version.LooseVersion('0.10'):
-    segments_orig = seg.superpixels.get_superpixel(
-        img, n_segments=600, compactness=20, sigma=0)
-
-    # compute superpixel grid
-    nx, ny = seg.superpixels.get_superpixel_grid(segments_orig, img.shape[:2])
-
-    # fix disjoint segments
-    segments = seg.postprocess.remove_disjoint(segments_orig)
-
-    contours = seg.superpixels.get_contours(segments)
-
-    meta = {'image_resolution_cropped': img.shape,
-            'superpixel_grid': (nx, ny),
-            'superpixel_grid_error': not seg.superpixels.check_segmentation(segments, nx, ny),
-            'last_segmented': time.strftime('%d-%b-%Y %H:%M')}
-
-    return segments, contours, segments_orig, meta
 
 
 def _create_imlist(ds, images):
@@ -648,43 +667,43 @@ def _create_imlist(ds, images):
     return imlist
 
 
-def _create_featlist(feat_blocks):
+def _create_featlist(feature_blocks):
     allfb = cls.features.blocks.list_blocks()
-    if type(feat_blocks) is list:
-        feat_blocks = {k: v for k, v in allfb.iteritems() if k in feat_blocks or k.replace(
-            'extract_blocks_', '') in feat_blocks}
-    elif feat_blocks == 'all':
-        feat_blocks = allfb
+    if type(feature_blocks) is list:
+        feature_blocks = {k: v for k, v in allfb.iteritems() if k in feature_blocks or k.replace(
+            'extract_blocks_', '') in feature_blocks}
+    elif feature_blocks == 'all':
+        feature_blocks = allfb
     else:
         msg = 'Features should be a list of feature block names or the keyword "all"'
         logger.warn(msg)
         raise ValueError(msg)
 
-    return feat_blocks
+    return feature_blocks
 
 
-def _create_featcollection(feat_blocks):
-    if not type(feat_blocks) is list:
-        feat_blocks = [feat_blocks]
+def _create_featcollection(feature_blocks):
+    if not type(feature_blocks) is list:
+        feature_blocks = [feature_blocks]
 
     try:
-        for i, block in enumerate(feat_blocks):
-            feat_blocks[i] = _create_featlist(block)
+        for i, block in enumerate(feature_blocks):
+            feature_blocks[i] = _create_featlist(block)
     except:
-        feat_blocks = [_create_featlist(feat_blocks)]
+        feature_blocks = [_create_featlist(feature_blocks)]
 
-    return feat_blocks
+    return feature_blocks
 
 
-def _train_test_part(images, test_frac=0.25):
+def _train_test_part(images, frac_test=0.25):
     # Wrapper for sklearn function cross_validation.train_test_split
 
-    images_train, images_test = train_test_split(images, test_size=test_frac)
+    images_train, images_test = train_test_split(images, test_size=frac_test)
 
     return images_train, images_test
 
 
-def _multiple_partitions(images, n_part=5, test_frac=0.25):
+def _multiple_partitions(images, n_part=5, frac_test=0.25):
     # Make multiple train-test partitions for statistical model performance
     # check
 
@@ -694,13 +713,14 @@ def _multiple_partitions(images, n_part=5, test_frac=0.25):
     lists = [images_train, images_test]
 
     for i in range(n_part):
-        for lst, part in zip(lists, _train_test_part(images, test_frac)):
+        for lst, part in zip(lists, _train_test_part(images, frac_test)):
             lst.append(part)
 
     return {'training images': images_train, 'testing images': images_test}
 
 
-def _features_to_input(ds, images, images_train, images_test, X, Y, X_rlp=[], partition_start=0):
+def _features_to_input(ds, images, images_train, images_test,
+                       X, Y, X_rlp=[], partition_start=0):
 
     train_sets = []
     test_sets = []
@@ -774,12 +794,12 @@ def main():
 Train, score and use classification models on image datasets.
 
 Usage:
-    classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--model-dataset=DS] [--aggregate=FILE] [--images=FILES] [--overwrite] [--verbose]
-    classify-images partition <dataset> [--n=N] [--frac=FRAC] [--verbose]
-    classify-images train <dataset> [--type=NAME] [--aggregate=FILE] [--partition=N] [--verbose]
-    classify-images score <dataset> [--model=NAME] [--aggregate=FILE] [--verbose]
-    classify-images predict <dataset> [--images=FILES] [--model=NAME] [--model-dataset=DS] [--overwrite] [--verbose]
-    classify-images regularization <dataset> [--type=NAME] [--partition=N] [--aggregate=FILE] [--verbose]
+    classify-images preprocess <dataset> [--segmentate] [--channelstats] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
+    classify-images partition <dataset> [--n=N] [--frac=FRAC] [--images=FILE] [--config=FILE] [--verbose]
+    classify-images train <dataset> [--type=NAME] [--partition=N] [--images=FILE] [--config=FILE] [--verbose]
+    classify-images score <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--verbose]
+    classify-images predict <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
+    classify-images regularization <dataset> [--type=NAME] [--partition=N] [--images=FILE] [--config=FILE] [--verbose]
 
 Positional arguments:
     dataset            dataset containing the images
@@ -794,32 +814,29 @@ Options:
     --normalize        normalize features
     --relloc           include relative location features
     --relloc_maps      compute new relative location maps
-    --model-dataset=DS dataset used to train model and used for normalization
     --n=N              number of partitions [default: 5]
     --frac=FRAC        fraction of images used for testing [default: 0.25]
     --type=NAME        model type to train [default: LR]
     --partition=N      start training at this partition [default: 0]
-    --C=clist          list with regularization coefficients to test
     --model=NAME       name of model to be scored, uses last trained if omitted
-    --aggregate=FILE   use class aggregation from json file
-    --images=FILES     use only these image files
+    --images=FILE      images to include in process
+    --config=FILE      configuration file to use instead of command line options
     --overwrite        overwrite existing files
     --verbose          print logging messages
 """
 
     arguments = docopt.docopt(usage)
 
+    # set verbose logging format
     if arguments['--verbose']:
-        logging.basicConfig(format='%(asctime)-15s %(name)-8s %(levelname)-8s %(message)s')
+        logging.basicConfig(
+            format='%(asctime)-15s %(name)-8s %(levelname)-8s %(message)s')
         logging.root.setLevel(logging.NOTSET)
 
-    class_aggregation = None
-    if arguments['--aggregate'] is not None:
-        if os.path.exists(arguments['--aggregate']):
-            with open(arguments['--aggregate'], 'r') as fp:
-                class_aggregation = json.load(fp)
+    cfg = config.read_config(arguments['--config'])
 
-    if arguments['--images'] is not None:
+    if arguments['--images']:
+        # TODO: differentiate between image files, image file list and JSON shizzle
         images = arguments['--images'].split(',')
     else:
         images = 'all'
@@ -829,30 +846,30 @@ Options:
             arguments['<dataset>'],
             images=images,
             segmentation=arguments['--segmentate'],
-            channel_stats=arguments['--channelstats'],
+            channel_extract=arguments['--channelstats'],
+            channel_normalize=arguments['--normalize'],
             feat_extract=arguments['--extract'],
             feat_update=arguments['--update'],
             feat_normalize=arguments['--normalize'],
             relloc=arguments['--relloc'],
             relloc_maps=arguments['--relloc_maps'],
-            ds_model=arguments['--model-dataset'],
             overwrite=arguments['--overwrite'],
-            class_aggregation=class_aggregation
+            cfg=cfg
         )
     
     if arguments['partition']:
         run_partitioning(
             arguments['<dataset>'],
             n_part=int(arguments['--n']),
-            test_frac=float(arguments['--frac']),
-            forcesplit=True
+            frac_validation=0.0,
+            frac_test=float(arguments['--frac']),
+            force_split=True
         )
     
     if arguments['train']:
         run_classification(
             arguments['<dataset>'],
             modtype=arguments['--type'],
-            class_aggregation=class_aggregation,
             partition_start=int(arguments['--partition'])
         )
 
@@ -860,7 +877,6 @@ Options:
         print run_scoring(
             arguments['<dataset>'],
             model=arguments['--model'],
-            class_aggregation=class_aggregation
         ).to_string()
 
     if arguments['predict']:
@@ -868,7 +884,6 @@ Options:
             arguments['<dataset>'],
             images=images,
             model=arguments['--model'],
-            ds_model=arguments['--model-dataset'],
             overwrite=arguments['--overwrite']
         )
 
@@ -876,6 +891,5 @@ Options:
         run_regularization(
             arguments['<dataset>'],
             modtype=arguments['--type'],
-            class_aggregation=class_aggregation,
-            partition = int(arguments['--partition'])
+            partition=int(arguments['--partition'])
         )

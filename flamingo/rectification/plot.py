@@ -18,7 +18,7 @@ def plot_rectified(X, Y, imgs,
     for x, y, img in zip(X, Y, imgs):
 
         # find horizon based on maximum distance
-        o = _find_horizon_offset(x, y, max_distance=max_distance)
+        o = find_horizon_offset(x, y, max_distance=max_distance)
 
         # rotate to world coordinate system
         x, y = rotate_translate(x, y, rotation=rotation, translation=translation)
@@ -55,7 +55,7 @@ def plot_coverage(X, Y,
     for x, y in zip(X, Y):
 
         # find horizon based on max_distance
-        o = _find_horizon_offset(x, y, max_distance=max_distance)
+        o = find_horizon_offset(x, y, max_distance=max_distance)
 
         # rotate to world coordinate system
         x, y = rotate_translate(x, y, rotation=rotation, translation=translation)
@@ -102,7 +102,7 @@ def rotate_translate(x, y, rotation=None, translation=None):
     
     return x, y
 
-def _find_horizon_offset(x, y, max_distance=1e4):
+def find_horizon_offset(x, y, max_distance=1e4):
     offset = 0
     if max_distance is not None:
         try:

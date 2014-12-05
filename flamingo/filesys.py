@@ -74,6 +74,11 @@ def get_export_file(ds, im=None, ext=None):
         return re.sub('\.[\w\d]+$', '.%s.pkl' % ext, fpath)
 
 
+def check_export_file(ds, im, ext):
+    pklfile = get_export_file(ds, im, ext)
+    return os.path.exists(pklfile)
+
+
 def read_export_file(ds, im, ext):
     contents = None
     pklfile = get_export_file(ds, im, ext)

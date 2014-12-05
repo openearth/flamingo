@@ -3,22 +3,58 @@ import matplotlib.cm as cm
 import skimage.segmentation
 from skimage.util import img_as_float
 import numpy as np
+import inspect
 import pandas
 import cv2
 
+import postprocess
+
 from argus2 import plot
 
-def get_superpixel(img, method='slic', **kwargs):
+def get_segmentation(img, method='slic', method_params={},
+                     extract_contours=False, remove_disjoint=True):
+
+    # first segmentation step
+    segments = get_superpixel(img,
+                              method=method, method_params=method_params,
+                              remove_disjoint=remove_disjoint)
+    
+    # extract contours
+    if extract_contours:
+        contours = get_contours(segments)
+    else:
+        contours = None
+
+    return segments, contours
+
+
+def get_superpixel(img, method='slic', method_params={}, remove_disjoint=True):
     'Run segmentation algorithm'
     
     #img = img_as_float(img)
     
     if method.lower() == 'slic':
-        kwargs       = {x:kwargs[x] for x in ['n_segments', 'ratio', 'compactness', 'convert2lab','sigma'] if kwargs.has_key(x)}
-        img_superpix = skimage.segmentation.slic(img, **kwargs)
+        method_params = {x:method_params[x]
+                         for x in ['n_segments',
+                                   'ratio',
+                                   'compactness',
+                                   'convert2lab',
+                                   'sigma'] if method_params.has_key(x)}
+        if remove_disjoint and __supports_connectivity():
+            img_superpix = skimage.segmentation.slic(img,
+                                                     enforce_connectivity=True,
+                                                     **method_params)
+        else:
+            img_superpix = skimage.segmentation.slic(img, **method_params)
+
+            if remove_disjoint:
+                img_superpix = postprocess.remove_disjoint(img_superpix)
+
     elif method.lower() == 'quickshift':
-        kwargs       = {x:kwargs[x] for x in ['ratio', 'convert2lab'] if kwargs.has_key(x)}
-        img_superpix = skimage.segmentation.quickshift(img, **kwargs)
+        method_params       = {x:method_params[x]
+                               for x in ['ratio', 'convert2lab']
+                               if method_params.has_key(x)}
+        img_superpix = skimage.segmentation.quickshift(img, **method_params)
     elif method.lower() == 'felzenszwalb':
         img_superpix = skimage.segmentation.felzenszwalb(img)
     elif method.lower() == 'random_walker':
@@ -27,6 +63,7 @@ def get_superpixel(img, method='slic', **kwargs):
         raise ValueError('Unknown superpixel method [%s]' % method)
 
     return img_superpix
+
 
 def shuffle_pixels(img):
     'Shuffle classification identifiers'
@@ -43,6 +80,7 @@ def shuffle_pixels(img):
         img_shuffle[img==i] = value
 
     return img_shuffle
+
 
 def average_colors(img, img_superpix):
     'Apply average color of original pixels within superpixel'
@@ -67,6 +105,7 @@ def average_colors(img, img_superpix):
     img_avg    = img_avg.reshape(img.shape)
 
     return img_avg
+
   
 def plot(img, img_superpix, mark_boundaries=True, shuffle=False, average=False, slice=1):
 
@@ -96,6 +135,7 @@ def plot(img, img_superpix, mark_boundaries=True, shuffle=False, average=False, 
     img_superpix = plot.plot_image(img_superpix, slice=slice)
     
     return img_superpix
+
     
 def mark(img_superpix, cat=1):
 
@@ -115,6 +155,7 @@ def mark(img_superpix, cat=1):
     
     return plot.plot_image(img, transparent=True)
 
+
 def get_superpixel_grid(segments, img_shape):
     '''Return shape of superpixels grid'''
     
@@ -129,15 +170,19 @@ def get_superpixel_grid(segments, img_shape):
     
     return (ny,nx)
 
+
 def get_contours(segments):
     '''Return contours of superpixels'''
 
     contours = []
     for i in range(np.max(segments)+1):
-        c, h = cv2.findContours((segments==i).astype(np.uint8),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        c, h = cv2.findContours((segments==i).astype(np.uint8),
+                                cv2.RETR_EXTERNAL,
+                                cv2.CHAIN_APPROX_NONE)
         contours.append([i.tolist() for i in c])
 
     return contours
+
 
 def check_segmentation(segments, nx, ny):
     # check if total number of segments is ok
@@ -149,3 +194,7 @@ def check_segmentation(segments, nx, ny):
         return False
         
     return True
+
+
+def __supports_connectivity():
+    return 'enforce_connectivity' in inspect.getargspec(skimage.segmentation.slic).args

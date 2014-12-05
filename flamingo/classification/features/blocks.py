@@ -124,7 +124,7 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
                                   features=f0))  
 
             # compute feature for each color channel individually
-            if color:
+            if color and data.shape[-1] >= 3:
 
                 df_sum = None
                 for i in np.arange(3)+1:
@@ -156,7 +156,7 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
 
 
             # compute feature for each additional channel individually
-            if channel:
+            if channel and data.shape[-1] > 3:
 
                 df_sum = None
                 for i in np.arange(data.shape[-1] - 4) + 4:
