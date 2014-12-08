@@ -12,13 +12,13 @@ _PROP_PIXEL = {'area',
                'centroid',
                'equivalent_diameter',
                'perimeter',
-               'moments_central',
+               'moments_central',      # slow
                'solidity',
                'euler_number',
                'extent',
                'moments_normalized',
                'eccentricity',
-               'convex_image',
+               'convex_image',         # slow
                'label',
                'filled_image',
                'orientation',
@@ -34,11 +34,11 @@ _PROP_INTENSITY = {'label',
                    'max_intensity',
                    'mean_intensity',
                    'min_intensity',
-                   'weighted_moments_central',
-                   'weighted_centroid',
-                   'weighted_moments_normalized',
-                   'weighted_moments_hu',
-                   'weighted_moments'}
+                   'weighted_moments_central',     # slow
+                   'weighted_centroid',            # slow
+                   'weighted_moments_normalized',  # slow
+                   'weighted_moments_hu',          # slow
+                   'weighted_moments'}             # slow
 
 _TEMP_FEATURES = {'image',
                   'image_masked',
@@ -52,7 +52,7 @@ def list_blocks():
     return {k: v for k, v in globals().iteritems() if k.startswith('extract_blocks_')}
 
 
-def extract_blocks(data, segments, colorspace='rgb', blocks=None):
+def extract_blocks(data, segments, colorspace='rgb', blocks=None, blocks_params={}):
     '''Extract all blocks in right order'''
 
     features = []
@@ -71,7 +71,8 @@ def extract_blocks(data, segments, colorspace='rgb', blocks=None):
                     features = fcn(data,
                                    segments,
                                    features=features,
-                                   colorspace=colorspace)
+                                   colorspace=colorspace,
+                                   **blocks_params)
                     features_in_block[block] = [
                         x for x in features.columns if x not in features0]
                     features0 = features.columns
@@ -113,7 +114,7 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
                         'Cannot compute derived feature. Feature "%s" is missing.' % feature)
 
             # compute feature for grayscale channel
-            if grayscale:
+            if grayscale: # and (data.ndim == 2 or data.shape[-1] == 1 or data.shape[-1] == 4):
                 if type(features0) is pandas.DataFrame:
                     f0 = features0.filter(derived_from)
                 else:
@@ -121,13 +122,19 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
 
                 features.append(f(data[:,:,0],
                                   segments,
-                                  features=f0))  
+                                  features=f0,
+                                  **kwargs))
 
             # compute feature for each color channel individually
-            if color and data.shape[-1] >= 3:
+            if color: # and data.shape[-1] >= 3:
+
+                if data.shape[-1] > 3:
+                    offset = 1
+                else:
+                    offset = 0
 
                 df_sum = None
-                for i in np.arange(3)+1:
+                for i in np.arange(3)+offset:
                     if type(features0) is pandas.DataFrame:
                         f0 = features0.filter(['%s.%d' % (x, i) if '%s.%d' % (x, i) in features0.keys() else x for x in derived_from]) \
                                       .rename(columns=lambda x: re.sub('\.\d+$', '', x))
@@ -136,7 +143,8 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
 
                     df = f(data[..., i],
                            segments,
-                           features=f0)
+                           features=f0,
+                           **kwargs)
 
                     # incremental sum of all channel values
 
@@ -158,8 +166,10 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
             # compute feature for each additional channel individually
             if channel and data.shape[-1] > 3:
 
+                offset = 4
+
                 df_sum = None
-                for i in np.arange(data.shape[-1] - 4) + 4:
+                for i in np.arange(data.shape[-1] - offset) + offset:
                     if type(features0) is pandas.DataFrame:
                         f0 = features0.filter(['%s.%d' % (x, i) if '%s.%d' % (x, i) in features0.keys() else x for x in derived_from]) \
                                       .rename(columns=lambda x: re.sub('\.\d+$', '', x))
@@ -168,7 +178,8 @@ def __extract_blocks(grayscale=True, color=False, channel=False, derived_from=()
 
                     df = f(data[..., i],
                            segments,
-                           features=f0)
+                           features=f0,
+                           **kwargs)
 
                     # incremental sum of all channel values
 
@@ -288,21 +299,24 @@ def extract_blocks_mask(data, segments, features=[], **kwargs):
 def extract_blocks_grey(data,
                         segments,
                         features=[],
-                        distances=[5, 7, 11],
-                        angles=np.linspace(
-                            0, 1 * np.pi, num=6, endpoint=False),
-                        props=['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM'], **kwargs):
+                        **kwargs):
+
+    settings = {'distances':[5, 7, 11],
+                'angles':np.linspace(0, 1 * np.pi, num=6, endpoint=False),
+                'properties':['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM']}
+
+    settings.update(kwargs)
 
     df = _empty_block_frame(
-        'grey', np.max(segments) + 1, ['grey_%s' % x for x in props])
+        'grey', np.max(segments) + 1, ['grey_%s' % x for x in settings['properties']])
 
     for i, feature in features.iterrows():
         greyprops = skimage.feature.greycomatrix(features.ix[i, 'image_masked'],
-                                                 distances=distances,
-                                                 angles=angles)
-        for prop in props:
+                                                 distances=settings['distances'],
+                                                 angles=settings['angles'])
+        for prop in settings['properties']:
             df.ix[i, 'grey_%s' %
-                  prop] = skimage.feature.greycoprops(greyprops, prop)
+                  prop] = skimage.feature.greycoprops(greyprops, prop) # slow
 
     return df
 

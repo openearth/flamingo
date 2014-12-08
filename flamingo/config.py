@@ -1,9 +1,8 @@
 import os
 import json
+import logging
 import inspect
 import ConfigParser
-
-import flamingo.classify
 
 CLASSIFICATION_DEFAULTS = {
     'general'           : {'dataset' : '',
@@ -88,6 +87,22 @@ def write_config(cfgfile, defaults=CLASSIFICATION_DEFAULTS):
         cfg.write(fp)
 
 
+def parse_config(sections=[]):
+    def wrapper(f):
+        def parse(*args, **kwargs):
+            if kwargs.has_key('cfg'):
+                if 'cfg' in inspect.getargspec(f).args:
+                    kwargs.update(get_function_args(f, kwargs['cfg'], sections))
+                else:
+                    name = getattr(f, '__name__')
+                    logger = logging.getLogger(name)
+                    logger.warn('Function does nog support config argument. Ignored. [%s]' % name)
+                    del kwargs['cfg']
+            return f(*args, **kwargs)
+        return parse
+    return wrapper
+
+
 def get_function_args(fcn, cfg, sections=[]):
 
     args = {}
@@ -103,11 +118,11 @@ def get_function_args(fcn, cfg, sections=[]):
 
     names = inspect.getargspec(fcn).args
 
-    for arg in names:
-        for section in sections:
-            if cfg[section].has_key('enabled'):
-                if not cfg[section]['enabled']:
-                    continue
+    for section in sections:
+        if cfg[section].has_key('enabled'):
+            if section in names:
+                args[section] = cfg[section]['enabled']
+        for arg in names:
             if cfg[section].has_key(arg):
                 args[arg] = cfg[section][arg]
                 break

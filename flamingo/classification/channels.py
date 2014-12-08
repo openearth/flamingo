@@ -8,13 +8,15 @@ _SIGMAS = range(1, 21, 7)
 _THETAS = np.arange(0, np.pi, 0.25*np.pi)
 
 def add_channels(img, colorspace='rgb',
-                 gabor=True, gaussian=True, sobel=True):
+                 methods=['gabor', 'gaussian', 'sobel'],
+                 methods_params=None):
     """add channels to an image.
     Channels are:
     - 0: greyscale
     - 1,2,3: colorspace
     - extra channels
     """
+
     if colorspace.lower() == 'rgb':
         gray = img.mean(-1)
     elif colorspace.lower() == 'hsv':
@@ -23,14 +25,20 @@ def add_channels(img, colorspace='rgb',
         raise ValueError(
             'Unsupported colorspace [%s]' % colorspace)
 
+    # default settings
+    if not methods_params:
+        methods_params = {'frequencies':_FREQS,
+                          'sigmas':_SIGMAS,
+                          'thetas':_THETAS}
+
     # create extra channels
     channels = []
 
     # Create a set of gabor kernels and apply them
-    if gabor:
-        for i, frequency in enumerate(_FREQS):
+    if 'gabor' in methods:
+        for i, frequency in enumerate(methods_params['frequencies']):
             response = []
-            for theta in _THETAS:
+            for theta in methods_params['thetas']:
                 real, imag = skimage.filter.gabor_filter(
                     gray,
                     frequency=frequency,
@@ -44,19 +52,19 @@ def add_channels(img, colorspace='rgb',
             channels.append(response)
 
     # Create relative greyishness
-    if gaussian:
-        for i,sigma1 in enumerate(_SIGMAS):
+    if 'gaussian' in methods:
+        for i, sigma1 in enumerate(methods_params['sigmas']):
             # blur
             response1 = skimage.filter.gaussian_filter(gray, sigma1)
             # blur on a higher level
-            response2 = skimage.filter.gaussian_filter(gray, sigma1 + 1)
+            response2 = skimage.filter.gaussian_filter(gray, sigma1+1)
             # create relative darkness
             response = response2 - response1
         
             channels.append(response)
 
     # Create sobel filter channel
-    if sobel:
+    if 'sobel' in methods:
         channels.append(skimage.filter.sobel(gray))
         
     # Combine all channels
