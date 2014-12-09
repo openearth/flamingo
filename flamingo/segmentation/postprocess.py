@@ -1,6 +1,5 @@
 import numpy as np
 import collections
-from .. import log
 
 def remove_disjoint(segments):
     '''Remove disjoint regions in segmentation'''
@@ -17,7 +16,6 @@ def remove_disjoint(segments):
 
         r.append(region)
         e.append(edges)
-    log.memory_usage('after region growing')
         
     for i in range(len(r)):
         inds = range(len(r[i]))
@@ -34,9 +32,9 @@ def remove_disjoint(segments):
                 d[ns] += 1
                 
             seg_new[zip(*r[i][j])] = max(d,key=d.get)
-    log.memory_usage('after region update')
 
     return seg_new
+
 
 def region_growing(mask,connectivity=8):
     '''Simple region growing algorithm'''

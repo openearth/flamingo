@@ -117,7 +117,6 @@ def get_function_args(fcn, cfg, sections=[]):
         sections.append('general')
 
     names = inspect.getargspec(fcn).args
-
     for section in sections:
         if cfg[section].has_key('enabled'):
             if section in names:
@@ -125,7 +124,6 @@ def get_function_args(fcn, cfg, sections=[]):
         for arg in names:
             if cfg[section].has_key(arg):
                 args[arg] = cfg[section][arg]
-                break
 
     return args
 
