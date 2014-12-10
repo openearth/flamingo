@@ -1,12 +1,12 @@
 import os
 import re
 import time
+import numpy as np
+import pandas as pd
 import cPickle as pickle
+import matplotlib.pyplot as plt
 
 from pkg_resources import Requirement, resource_filename
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 import classification.features.blocks as feature_blocks
 
@@ -24,7 +24,7 @@ def get_dataset_path():
     if PATH_DATASET is not None:
         if os.path.exists(PATH_DATASET):
             return PATH_DATASET
-    demopath = resource_filename(Requirement.parse("flamingo"), "data")
+    demopath = resource_filename(Requirement.parse('flamingo'), 'data')
     return demopath
 
 
@@ -83,11 +83,24 @@ def read_export_file(ds, im, ext):
     contents = None
     pklfile = get_export_file(ds, im, ext)
     if os.path.exists(pklfile):
+
+        success = False
         try:
             with open(pklfile, 'rb') as fp:
                 contents = pickle.load(fp)
+            success = True
         except:
+            pass
+
+        try:
+            contents = pd.read_pickle(pklfile)
+            success = True
+        except:
+            pass
+
+        if not success:
             raise IOError('Error reading file %s' % pklfile)
+
     return contents
 
 

@@ -4,6 +4,7 @@ import time
 import json
 import pandas
 import logging
+import mimetypes
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,8 +33,8 @@ def run_preprocessing(ds,
                       normalize=False,
                       feature_blocks='all',
                       colorspace='rgb',
-                      relloc_maps=False,
-                      relloc=False,
+                      relative_location_maps=False,
+                      relative_location_prior=False,
                       overwrite=False,
                       model_dataset=None,
                       class_aggregation=None,
@@ -57,11 +58,13 @@ def run_preprocessing(ds,
     if channels:
         if extract:
             run_channel_extraction(
-                ds, images, colorspace=colorspace, cfg=cfg)
+                ds, images, colorspace=colorspace,
+                overwrite=overwrite, cfg=cfg)
 
         if normalize:
             run_channel_normalization(
-                ds, images, model_dataset=model_dataset, cfg=cfg)
+                ds, images, model_dataset=model_dataset,
+                overwrite=overwrite, cfg=cfg)
 
     # feature extraction, first part
     if features and extract:
@@ -72,7 +75,7 @@ def run_preprocessing(ds,
 
     # relative location prior maps, requires centroids
     # from feature extraction
-    if relloc and relloc_maps:
+    if relative_location_prior and relative_location_maps:
         run_relative_location_mapping(
             ds, n=100, sigma=2,
             class_aggregation=class_aggregation, cfg=cfg)
@@ -82,12 +85,14 @@ def run_preprocessing(ds,
         if update:
             run_feature_update(
                 ds, images, feature_blocks=feature_blocks,
-                class_aggregation=class_aggregation, relloc=relloc)
+                class_aggregation=class_aggregation,
+                relative_location_prior=relative_location_prior,
+                overwrite=overwrite)
 
         if normalize:
             run_feature_normalization(
                 ds, images, feature_blocks=feature_blocks,
-                model_dataset=model_dataset)
+                overwrite=overwrite, model_dataset=model_dataset)
 
     logger.info('Preprocessing finished.')
 
@@ -372,7 +377,7 @@ def run_feature_update(ds, images=[], feature_blocks=[],
     # create feature block list
     feature_blocks = create_feature_list(feature_blocks)
 
-    if relloc:
+    if relative_location_prior:
         maps = filesys.read_export_file(
             ds, None, 'relative_location_maps')
 
@@ -386,7 +391,7 @@ def run_feature_update(ds, images=[], feature_blocks=[],
             ds, im, feature_blocks.keys())
 
         # include relative location feature if requested
-        if relloc:
+        if relative_location_prior:
             try:
                 logger.info('Add relative location votes')
 
@@ -451,7 +456,7 @@ def run_feature_update(ds, images=[], feature_blocks=[],
 @config.parse_config(['features'])
 def run_feature_normalization(ds, images=[], feature_blocks=[],
                               model_dataset=None, feature_stats=None,
-                              cfg=None):
+                              overwrite=False, cfg=None):
     logger.info('Normalizing features started...')
 
     logger.info('Aggregate feature statistics')
@@ -552,7 +557,7 @@ def run_regularization(ds, images='all', feature_blocks='all',
 
     if not type(model_type) is list:
         model_type = [model_type]
-        
+    
     if not type(partition) is list:
         partition = [partition]
 
@@ -583,7 +588,7 @@ def run_regularization(ds, images='all', feature_blocks='all',
             feature_blocks,
             model_type=model_type,
             class_aggregation=class_aggregation,
-            partition_start=partition,
+            partitions=partition,
             C=cval)
 
         # fit models
@@ -657,18 +662,18 @@ def initialize_models(ds, images='all', feature_blocks='all',
                                    n_features=n_features,
                                    rlp_maps=rlp_maps,
                                    rlp_stats=rlp_stats,
-                                   C=C) for m in modtype]
+                                   C=C) for m in model_type]
 
     # construct data arrays from dataframes and partitions
     train_sets, test_sets, prior_sets = \
         features_to_input(ds,
-                           images,
-                           images_train,
-                           images_test,
-                           X,
-                           Y,
-                           X_rlp,
-                           partitions=partitions)
+                          images,
+                          images_train,
+                          images_test,
+                          X,
+                          Y,
+                          X_rlp,
+                          partitions=partitions)
 
     # collect meta information
     meta = [[{'dataset': ds,
@@ -756,14 +761,24 @@ def create_image_list(ds, images):
         if im in images_all:
             imlist.append(im)
         else:
-            logger.warn(
-                'Image not found in dataset "%s": %s' % (ds, im))
+            if os.path.exists(im):
+                with open(im, 'r') as fp:
+                    for line in fp:
+                        if line.strip() in images_all:
+                            imlist.append(line.strip())
+            else:
+                logger.warn(
+                    'Image not found in dataset "%s": %s' % (ds, im))
+
+    print imlist
     return imlist
 
 
 def create_feature_list(feature_blocks):
     allfb = cls.features.blocks.list_blocks()
-    if type(feature_blocks) is list:
+    if type(feature_blocks) is dict:
+        return feature_blocks
+    elif type(feature_blocks) is list:
         feature_blocks = {k: v
                           for k, v in allfb.iteritems()
                           if k in feature_blocks or k.replace(
@@ -908,7 +923,7 @@ Usage:
     classify-images train <dataset> [--type=NAME] [--partitions=N] [--images=FILE] [--config=FILE] [--verbose]
     classify-images score <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--verbose]
     classify-images predict <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
-    classify-images regularization <dataset> [--type=NAME] [--partitions=N] [--images=FILE] [--config=FILE] [--verbose]
+    classify-images regularization <dataset> [--type=NAME] [--images=FILE] [--config=FILE] [--verbose]
 
 Positional arguments:
     dataset            dataset containing the images
@@ -946,7 +961,6 @@ Options:
     cfg = config.read_config(arguments['--config'])
 
     if arguments['--images']:
-        # TODO: differentiate between image files, image file list and JSON shizzle
         images = arguments['--images'].split(',')
     else:
         images = 'all'
@@ -966,8 +980,8 @@ Options:
             extract=arguments['--extract'],
             update=arguments['--update'],
             normalize=arguments['--normalize'],
-            relloc=arguments['--relloc'],
-            relloc_maps=arguments['--relloc_maps'],
+            relative_location_prior=arguments['--relloc'],
+            relative_location_maps=arguments['--relloc_maps'],
             overwrite=arguments['--overwrite'],
             cfg=cfg
         )
@@ -1009,7 +1023,6 @@ Options:
     if arguments['regularization']:
         run_regularization(
             arguments['<dataset>'],
-            modtype=arguments['--type'],
-            partition=int(arguments['--partition']),
+            model_type=arguments['--type'],
             cfg=cfg
         )

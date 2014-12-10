@@ -40,10 +40,18 @@ def get_superpixel(img, method='slic', method_params={}, remove_disjoint=True):
                                    'compactness',
                                    'convert2lab',
                                    'sigma'] if method_params.has_key(x)}
+
         if remove_disjoint and __supports_connectivity():
+            if method_params.has_key('n_segments'):
+                n_segments = method_params['n_segments']
+            else:
+                n_segments = 100.
+            nx, ny = get_superpixel_grid(n_segments, img.shape[:2])
             img_superpix = skimage.segmentation.slic(img,
                                                      enforce_connectivity=True,
+                                                     min_size_factor=.2,
                                                      **method_params)
+            img_superpix = postprocess.regularize(img_superpix, nx, ny)
         else:
             img_superpix = skimage.segmentation.slic(img, **method_params)
 
@@ -159,12 +167,16 @@ def mark(img_superpix, cat=1):
 def get_superpixel_grid(segments, img_shape):
     '''Return shape of superpixels grid'''
     
-    K = segments.max()
+    if type(segments) is int:
+        K = segments
+    else:
+        K = segments.max()
+
     height, width = img_shape
     superpixelsize = width * height / float(K);
     step = np.sqrt(superpixelsize)
-    nx = int(round(width / step))
-    ny = int(round(height / step))
+    nx = int(np.round(width / step))
+    ny = int(np.round(height / step))
 
 #    assert(np.max(segments) == nx*ny - 1)
     
@@ -185,6 +197,7 @@ def get_contours(segments):
 
 
 def check_segmentation(segments, nx, ny):
+
     # check if total number of segments is ok
     if not np.max(segments) + 1 == nx * ny:
         return False

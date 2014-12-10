@@ -86,3 +86,90 @@ def region_growing(mask,connectivity=8):
 
     return regions,edges
     
+
+def regularize(segments, nx, ny):
+
+    # create regular target grid
+    m_segments = nx * ny
+    s1, s2 = segments.shape[0]/nx, segments.shape[1]/ny
+    sy, sx = np.meshgrid(np.arange(s2/2, segments.shape[1], s2),
+                         np.arange(s1/2, segments.shape[0], s1))
+    sxf, syf = sx.flatten(), sy.flatten()
+
+    # create image coordinate matrices
+    v, u = np.meshgrid(np.arange(segments.shape[1]),
+                       np.arange(segments.shape[0]))
+
+    uw = np.zeros(np.max(segments)+1)
+    vw = np.zeros(np.max(segments)+1)
+    sz = np.zeros(np.max(segments)+1)
+    n  = np.zeros(np.max(segments)+1)
+    
+    # determine sizes and centroids
+    for i in np.unique(segments):
+        idx = segments == i
+        uw[i] = np.mean(u[idx])
+        vw[i] = np.mean(v[idx])
+        sz[i] = np.sum(idx)
+        n[i]  = i
+
+    # order based on size and select largest superpixels
+    n, sz, uw, vw = zip(*sorted(
+            zip(n, sz, uw, vw), key=lambda x: x[1], reverse=True))
+    ns, szs, uws, vws = n[:m_segments], sz[:m_segments], \
+        uw[:m_segments], vw[:m_segments]
+    szs = list(szs)
+
+    # assign smaller superpixels to closest larger superpixel
+    rsegments = segments.copy()
+    for i in range(m_segments, len(n)):
+        d = (uws - uw[i])**2 + (vws - vw[i])**2
+        ii = np.argmin(d)
+        idx = segments == n[i]
+        rsegments[idx] = ns[ii]
+        szs[ii] += sz[i]
+
+    # initially sort based on vertical centroid location
+    ns, szs, uws, vws = zip(*sorted(zip(ns, szs, uws, vws), 
+                                    key=lambda x: x[0]))
+
+    ns  = list(ns)
+    szs = list(szs)
+    uws = list(uws)
+    vws = list(vws)
+    
+    # update superpixel sorting such that the least square difference
+    # with the regular target grid is minimal
+    n_changes = 1
+    while n_changes > 0: # this loop is a dirty fix
+    
+        i = 0
+        n_changes = 0
+        while i+1 < len(ns):
+
+            changed = False
+            for j in range(i+1, len(ns)):
+                d1 = (uws[i]-sxf[i])**2 + (vws[i]-syf[i])**2 + \
+                     (uws[j]-sxf[j])**2 + (vws[j]-syf[j])**2
+                d2 = (uws[j]-sxf[i])**2 + (vws[j]-syf[i])**2 + \
+                     (uws[i]-sxf[j])**2 + (vws[i]-syf[j])**2
+
+                if d2 < d1:
+                    ns[i],  ns[j]  = ns[j],  ns[i]
+                    szs[i], szs[j] = szs[j], szs[i]
+                    uws[i], uws[j] = uws[j], uws[i]
+                    vws[i], vws[j] = vws[j], vws[i]
+                    changed = True
+                    break
+
+            if not changed:
+                i += 1
+            else:
+                n_changes += 1
+        
+    # assign new superpixel numbers
+    rsegments_ordered = rsegments.copy()
+    for i, n in enumerate(ns):
+        rsegments_ordered[rsegments==n] = i
+
+    return rsegments_ordered
