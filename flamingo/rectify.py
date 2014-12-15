@@ -1,3 +1,23 @@
+'''Ortho-rectify images based on ground control points (GCP)
+
+Usage:
+    rectify-image <image> <gcpfile> [--dist-model=NAME] [--dist-coefs=VALUES] [--verbose]
+
+Positional arguments:
+    image               image to be rectified
+    gcpfile             file containing GCP's in image (UVXYZ)
+
+Options:
+    -h, --help           show this help message and exit
+    --dist-model=NAME    name of distortion model to use [default: OPENCV]
+    --dist-coefs=VALUES  coefficients used for distortion model [default: 0,0,0,0]
+    --size=SIZE          size of output figure [default: 30,20]
+    --rotation=ANGLE     rotate resulting image [default: 0]
+    --translation=DIST   translate resulting image [default: 0,0]
+    --maxdistance=DIST   maximum distance from origin included in plot [default: 1e4]
+    --verbose            print logging messages
+'''
+
 import os
 import rectification
 
@@ -31,28 +51,7 @@ def run_rectification(img, gcpfile, dist_model='OPENCV', dist_coefs=[0,0,0,0],
 def main():
     import docopt
 
-    usage = """
-Ortho-rectify images based on ground control points (GCP)
-
-Usage:
-    rectify-image <image> <gcpfile> [--dist-model=NAME] [--dist-coefs=VALUES] [--verbose]
-
-Positional arguments:
-    image               image to be rectified
-    gcpfile             file containing GCP's in image (UVXYZ)
-
-Options:
-    -h, --help           show this help message and exit
-    --dist-model=NAME    name of distortion model to use [default: OPENCV]
-    --dist-coefs=VALUES  coefficients used for distortion model [default: 0,0,0,0]
-    --size=SIZE          size of output figure [default: 30,20]
-    --rotation=ANGLE     rotate resulting image [default: 0]
-    --translation=DIST   translate resulting image [default: 0,0]
-    --maxdistance=DIST   maximum distance from origin included in plot [default: 1e4]
-    --verbose            print logging messages
-"""
-
-    arguments = docopt.docopt(usage)
+    arguments = docopt.docopt(__doc__)
 
     if arguments['--verbose']:
         logging.basicConfig()
@@ -68,3 +67,7 @@ Options:
         translation=[float(x) for x in arguments['--translation'].split(',')],
         max_distance=float(arguments['--maxdistance'])
     )
+
+
+if __name__ == '__main__':
+    main()

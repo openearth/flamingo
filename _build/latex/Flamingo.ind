@@ -1,0 +1,132 @@
+\begin{theindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter A
+  \item add\_channels() (in module flamingo.classification.channels), \hyperpage{14}
+  \item aggregate\_scores() (in module flamingo.classification.test), \hyperpage{14}
+  \item average\_colors() (in module flamingo.segmentation.superpixels), \hyperpage{6}
+
+  \indexspace
+  \bigletter C
+  \item check\_export\_file() (in module flamingo.filesys), \hyperpage{19}
+  \item check\_segmentation() (in module flamingo.segmentation.superpixels), \hyperpage{7}
+  \item check\_sets() (in module flamingo.classification.utils), \hyperpage{15}
+  \item CLASSIFICATION\_DEFAULTS (in module flamingo.config), \hyperpage{21}
+  \item compute\_learning\_curve() (in module flamingo.classification.test), \hyperpage{14}
+  \item compute\_prior() (in module flamingo.classification.features.relativelocation), 
+		\hyperpage{13}
+
+  \indexspace
+  \bigletter E
+  \item extract\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{12}
+
+  \indexspace
+  \bigletter F
+  \item find\_homography() (in module flamingo.rectification.rectification), \hyperpage{3}
+  \item find\_horizon\_offset() (in module flamingo.rectification.plot), \hyperpage{5}
+  \item flamingo.calibrate (module), \hyperpage{18}
+  \item flamingo.classification.channels (module), \hyperpage{14}
+  \item flamingo.classification.features.blocks (module), \hyperpage{12}
+  \item flamingo.classification.features.features (module), \hyperpage{12}
+  \item flamingo.classification.features.normalize (module), \hyperpage{13}
+  \item flamingo.classification.features.relativelocation (module), \hyperpage{13}
+  \item flamingo.classification.features.scaleinvariant (module), \hyperpage{13}
+  \item flamingo.classification.models (module), \hyperpage{10}
+  \item flamingo.classification.plot (module), \hyperpage{15}
+  \item flamingo.classification.test (module), \hyperpage{14}
+  \item flamingo.classification.utils (module), \hyperpage{15}
+  \item flamingo.classify (module), \hyperpage{17}
+  \item flamingo.config (module), \hyperpage{21}
+  \item flamingo.filesys (module), \hyperpage{19}
+  \item flamingo.rectification.plot (module), \hyperpage{5}
+  \item flamingo.rectification.rectification (module), \hyperpage{3}
+  \item flamingo.rectify (module), \hyperpage{17}
+  \item flamingo.segmentation.plot (module), \hyperpage{9}
+  \item flamingo.segmentation.postprocess (module), \hyperpage{8}
+  \item flamingo.segmentation.superpixels (module), \hyperpage{6}
+
+  \indexspace
+  \bigletter G
+  \item get\_contours() (in module flamingo.segmentation.superpixels), \hyperpage{7}
+  \item get\_dataset\_list() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_dataset\_path() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_export\_file() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_function\_args() (in module flamingo.config), \hyperpage{21}
+  \item get\_image\_data() (in module flamingo.segmentation.plot), \hyperpage{9}
+  \item get\_image\_list() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_image\_location() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_image\_path() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_model() (in module flamingo.classification.models), \hyperpage{10}
+  \item get\_model\_list() (in module flamingo.filesys), \hyperpage{19}
+  \item get\_pixel\_coordinates() (in module flamingo.rectification.rectification), \hyperpage{4}
+  \item get\_segmentation() (in module flamingo.segmentation.superpixels), \hyperpage{7}
+  \item get\_superpixel\_grid() (in module flamingo.segmentation.superpixels), \hyperpage{8}
+
+  \indexspace
+  \bigletter H
+  \item has\_features() (in module flamingo.filesys), \hyperpage{19}
+
+  \indexspace
+  \bigletter I
+  \item is\_classified() (in module flamingo.filesys), \hyperpage{19}
+  \item is\_segmented() (in module flamingo.filesys), \hyperpage{20}
+
+  \indexspace
+  \bigletter L
+  \item linearize() (in module flamingo.classification.features.features), \hyperpage{12}
+  \item list\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{12}
+
+  \indexspace
+  \bigletter P
+  \item parse\_config() (in module flamingo.config), \hyperpage{21}
+  \item plot() (in module flamingo.segmentation.plot), \hyperpage{9}
+  \item plot\_coverage() (in module flamingo.rectification.plot), \hyperpage{5}
+  \item plot\_image() (in module flamingo.segmentation.plot), \hyperpage{10}
+  \item plot\_learning\_curve() (in module flamingo.classification.test), \hyperpage{14}
+  \item plot\_rectified() (in module flamingo.rectification.plot), \hyperpage{5}
+
+  \indexspace
+  \bigletter R
+  \item read\_config() (in module flamingo.config), \hyperpage{21}
+  \item read\_default\_categories() (in module flamingo.filesys), \hyperpage{20}
+  \item read\_export\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item read\_feature\_files() (in module flamingo.filesys), \hyperpage{20}
+  \item read\_image\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item read\_log\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item read\_model\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item rectify\_coordinates() (in module flamingo.rectification.rectification), \hyperpage{4}
+  \item rectify\_image() (in module flamingo.rectification.rectification), \hyperpage{4}
+  \item region\_growing() (in module flamingo.segmentation.postprocess), \hyperpage{8}
+  \item regularize() (in module flamingo.segmentation.postprocess), \hyperpage{8}
+  \item remove\_disjoint() (in module flamingo.segmentation.postprocess), \hyperpage{9}
+  \item rotate\_translate() (in module flamingo.rectification.plot), \hyperpage{6}
+
+  \indexspace
+  \bigletter S
+  \item save\_figure() (in module flamingo.classification.plot), \hyperpage{15}
+  \item score\_model() (in module flamingo.classification.models), \hyperpage{11}
+  \item score\_models() (in module flamingo.classification.models), \hyperpage{11}
+  \item set\_dataset\_path() (in module flamingo.filesys), \hyperpage{20}
+  \item shuffle\_pixels() (in module flamingo.segmentation.superpixels), \hyperpage{8}
+  \item smooth\_maps() (in module flamingo.classification.features.relativelocation), 
+		\hyperpage{13}
+
+  \indexspace
+  \bigletter T
+  \item train\_model() (in module flamingo.classification.models), \hyperpage{12}
+  \item train\_models() (in module flamingo.classification.models), \hyperpage{12}
+
+  \indexspace
+  \bigletter V
+  \item vote\_image() (in module flamingo.classification.features.relativelocation), \hyperpage{13}
+
+  \indexspace
+  \bigletter W
+  \item write\_config() (in module flamingo.config), \hyperpage{21}
+  \item write\_export\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item write\_feature\_files() (in module flamingo.filesys), \hyperpage{20}
+  \item write\_log\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item write\_model\_file() (in module flamingo.filesys), \hyperpage{20}
+  \item write\_model\_files() (in module flamingo.filesys), \hyperpage{20}
+
+\end{theindex}

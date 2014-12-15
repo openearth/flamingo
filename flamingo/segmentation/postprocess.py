@@ -1,8 +1,40 @@
+#!/usr/bin/env python
+
+__author__ = "Bas Hoonhout"
+__copyright__ = "Copyright 2014, The NEMO Project"
+__credits__ = []
+__license__ = "GPL"
+__version__ = "1.0.1"
+__maintainer__ = "Bas Hoonhout"
+__email__ = "bas.hoonhout@deltares.nl"
+__status__ = "production"
+
 import numpy as np
 import collections
 
+
 def remove_disjoint(segments):
-    '''Remove disjoint regions in segmentation'''
+    '''Remove disjoint regions in segmentation
+
+    Remove disjoint regions in segmentation by running a region
+    growing algorihtm for each segment. Any segment that appears to
+    consist out of multiple disconnected parts is splitted. The
+    biggest part remains as placeholder of the existing superpixel.
+    The smaller parts are joined with the neighbouring superpixels.
+    If multiple neighbouring superpixels exist, the one that shares
+    the largest border is chosen.
+
+    Parameters
+    ----------
+    segments : np.ndarray
+        NxM matrix with segment numbering
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix with alternative segment numbering with connected
+        segments
+    '''
     
     seg_new = np.asarray(segments).copy()
     r = []
@@ -36,8 +68,24 @@ def remove_disjoint(segments):
     return seg_new
 
 
-def region_growing(mask,connectivity=8):
-    '''Simple region growing algorithm'''
+def region_growing(mask, connectivity=8):
+    '''Simple region growing algorithm
+
+    Parameters
+    ----------
+    mask : np.ndarray
+        Binary matrix indicating what pixels are within a region and
+        what are not
+    connectivity : int, 4 or 8
+        Number of neighbouring pixels taken into account
+
+    Returns
+    -------
+    list
+        List of 2-tuples with coordinates within a region
+    list
+        List of 2-tuples with coordinates at the edge of the region
+    '''
     
     inds = {tuple(i) for i in np.array(np.where(mask)).transpose()}
     inds_todo = inds.copy()
@@ -84,11 +132,34 @@ def region_growing(mask,connectivity=8):
         regions.append(r)
         edges.append(e)
 
-    return regions,edges
+    return regions, edges
     
 
 def regularize(segments, nx, ny):
+    '''Create a regular grid from a collection of image segments
 
+    The number of segments supplied is supposed to be larger than the
+    number of segments in the target grid (nx*ny). A regular grid of
+    size nx*ny over the image grid NxM is constructed. Subsequently,
+    the segments are ordered based on size. the nx*ny largest segments
+    are preserved and assigned to a single grid cell in the regular
+    grid based on least squares fit. The smaller segments are added to
+    the preserved segment that is closest based on their centroids.
+
+    Parameters
+    ----------
+    segments : np.ndarray
+        NxM matrix with segment numbering
+    nx, ny : int
+        Dimensions of the target superpixel grid
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix with alternative segment numbering with segments in
+        a regular grid
+    '''
+    
     # create regular target grid
     m_segments = nx * ny
     s1, s2 = segments.shape[0]/nx, segments.shape[1]/ny

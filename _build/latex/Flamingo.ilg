@@ -1,0 +1,7 @@
+This is makeindex, version 2.15 [TeX Live 2014] (kpathsea + Thai support).
+Scanning style file ./python.ist......done (6 attributes redefined, 0 ignored).
+Scanning input file Flamingo.idx....done (85 entries accepted, 0 rejected).
+Sorting entries....done (577 comparisons).
+Generating output file Flamingo.ind....done (132 lines written, 0 warnings).
+Output written in Flamingo.ind.
+Transcript written in Flamingo.ilg.

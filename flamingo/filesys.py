@@ -14,6 +14,7 @@ PATH_DATASET = '/flamingo/datasets/'
 
 
 def set_dataset_path(fpath):
+    'Set path to datasets'
 
     # FIXME: if it's captitalized it's a constant.
     # Use a config file for this or command line args
@@ -21,6 +22,8 @@ def set_dataset_path(fpath):
 
 
 def get_dataset_path():
+    'Get path to datasets'
+    
     if PATH_DATASET is not None:
         if os.path.exists(PATH_DATASET):
             return PATH_DATASET
@@ -29,6 +32,8 @@ def get_dataset_path():
 
 
 def get_dataset_list():
+    'Get list of available datasets'
+    
     fpath = get_dataset_path()
 
     datasets = []
@@ -39,14 +44,20 @@ def get_dataset_list():
 
 
 def get_image_path(ds):
+    'Get absolute path to images within dataset'
+    
     return os.path.join(get_dataset_path(), ds)
 
 
 def get_image_location(ds, im):
+    'Get absolute path to specific image in dataset'
+    
     return os.path.join(get_image_path(ds), im)
 
 
 def get_image_list(ds):
+    'Get list with all images in dataset'
+    
     images = []
     if ds is not None:
         fpath = get_image_path(ds)
@@ -62,6 +73,8 @@ def get_image_list(ds):
 
 
 def get_export_file(ds, im=None, ext=None):
+    'Get path to export file'
+    
     if im is None and ext is None:
         return os.path.join(get_image_path(ds), '%s.pkl' % ds)
     elif im is None:
@@ -75,11 +88,15 @@ def get_export_file(ds, im=None, ext=None):
 
 
 def check_export_file(ds, im, ext):
+    'Check if export file exists'
+    
     pklfile = get_export_file(ds, im, ext)
     return os.path.exists(pklfile)
 
 
 def read_export_file(ds, im, ext):
+    'Read contents of export file'
+    
     contents = None
     pklfile = get_export_file(ds, im, ext)
     if os.path.exists(pklfile):
@@ -105,6 +122,8 @@ def read_export_file(ds, im, ext):
 
 
 def write_export_file(ds, im, ext, contents, append=False):
+    'Write contents to export file'
+    
     pklfile = get_export_file(ds, im, ext)
 
     if append:
@@ -121,6 +140,8 @@ def write_export_file(ds, im, ext, contents, append=False):
 
 
 def read_log_file(ds, keys=None):
+    'Read contents of log file'
+    
     log = read_export_file(ds, None, 'log')
     if (keys is None) or (log is None):
         return log
@@ -133,10 +154,14 @@ def read_log_file(ds, keys=None):
 
 
 def write_log_file(ds, contents):
+    'Write contents to log file'
+    
     return write_export_file(ds, None, 'log', contents, append=True)
 
 
 def read_image_file(ds, im, crop=True):
+    'Read image file'
+    
     fpath = get_image_location(ds, im)
 
     img = None
@@ -158,6 +183,8 @@ def read_image_file(ds, im, crop=True):
 
 
 def write_feature_files(ds, im, features, features_in_block, ext=None):
+    'Write features to a collection of export files depending on their feature block'
+    
     for block, cols in features_in_block.iteritems():
         fname = __get_feature_filename(block, ext)
         cols = [c for c in cols if c in features.columns]
@@ -165,6 +192,8 @@ def write_feature_files(ds, im, features, features_in_block, ext=None):
 
 
 def read_feature_files(ds, im, blocks=feature_blocks.list_blocks().keys(), ext=None):
+    'Read features from a collection of export files including only selected feature blocks'
+    
     features = []
     features_in_block = {}
     for block in blocks:
@@ -179,6 +208,8 @@ def read_feature_files(ds, im, blocks=feature_blocks.list_blocks().keys(), ext=N
 
 
 def get_model_list(ds):
+    'Get list of model files in dataset'
+    
     models = []
     if ds is not None:
         fpath = get_image_path(ds)
@@ -193,6 +224,8 @@ def get_model_list(ds):
 
 
 def write_model_files(ds, models, meta, ext=''):
+    'Write a series of models to export files including meta data'
+    
     if len(ext) > 0 and not ext.startswith('.'):
         ext = '.%s' % ext
     for i, model in enumerate(models):
@@ -201,6 +234,8 @@ def write_model_files(ds, models, meta, ext=''):
 
 
 def write_model_file(ds, model, meta, ext=''):
+    'Write a single model to export file including meta data'
+    
     model_name = __get_model_filename(meta) + ext
 
     # write model file
@@ -215,6 +250,8 @@ def write_model_file(ds, model, meta, ext=''):
 
 
 def read_model_file(ds, model_name):
+    'Read a model from export file including meta data'
+    
     model_name = re.sub('\.pkl$', '', model_name)
 
     # write model file
@@ -231,6 +268,8 @@ def read_model_file(ds, model_name):
 
 
 def read_default_categories(ds):
+    'Read list of uniquely defined classes in dataset'
+    
     classes = []
     images = get_image_list(ds)
     for im in images:
@@ -242,6 +281,8 @@ def read_default_categories(ds):
 
 
 def is_classified(ds, im):
+    'Determine if image is annotated'
+    
     classes = read_export_file(ds, im, 'classes')
     if classes is not None:
         return None not in classes
@@ -249,16 +290,22 @@ def is_classified(ds, im):
 
 
 def is_segmented(ds, im):
+    'Determine if image is segmented'
+    
     pklfile = get_export_file(ds, im, 'segments')
     return os.path.exists(pklfile)
 
 
 def has_features(ds, im):
+    'Determine if features for image are extracted'
+    
     pklfile = get_export_file(ds, im, 'features')
     return os.path.exists(pklfile)
 
 
 def __get_feature_filename(block, ext=None):
+    'Get name of export file for feature block'
+    
     block = re.sub('^extract_blocks_', '', block)
 
     if ext:
@@ -270,6 +317,8 @@ def __get_feature_filename(block, ext=None):
 
 
 def __get_model_filename(meta):
+    'Get name of model file'
+    
     model_name = 'model_%s_%s_I%d_B%d_%s' % (meta['model_type'].upper(),
                                              meta['dataset'].upper(),
                                              len(meta['images']),

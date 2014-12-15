@@ -1,0 +1,523 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>flamingo.classification.models &mdash; Flamingo 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for flamingo.classification.models</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">sklearn.linear_model</span>
+<span class="kn">import</span> <span class="nn">pystruct.models</span><span class="o">,</span> <span class="nn">pystruct.learners</span>
+
+<span class="kn">from</span> <span class="nn">features</span> <span class="kn">import</span> <span class="n">relativelocation</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">LogisticRegression</span><span class="p">(</span><span class="n">sklearn</span><span class="o">.</span><span class="n">linear_model</span><span class="o">.</span><span class="n">LogisticRegression</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">LogisticRegressionRLP</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">):</span>
+
+    <span class="n">rlp_maps</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">rlp_stats</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">rlp_init</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s">&#39;l2&#39;</span><span class="p">,</span> <span class="n">dual</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">fit_intercept</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">intercept_scaling</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rlp_maps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rlp_stats</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegressionRLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">penalty</span><span class="o">=</span><span class="n">penalty</span><span class="p">,</span> <span class="n">dual</span><span class="o">=</span><span class="n">dual</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">,</span>
+                                                    <span class="n">fit_intercept</span><span class="o">=</span><span class="n">fit_intercept</span><span class="p">,</span> <span class="n">intercept_scaling</span><span class="o">=</span><span class="n">intercept_scaling</span><span class="p">,</span>
+                                                    <span class="n">class_weight</span><span class="o">=</span><span class="n">class_weight</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rlp_maps</span> <span class="o">=</span> <span class="n">rlp_maps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rlp_stats</span> <span class="o">=</span> <span class="n">rlp_stats</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X_rlp</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">Xi</span><span class="p">,</span> <span class="n">Xi_rlp</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Xi_rlp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X_rlp</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegressionRLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">shp</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_rlp_features</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegressionRLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;/flamingo/debug/</span><span class="si">%d</span><span class="s">_final.pkl&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span> <span class="c"># BAS: WHAT THE HELL IS THIS ?!?!</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shp</span><span class="p">),</span> <span class="n">fp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Y</span>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Yi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;/flamingo/debug/</span><span class="si">%d</span><span class="s">_annotated.pkl&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span> <span class="c"># BAS: OH, SYSTEMATIC BULLSHIT...</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Yi</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegressionRLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">Xi</span><span class="p">,</span> <span class="n">Yi</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">compute_rlp_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rlp_initialized</span><span class="p">():</span>
+
+            <span class="c"># set relative location features to zero</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rlp_maps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">X_ext</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="n">n</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c"># first prediction round</span>
+            <span class="n">Y</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogisticRegressionRLP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_ext</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;/flamingo/debug/</span><span class="si">%d</span><span class="s">_firstprediction.pkl&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span> <span class="c"># BAS: SHOW ME THE WAY TO THE NEXT DEBUG FLAG</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+            <span class="c"># voting based on first prediction round and relative location prior</span>
+            <span class="n">votes</span><span class="p">,</span> <span class="n">ivote</span> <span class="o">=</span> <span class="n">relativelocation</span><span class="o">.</span><span class="n">vote_image</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rlp_maps</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;/flamingo/debug/</span><span class="si">%d</span><span class="s">_votes.pkl&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span><span class="s">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span> <span class="c"># BAS: REALLY? REALLY, REALLY, REALLY?</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">ivote</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+            <span class="c"># translate voted probabilities to relative location features</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">votes</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="s">&#39;prob_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">c</span>
+                <span class="n">avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rlp_stats</span><span class="p">[</span><span class="s">&#39;avg&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">]</span>
+                <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rlp_stats</span><span class="p">[</span><span class="s">&#39;var&#39;</span><span class="p">][</span><span class="n">s</span><span class="p">])</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">votes</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()[</span><span class="o">...</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="n">avg</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">X</span>
+
+    <span class="k">def</span> <span class="nf">_rlp_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rlp_maps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">rlp_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+
+<span class="k">class</span> <span class="nc">SupportVectorMachine</span><span class="p">(</span><span class="n">sklearn</span><span class="o">.</span><span class="n">svm</span><span class="o">.</span><span class="n">LinearSVC</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SupportVectorMachine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SupportVectorMachine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">linearize_data</span><span class="p">(</span><span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SupportVectorMachine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">ConditionalRandomField</span><span class="p">(</span><span class="n">pystruct</span><span class="o">.</span><span class="n">learners</span><span class="o">.</span><span class="n">OneSlackSSVM</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">check_constraints</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                 <span class="n">negativity_constraint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">break_on_bad</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">show_loss_every</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                 <span class="n">inference_cache</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inactive_threshold</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">inactive_window</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache_tol</span><span class="o">=</span><span class="s">&#39;auto&#39;</span><span class="p">,</span>
+                 <span class="n">switch_to</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">clist</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomField</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">,</span>
+                                                    <span class="n">check_constraints</span><span class="o">=</span><span class="n">check_constraints</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                                    <span class="n">negativity_constraint</span><span class="o">=</span><span class="n">negativity_constraint</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+                                                    <span class="n">break_on_bad</span><span class="o">=</span><span class="n">break_on_bad</span><span class="p">,</span> <span class="n">show_loss_every</span><span class="o">=</span><span class="n">show_loss_every</span><span class="p">,</span>
+                                                    <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">inference_cache</span><span class="o">=</span><span class="n">inference_cache</span><span class="p">,</span>
+                                                    <span class="n">inactive_threshold</span><span class="o">=</span><span class="n">inactive_threshold</span><span class="p">,</span>
+                                                    <span class="n">inactive_window</span><span class="o">=</span><span class="n">inactive_window</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                                                    <span class="n">cache_tol</span><span class="o">=</span><span class="n">cache_tol</span><span class="p">,</span> <span class="n">switch_to</span><span class="o">=</span><span class="n">switch_to</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span> <span class="o">=</span> <span class="n">clist</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">c</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">Y</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">labels2int</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomField</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomField</span><span class="p">,</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">int2labels</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="c"># FIXME</span>
+        <span class="c">#Y = labels2int(Y)</span>
+        <span class="c">#return super(ConditionalRandomField,self).score(X, Y)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Yi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Yi</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">Xi</span><span class="p">])))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">Yi</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ConditionalRandomFieldPerceptron</span><span class="p">(</span><span class="n">pystruct</span><span class="o">.</span><span class="n">learners</span><span class="o">.</span><span class="n">StructuredPerceptron</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">decay_exponent</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">decay_t0</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">clist</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomFieldPerceptron</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                                               <span class="n">batch</span><span class="o">=</span><span class="n">batch</span><span class="p">,</span> <span class="n">decay_exponent</span><span class="o">=</span><span class="n">decay_exponent</span><span class="p">,</span>
+                                                               <span class="n">decay_t0</span><span class="o">=</span><span class="n">decay_t0</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="n">average</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span> <span class="o">=</span> <span class="n">clist</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">c</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">Y</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">labels2int</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomFieldPerceptron</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConditionalRandomFieldPerceptron</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">int2labels</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clist</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="c"># FIXME</span>
+        <span class="c">#Y = labels2int(Y)</span>
+        <span class="c">#return super(ConditionalRandomFieldPerceptron, self).score(X, Y)</span>
+
+        <span class="n">m</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Yi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Yi</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">Xi</span><span class="p">])))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">Yi</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../flamingo/classification/index.html#flamingo.classification.models.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_type</span><span class="o">=</span><span class="s">&#39;LR&#39;</span><span class="p">,</span> <span class="n">n_states</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rlp_maps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rlp_stats</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Returns a bare model object</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_type : string, optional</span>
+<span class="sd">        String indicating the type of model to be constructed.</span>
+<span class="sd">        LR = Logistic Regressor (default), LR_RLP = Logistic Regressor with Relative Location Prior, SVM = Support Vector Machine, CRF = Conditional Random Field</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    object</span>
+<span class="sd">        Bare model object</span>
+
+<span class="sd">    Other parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    n_states : integer</span>
+<span class="sd">        Number of classes (CRF only)</span>
+<span class="sd">    n_features : integer</span>
+<span class="sd">        Number of features (CRF only)</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">rlp_maps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;LR_RLP&#39;</span><span class="p">:</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="n">n_features</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlp_maps</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;LR&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;LR_RLP&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LogisticRegressionRLP</span><span class="p">(</span><span class="n">rlp_maps</span><span class="o">=</span><span class="n">rlp_maps</span><span class="p">,</span> <span class="n">rlp_stats</span><span class="o">=</span><span class="n">rlp_stats</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;SVM&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SupportVectorMachine</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;CRF&#39;</span><span class="p">:</span>
+        <span class="n">crf</span> <span class="o">=</span> <span class="n">pystruct</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GridCRF</span><span class="p">(</span><span class="n">n_states</span><span class="o">=</span><span class="n">n_states</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="n">n_features</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ConditionalRandomField</span><span class="p">(</span><span class="n">crf</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_type</span> <span class="o">==</span> <span class="s">&#39;CRFP&#39;</span><span class="p">:</span>
+        <span class="n">crf</span> <span class="o">=</span> <span class="n">pystruct</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">GridCRF</span><span class="p">(</span><span class="n">n_states</span><span class="o">=</span><span class="n">n_states</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="n">n_features</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ConditionalRandomFieldPerceptron</span><span class="p">(</span><span class="n">crf</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Unknown model type [</span><span class="si">%s</span><span class="s">]&#39;</span> <span class="o">%</span> <span class="n">model_type</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="train_models"><a class="viewcode-back" href="../../../flamingo/classification/index.html#flamingo.classification.models.train_models">[docs]</a><span class="k">def</span> <span class="nf">train_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">train_sets</span><span class="p">,</span> <span class="n">prior_sets</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Trains a set of model against a series of training sets</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    models : list</span>
+<span class="sd">        List of model objects. Model objects should have a fit() method.</span>
+<span class="sd">    train_sets : list</span>
+<span class="sd">        List of tuples containing training data.</span>
+<span class="sd">        The first item in a tuple is a 2D array. Each row is a training instance,</span>
+<span class="sd">            while each column is a feature.</span>
+<span class="sd">        The second item in a tuple is an array containing class annotations for each</span>
+<span class="sd">            training instance.</span>
+<span class="sd">    prior_sets: list</span>
+<span class="sd">        List of 2D arrays containing prior data.</span>
+<span class="sd">        Similar to first tuple item in train_sets</span>
+<span class="sd">        Each item is a 2D array. Each row is a training instance,</span>
+<span class="sd">            while each column is a feature.</span>
+<span class="sd">    callback: function</span>
+<span class="sd">        Callback function that is called after training of a model finished.</span>
+<span class="sd">        Function accepts two parameters: the model object and a tuple with location</span>
+<span class="sd">            indices in the resulting model matrix.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        List of lists with each item a trained instance of one of the models.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_sets</span><span class="p">)</span>
+
+    <span class="c"># create result matrix</span>
+    <span class="n">mtx</span> <span class="o">=</span> <span class="p">[[</span><span class="n">model</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_sets</span><span class="p">))]</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+
+    <span class="c"># train each item in result matrix with corresponding training set</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mtx</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span> <span class="o">=</span> <span class="n">train_sets</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">prior_sets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="o">==</span> <span class="n">LogisticRegressionRLP</span><span class="p">:</span>
+                <span class="n">train_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">prior_sets</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">train_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
+
+            <span class="c"># callback after training</span>
+            <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">callback</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">mtx</span>
+</div>
+<div class="viewcode-block" id="train_model"><a class="viewcode-back" href="../../../flamingo/classification/index.html#flamingo.classification.models.train_model">[docs]</a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_train_prior</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Trains a single model against a single training set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : object</span>
+<span class="sd">        Bare model object. Model object should hava a fit() method.</span>
+<span class="sd">    X_train : list or numpy.ndarray</span>
+<span class="sd">        2D array containing training data. Each row is a training instance,</span>
+<span class="sd">            while each column is a feature.</span>
+<span class="sd">    Y_train : list or numpy.ndarray</span>
+<span class="sd">        Array containing class annotations for each training instance.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Models are passed by reference and trained without copying.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_train_prior</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="score_models"><a class="viewcode-back" href="../../../flamingo/classification/index.html#flamingo.classification.models.score_models">[docs]</a><span class="k">def</span> <span class="nf">score_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Compute train/test scores for a set of trained models</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    models : list</span>
+<span class="sd">        List of lists with each item a trained instance of a model.</span>
+<span class="sd">    train_sets : list</span>
+<span class="sd">        List of tuples containing training data corresponding to the model list.</span>
+<span class="sd">    test_sets : list</span>
+<span class="sd">        List of tuples containing test data corresponding to the model list.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        MultiIndex DataFrame containing training and test scores.</span>
+<span class="sd">        Indices &quot;model&quot; and &quot;set&quot; indicate the model and training set number used.</span>
+<span class="sd">        Columns &quot;train&quot; and &quot;test&quot; contain the train and test scores respectively.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Models should be trained.</span>
+<span class="sd">    Model and set lists should be of equal length.</span>
+<span class="sd">    In case of N models and M training sets the models should be organized in a </span>
+<span class="sd">        N-length list of M-length lists.</span>
+<span class="sd">    The train and test sets should both be M-length lists.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    &gt;&gt;&gt; models = [models.get_model(model_type=&#39;LR&#39;),</span>
+<span class="sd">                  models.get_model(model_type=&#39;CRF&#39;, n_states=5, n_features=10)]</span>
+
+<span class="sd">    &gt;&gt;&gt; models_trained = models.train_models(models, [(X_train, Y_train)])</span>
+
+<span class="sd">    &gt;&gt;&gt; scores = test.score_models(models, [(X_train, Y_train)], [(X_test, Y_test)])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">check_sets</span><span class="p">(</span><span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">,</span> <span class="n">models</span><span class="p">)</span>
+
+    <span class="c"># test for set dimensions</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">__number_of_sets</span><span class="p">(</span><span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+
+    <span class="c"># create a multiindex result dataframe</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[[</span><span class="n">__modelname</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]),</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ids</span><span class="p">))</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;model&#39;</span><span class="p">,</span><span class="s">&#39;set&#39;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;train&#39;</span><span class="p">,</span><span class="s">&#39;test&#39;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">ix</span><span class="p">)</span>
+
+    <span class="c"># score each combination of model and training set</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">((</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">))</span> <span class="ow">in</span> <span class="n">__enumerate_sets</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">((</span><span class="n">__modelname</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)))</span>
+            <span class="n">df</span><span class="p">[</span><span class="s">&#39;train&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;test&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">score_model</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</div>
+<div class="viewcode-block" id="score_model"><a class="viewcode-back" href="../../../flamingo/classification/index.html#flamingo.classification.models.score_model">[docs]</a><span class="k">def</span> <span class="nf">score_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Scores a single model using a train and test set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : object</span>
+<span class="sd">        Trained model object. Model object should have a score() method.</span>
+<span class="sd">    X_train : list or numpy.ndarray</span>
+<span class="sd">        2D array containing training data.</span>
+<span class="sd">        Each row is a training instance, while each column is a feature.</span>
+<span class="sd">    Y_train : list or numpy.ndarray</span>
+<span class="sd">        Array containing class annotations for each training instance.</span>
+<span class="sd">    X_test : Similar to X_train, but with test data.</span>
+<span class="sd">    Y_test : Similar to Y_train, but with test data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    score_train : float</span>
+<span class="sd">        Training score</span>
+
+<span class="sd">    score_test : float</span>
+<span class="sd">        Test score</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">score_train</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
+    <span class="n">score_test</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">score_train</span><span class="p">,</span> <span class="n">score_test</span>
+</div>
+<span class="k">def</span> <span class="nf">predict_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">sets</span><span class="p">):</span>
+
+    <span class="n">Y</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">):</span>
+        <span class="n">Y</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">sets</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">predict_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">))</span>
+            
+    <span class="k">return</span> <span class="n">Y</span>
+
+<span class="k">def</span> <span class="nf">predict_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">Y</span>  <span class="c">#Y.reshape((X.shape[:-1]))</span>
+
+<span class="k">def</span> <span class="nf">__enumerate_sets</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">):</span>
+    <span class="s">&#39;Set generator&#39;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">record</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">train_sets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">test_sets</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+            <span class="k">yield</span> <span class="n">record</span>
+
+<span class="k">def</span> <span class="nf">__number_of_sets</span><span class="p">(</span><span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">train_sets</span><span class="p">,</span> <span class="n">test_sets</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_sets</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_sets</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">m</span>
+
+<span class="k">def</span> <span class="nf">__modelname</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&lt;class &#39;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&#39;&gt;&quot;</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bas Hoonhout.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

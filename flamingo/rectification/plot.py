@@ -36,18 +36,18 @@ def plot_rectified(X, Y, imgs,
         List of NxM matrix containing real-world y-coordinates
     imgs : list of np.ndarrays
         List of NxMx1 or NxMx3 image matrices
-    rotation : float
+    rotation : float, optional
         Rotation angle in degrees
-    translation : list or tuple
+    translation : list or tuple, optional
         2-tuple or list with x and y translation distances
-    max_distance : float
+    max_distance : float, optional
         Maximum distance from origin to be included in the plot.
         Larger numbers are considered to be beyond the horizon.
-    ax : matplotlib.axes.AxesSubplot
+    ax : matplotlib.axes.AxesSubplot, optional
         Axis object used for plotting
-    figsize : tuple
+    figsize : tuple, optional
         2-tuple or list containing figure dimensions
-    color : bool
+    color : bool, optional
         Whether color image should be plotted or grayscale
 
     Returns
@@ -106,20 +106,20 @@ def plot_coverage(X, Y,
         List of NxM matrix containing real-world x-coordinates
     Y : list of np.ndarrays
         List of NxM matrix containing real-world y-coordinates
-    rotation : float
+    rotation : float, optional
         Rotation angle in degrees
-    translation : list or tuple
+    translation : list or tuple, optional
         2-tuple or list with x and y translation distances
-    max_distance : float
+    max_distance : float, optional
         Maximum distance from origin to be included in the plot.
         Larger numbers are considered to be beyond the horizon.
-    ax : matplotlib.axes.AxesSubplot
+    ax : matplotlib.axes.AxesSubplot, optional
         Axis object used for plotting
-    figsize : tuple
+    figsize : tuple, optional
         2-tuple or list containing figure dimensions
-    cmap : matplotlib.colors.Colormap
+    cmap : matplotlib.colors.Colormap, optional
         Colormap to determine colors for individual patches
-    alpha : float
+    alpha : float, optional
         Alpha value for patches
 
     Returns
@@ -180,9 +180,9 @@ def rotate_translate(x, y, rotation=None, translation=None):
         NxM matrix containing x-coordinates
     y : np.ndarray
         NxM matrix containing y-coordinates
-    rotation : float
+    rotation : float, optional
         Rotation angle in degrees
-    translation : list or tuple
+    translation : list or tuple, optional
         2-tuple or list with x and y translation distances
 
     Returns
@@ -222,7 +222,7 @@ def find_horizon_offset(x, y, max_distance=1e4):
         NxM matrix containing real-world x-coordinates
     y : np.ndarray
         NxM matrix containing real-world y-coordinates
-    max_distance : float
+    max_distance : float, optional
         Maximum distance from origin to be included in the plot.
         Larger numbers are considered to be beyond the horizon.
 

@@ -24,9 +24,9 @@ def find_homography(UV, XYZ, K, distortion=np.zeros((1,4)), z=0):
         Nx3 array of real-world coordinates of gcp's
     K : np.ndarray
         3x3 array containing camera matrix
-    distortion : np.ndarray
+    distortion : np.ndarray, optional
         1xP array with distortion coefficients with P = 4, 5 or 8
-    z : float
+    z : float, optional
         Real-world elevation on which the image should be projected
 
     Returns
@@ -42,11 +42,8 @@ def find_homography(UV, XYZ, K, distortion=np.zeros((1,4)), z=0):
 
     Examples
     --------
-    
     >>> camera_id = 4
-
     >>> r = argus2.rest.get_rectification_data('kijkduin')
-
     >>> H = flamingo.rectification.find_homography(r[camera_id]['UV'],
                                                    r[camera_id]['XYZ'],
                                                    r[camera_id]['K'])

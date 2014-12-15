@@ -1,0 +1,85 @@
+\indexentry{flamingo.rectification.rectification (module)|hyperpage}{3}
+\indexentry{find\_homography() (in module flamingo.rectification.rectification)|hyperpage}{3}
+\indexentry{get\_pixel\_coordinates() (in module flamingo.rectification.rectification)|hyperpage}{4}
+\indexentry{rectify\_coordinates() (in module flamingo.rectification.rectification)|hyperpage}{4}
+\indexentry{rectify\_image() (in module flamingo.rectification.rectification)|hyperpage}{4}
+\indexentry{flamingo.rectification.plot (module)|hyperpage}{5}
+\indexentry{find\_horizon\_offset() (in module flamingo.rectification.plot)|hyperpage}{5}
+\indexentry{plot\_coverage() (in module flamingo.rectification.plot)|hyperpage}{5}
+\indexentry{plot\_rectified() (in module flamingo.rectification.plot)|hyperpage}{5}
+\indexentry{rotate\_translate() (in module flamingo.rectification.plot)|hyperpage}{6}
+\indexentry{flamingo.segmentation.superpixels (module)|hyperpage}{6}
+\indexentry{average\_colors() (in module flamingo.segmentation.superpixels)|hyperpage}{6}
+\indexentry{check\_segmentation() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
+\indexentry{get\_contours() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
+\indexentry{get\_segmentation() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
+\indexentry{get\_superpixel\_grid() (in module flamingo.segmentation.superpixels)|hyperpage}{8}
+\indexentry{shuffle\_pixels() (in module flamingo.segmentation.superpixels)|hyperpage}{8}
+\indexentry{flamingo.segmentation.postprocess (module)|hyperpage}{8}
+\indexentry{region\_growing() (in module flamingo.segmentation.postprocess)|hyperpage}{8}
+\indexentry{regularize() (in module flamingo.segmentation.postprocess)|hyperpage}{8}
+\indexentry{remove\_disjoint() (in module flamingo.segmentation.postprocess)|hyperpage}{9}
+\indexentry{flamingo.segmentation.plot (module)|hyperpage}{9}
+\indexentry{get\_image\_data() (in module flamingo.segmentation.plot)|hyperpage}{9}
+\indexentry{plot() (in module flamingo.segmentation.plot)|hyperpage}{9}
+\indexentry{plot\_image() (in module flamingo.segmentation.plot)|hyperpage}{10}
+\indexentry{flamingo.classification.models (module)|hyperpage}{10}
+\indexentry{get\_model() (in module flamingo.classification.models)|hyperpage}{10}
+\indexentry{score\_model() (in module flamingo.classification.models)|hyperpage}{11}
+\indexentry{score\_models() (in module flamingo.classification.models)|hyperpage}{11}
+\indexentry{train\_model() (in module flamingo.classification.models)|hyperpage}{12}
+\indexentry{train\_models() (in module flamingo.classification.models)|hyperpage}{12}
+\indexentry{flamingo.classification.features.features (module)|hyperpage}{12}
+\indexentry{linearize() (in module flamingo.classification.features.features)|hyperpage}{12}
+\indexentry{flamingo.classification.features.blocks (module)|hyperpage}{12}
+\indexentry{extract\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{12}
+\indexentry{list\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{12}
+\indexentry{flamingo.classification.features.scaleinvariant (module)|hyperpage}{13}
+\indexentry{flamingo.classification.features.normalize (module)|hyperpage}{13}
+\indexentry{flamingo.classification.features.relativelocation (module)|hyperpage}{13}
+\indexentry{compute\_prior() (in module flamingo.classification.features.relativelocation)|hyperpage}{13}
+\indexentry{smooth\_maps() (in module flamingo.classification.features.relativelocation)|hyperpage}{13}
+\indexentry{vote\_image() (in module flamingo.classification.features.relativelocation)|hyperpage}{13}
+\indexentry{flamingo.classification.channels (module)|hyperpage}{14}
+\indexentry{add\_channels() (in module flamingo.classification.channels)|hyperpage}{14}
+\indexentry{flamingo.classification.test (module)|hyperpage}{14}
+\indexentry{aggregate\_scores() (in module flamingo.classification.test)|hyperpage}{14}
+\indexentry{compute\_learning\_curve() (in module flamingo.classification.test)|hyperpage}{14}
+\indexentry{plot\_learning\_curve() (in module flamingo.classification.test)|hyperpage}{14}
+\indexentry{flamingo.classification.plot (module)|hyperpage}{15}
+\indexentry{save\_figure() (in module flamingo.classification.plot)|hyperpage}{15}
+\indexentry{flamingo.classification.utils (module)|hyperpage}{15}
+\indexentry{check\_sets() (in module flamingo.classification.utils)|hyperpage}{15}
+\indexentry{flamingo.rectify (module)|hyperpage}{17}
+\indexentry{flamingo.classify (module)|hyperpage}{17}
+\indexentry{flamingo.calibrate (module)|hyperpage}{18}
+\indexentry{flamingo.filesys (module)|hyperpage}{19}
+\indexentry{check\_export\_file() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_dataset\_list() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_dataset\_path() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_export\_file() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_image\_list() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_image\_location() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_image\_path() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{get\_model\_list() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{has\_features() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{is\_classified() (in module flamingo.filesys)|hyperpage}{19}
+\indexentry{is\_segmented() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_default\_categories() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_export\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_feature\_files() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_image\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_log\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{read\_model\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{set\_dataset\_path() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{write\_export\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{write\_feature\_files() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{write\_log\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{write\_model\_file() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{write\_model\_files() (in module flamingo.filesys)|hyperpage}{20}
+\indexentry{flamingo.config (module)|hyperpage}{21}
+\indexentry{CLASSIFICATION\_DEFAULTS (in module flamingo.config)|hyperpage}{21}
+\indexentry{get\_function\_args() (in module flamingo.config)|hyperpage}{21}
+\indexentry{parse\_config() (in module flamingo.config)|hyperpage}{21}
+\indexentry{read\_config() (in module flamingo.config)|hyperpage}{21}
+\indexentry{write\_config() (in module flamingo.config)|hyperpage}{21}

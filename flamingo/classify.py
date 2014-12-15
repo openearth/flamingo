@@ -1,3 +1,43 @@
+'''Train, score and use classification models on image datasets.
+
+Usage:
+    classify-images preprocess <dataset> [--segmentate] [--channels] [--features] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
+
+    classify-images partition <dataset> [--n=N] [--frac=FRAC] [--images=FILE] [--config=FILE] [--verbose]
+
+    classify-images train <dataset> [--type=NAME] [--partitions=N] [--images=FILE] [--config=FILE] [--verbose]
+
+    classify-images score <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--verbose]
+
+    classify-images predict <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
+
+    classify-images regularization <dataset> [--type=NAME] [--images=FILE] [--config=FILE] [--verbose]
+
+Positional arguments:
+    dataset            dataset containing the images
+    image              image file to be classified
+
+Options:
+    -h, --help         show this help message and exit
+    --segmentate       create segmentation of images
+    --channels         include channel extraction
+    --features         include feature extraction
+    --extract          extract channels/features
+    --update           update channels/features
+    --normalize        normalize channels/features
+    --relloc           include relative location features
+    --relloc_maps      compute new relative location maps
+    --n=N              number of partitions [default: 5]
+    --frac=FRAC        fraction of images used for testing [default: 0.25]
+    --type=NAME        model type to train [default: LR]
+    --partitions=N     only train these partitions
+    --model=NAME       name of model to be scored, uses last trained if omitted
+    --images=FILE      images to include in process
+    --config=FILE      configuration file to use instead of command line options
+    --overwrite        overwrite existing files
+    --verbose          print logging messages
+'''
+
 import re
 import os
 import time
@@ -39,7 +79,6 @@ def run_preprocessing(ds,
                       model_dataset=None,
                       class_aggregation=None,
                       cfg=None):
-    '''Batch function to preprocess a dataset'''
 
     logger.info('Preprocessing started for dataset "%s"...' % ds)
 
@@ -914,43 +953,7 @@ def iterate_images(ds, images, overwrite=False, ext=None):
 def main():
     import docopt
 
-    usage = """
-Train, score and use classification models on image datasets.
-
-Usage:
-    classify-images preprocess <dataset> [--segmentate] [--channels] [--features] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
-    classify-images partition <dataset> [--n=N] [--frac=FRAC] [--images=FILE] [--config=FILE] [--verbose]
-    classify-images train <dataset> [--type=NAME] [--partitions=N] [--images=FILE] [--config=FILE] [--verbose]
-    classify-images score <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--verbose]
-    classify-images predict <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
-    classify-images regularization <dataset> [--type=NAME] [--images=FILE] [--config=FILE] [--verbose]
-
-Positional arguments:
-    dataset            dataset containing the images
-    image              image file to be classified
-
-Options:
-    -h, --help         show this help message and exit
-    --segmentate       create segmentation of images
-    --channels         include channel extraction
-    --features         include feature extraction
-    --extract          extract channels/features
-    --update           update channels/features
-    --normalize        normalize channels/features
-    --relloc           include relative location features
-    --relloc_maps      compute new relative location maps
-    --n=N              number of partitions [default: 5]
-    --frac=FRAC        fraction of images used for testing [default: 0.25]
-    --type=NAME        model type to train [default: LR]
-    --partitions=N     only train these partitions
-    --model=NAME       name of model to be scored, uses last trained if omitted
-    --images=FILE      images to include in process
-    --config=FILE      configuration file to use instead of command line options
-    --overwrite        overwrite existing files
-    --verbose          print logging messages
-"""
-
-    arguments = docopt.docopt(usage)
+    arguments = docopt.docopt(__doc__)
 
     # set verbose logging format
     if arguments['--verbose']:
@@ -1026,3 +1029,7 @@ Options:
             model_type=arguments['--type'],
             cfg=cfg
         )
+
+
+if __name__ == '__main__':
+    main()

@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+
+__author__ = "Bas Hoonhout"
+__copyright__ = "Copyright 2014, The NEMO Project"
+__credits__ = []
+__license__ = "GPL"
+__version__ = "1.0.1"
+__maintainer__ = "Bas Hoonhout"
+__email__ = "bas.hoonhout@deltares.nl"
+__status__ = "production"
 
 import matplotlib.cm as cm
 import skimage.segmentation
@@ -9,15 +19,45 @@ import cv2
 
 import postprocess
 
-from argus2 import plot
 
 def get_segmentation(img, method='slic', method_params={},
                      extract_contours=False, remove_disjoint=True):
+    '''Return segmentation of image
+
+    Parameters
+    ----------
+    img : np.ndarray
+        NxM or NxMx3 array with greyscale or colored image information
+        respectively
+    method : str, optional
+        Segmentation method to use, supported by scikit-image toolbox
+    method_params : dict, optional
+        Extra parameters supplied to segmentation method
+    extract_contours : bool, optional
+        Also extract contours of segments
+    remove_disjoint : bool, optional
+        Ensure that the output contains connected segments only
+        **and** that the superpixels form a more or less regular grid.
+        In case the segmentation method does not provide both
+        constraints, the constraint is ensured in a postprocessing
+        step.
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix with segment numbering
+
+    Examples
+    --------
+    >>> img = argus2.rest.get_image(station='kijkduin')[0]
+    >>> segments = get_segmentation(img)
+    '''
 
     # first segmentation step
-    segments = get_superpixel(img,
-                              method=method, method_params=method_params,
-                              remove_disjoint=remove_disjoint)
+    segments = _get_segmentation(img,
+                                 method=method,
+                                 method_params=method_params,
+                                 remove_disjoint=remove_disjoint)
     
     # extract contours
     if extract_contours:
@@ -28,8 +68,36 @@ def get_segmentation(img, method='slic', method_params={},
     return segments, contours
 
 
-def get_superpixel(img, method='slic', method_params={}, remove_disjoint=True):
-    'Run segmentation algorithm'
+def _get_segmentation(img, method='slic', method_params={}, remove_disjoint=True):
+    '''Return segmentation of image
+
+    Parameters
+    ----------
+    img : np.ndarray
+        NxM or NxMx3 array with greyscale or colored image information
+        respectively
+    method: str, optional
+        Segmentation method to use, supported by scikit-image toolbox
+    method_params: dict, optional
+        Extra parameters supplied to segmentation method
+    remove_disjoint: bool, optional
+        Ensure that the output contains connected segments only
+        **and** that the superpixels form a more or less regular grid.
+        In case the segmentation method does not provide both
+        constraints, the constraint is ensured in a postprocessing
+        step.
+
+    Note
+    ----
+    This is a helper function to the
+    :func:flamingo.segmentation.segmentation.get_segmentation():
+    function
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix with segment numbering
+    '''
     
     #img = img_as_float(img)
     
@@ -74,7 +142,25 @@ def get_superpixel(img, method='slic', method_params={}, remove_disjoint=True):
 
 
 def shuffle_pixels(img):
-    'Shuffle classification identifiers'
+    '''Shuffle class identifiers
+
+    Parameters
+    ----------
+    img : np.ndarray
+        NxM matrix with segment numbering
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix with shuffled segment numbering
+
+    Examples
+    --------
+    >>> seg = get_segmentation(img)
+    >>> fig, axs = plt.subplots(1, 2)
+    >>> axs[0].imshow(seg)
+    >>> axs[1].imshow(shuffle_pixels(seg))
+    '''
 
     mn = img.min()
     mx = img.max()+1
@@ -90,12 +176,29 @@ def shuffle_pixels(img):
     return img_shuffle
 
 
-def average_colors(img, img_superpix):
-    'Apply average color of original pixels within superpixel'
+def average_colors(img, segments):
+    '''Average colors per superpixels
+
+    Returns an image where each pixel has the average color of the
+    superpixel that it belongs to.
+    
+    Parameters
+    ----------
+    img : np.ndarray
+        NxM or NxMx3 array with greyscale or colored image information
+        respectively
+    segments : np.ndarray
+        NxM matrix with segment numbering
+
+    Returns
+    -------
+    np.ndarray
+        NxM or NxMx3 matrix with averaged image
+    '''
 
     nd = img.shape[2]
 
-    cat1 = [('cat', img_superpix.flatten())]                # superpixel category
+    cat1 = [('cat', segments.flatten())]                # superpixel category
     cat2 = [(i, img[:,:,i].flatten()) for i in range(nd)]   # colorspace dimensions
 
     cat  = dict(cat1 + cat2)
@@ -114,58 +217,22 @@ def average_colors(img, img_superpix):
 
     return img_avg
 
-  
-def plot(img, img_superpix, mark_boundaries=True, shuffle=False, average=False, slice=1):
-
-    if mark_boundaries:
-        boundaries = skimage.segmentation.find_boundaries(img_superpix)
-
-    # shuffle pixels  
-    if shuffle and not average:
-        img_superpix = shuffle_pixels(img_superpix)
-
-    # average colors per superpixel    
-    if average:
-        img_superpix = average_colors(img, img_superpix)
-
-    # mark boundaries of superpixels        
-    if mark_boundaries:
-        img_superpix = img
-        if len(img_superpix.shape) > 2:
-            for i in range(img_superpix.shape[2]):
-                img_channel             = img_superpix[:,:,i]
-                img_channel[boundaries] = 0
-                img_superpix[:,:,i]       = img_channel
-        else:
-            img_superpix[boundaries] = 0
-    
-    # render superpixel image
-    img_superpix = plot.plot_image(img_superpix, slice=slice)
-    
-    return img_superpix
-
-    
-def mark(img_superpix, cat=1):
-
-    nx, ny = img_superpix.shape
-
-    img = np.ones((nx,ny,1))
-    img[img_superpix==cat] = 0
-    
-    #boundaries = skimage.segmentation.find_boundaries(img)
-    
-    img_alpha = 1 * np.abs(1-img)
-    #img_alpha[boundaries] = 1
-    
-    img_ones = np.ones((nx,ny,1))
-    
-    img = np.concatenate((img_ones,img,img,img_alpha),axis=2);
-    
-    return plot.plot_image(img, transparent=True)
-
 
 def get_superpixel_grid(segments, img_shape):
-    '''Return shape of superpixels grid'''
+    '''Return shape of superpixels grid
+
+    Parameters
+    ----------
+    segments : np.ndarray
+        NxM matrix with segment numbering
+    img_shape : 2-tuple or list
+        Dimensions of image
+
+    Returns
+    -------
+    2-tuple
+        tuple containing M and N dimension of regular superpixel grid
+    '''
     
     if type(segments) is int:
         K = segments
@@ -182,9 +249,27 @@ def get_superpixel_grid(segments, img_shape):
     
     return (ny,nx)
 
-
+  
 def get_contours(segments):
-    '''Return contours of superpixels'''
+    '''Return contours of superpixels
+
+    Parameters
+    ----------
+    segments : np.ndarray
+        NxM matrix with segment numbering
+
+    Returns
+    -------
+    list
+        list of lists for each segment in *segments*. Each segment
+        list contains one or more contours. Each contour is defined by
+        a list of 2-tuples with an x and y coordinate.
+
+    Examples
+    --------
+    >>> contours = get_contours(segments)
+    >>> plot(contours[0][0][0][0], contours[0][0][0][1]) # plot first contour of first segment
+    '''
 
     contours = []
     for i in range(np.max(segments)+1):
@@ -197,6 +282,23 @@ def get_contours(segments):
 
 
 def check_segmentation(segments, nx, ny):
+    '''Checks if segmentation data is complete
+
+    Checks if the segmentation data indeed contains nx*ny segments and
+    if the set of segment numbers is continuous.
+
+    Parameters
+    ----------
+    segments : np.ndarray
+        NxM matrix with segment numbering
+    nx, ny : int
+        Size of supposed segmentation grid
+
+    Returns
+    -------
+    bool
+        Returns true if segmentation is valid and false otherwise
+    '''
 
     # check if total number of segments is ok
     if not np.max(segments) + 1 == nx * ny:
@@ -210,4 +312,6 @@ def check_segmentation(segments, nx, ny):
 
 
 def __supports_connectivity():
+    '''Checks if slic algorithm supports connectivity constraint'''
+    
     return 'enforce_connectivity' in inspect.getargspec(skimage.segmentation.slic).args

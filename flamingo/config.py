@@ -4,6 +4,7 @@ import logging
 import inspect
 import ConfigParser
 
+#: Configuration constants for classification toolbox
 CLASSIFICATION_DEFAULTS = {
     'general'           : {'model_type' : 'LR',
                            'model_dataset' : '',
@@ -40,6 +41,7 @@ CLASSIFICATION_DEFAULTS = {
 
 
 def read_config(cfgfile, defaults=CLASSIFICATION_DEFAULTS):
+    '''Read configuration file and update default settings'''
 
     if not cfgfile or not os.path.exists(cfgfile):
         return None
@@ -72,7 +74,8 @@ def read_config(cfgfile, defaults=CLASSIFICATION_DEFAULTS):
 
 
 def write_config(cfgfile, defaults=CLASSIFICATION_DEFAULTS):
-
+    '''Write configuration file'''
+    
     cfg = ConfigParser.RawConfigParser()
 
     for section, options in defaults.iteritems():
@@ -88,6 +91,8 @@ def write_config(cfgfile, defaults=CLASSIFICATION_DEFAULTS):
 
 
 def parse_config(sections=[]):
+    '''Wrapper for parsing config file for specific function call'''
+    
     def wrapper(f):
         def parse(*args, **kwargs):
             if kwargs.has_key('cfg'):
@@ -104,7 +109,8 @@ def parse_config(sections=[]):
 
 
 def get_function_args(fcn, cfg, sections=[]):
-
+    '''Get relevant function arguments given a configuration file'''
+    
     args = {}
 
     if not cfg:
@@ -129,7 +135,8 @@ def get_function_args(fcn, cfg, sections=[]):
 
 
 def _parse_references(settings):
-
+    '''Parse specific settings in configuration file'''
+    
     if settings:
         if settings['general'].has_key('class_aggregation'):
             fname = settings['general']['class_aggregation']
@@ -141,3 +148,6 @@ def _parse_references(settings):
 
     return settings
 
+
+if __name__ == '__main__':
+    write_config('example.cfg')
