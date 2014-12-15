@@ -1,22 +1,5 @@
 #!/usr/bin/env python
 
-'''Module to plot projected images into a real-world coordinate system
-
-This module provides functions to plot projected images onto a
-real-world coordinate system. The projection itself is handled by the
-accompanying rectification module.
-
-Author: Bas Hoonhout
-E-mail: bas.hoonhout@deltares.nl
-License: GPL
-'''
-
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.collections
-import matplotlib.patches
-
 __author__ = "Bas Hoonhout"
 __copyright__ = "Copyright 2014, The NEMO Project"
 __credits__ = []
@@ -25,6 +8,12 @@ __version__ = "1.0.1"
 __maintainer__ = "Bas Hoonhout"
 __email__ = "bas.hoonhout@deltares.nl"
 __status__ = "Production"
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.collections
+import matplotlib.patches
 
 
 def plot_rectified(X, Y, imgs,

@@ -1,32 +1,5 @@
 #!/usr/bin/env python
 
-'''Module to project images into a real-world coordinate system
-
-This module provides functions to project an image onto a
-real-world coordinate system using ground control points. The
-is largely based on the OpenCV Camera Calibration and 3D
-Reconstruction workflow and works nicely together with the argus2
-toolbox for coastal image analysis.
-
-A typical workflow consists of determining ground control points
-by measuring the real-world coordinates of object visible in the
-image and the image coordinates of these very same objects. Also
-the camera matrix and lens distortion parameters should be
-determined. See also:
-http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
-
-Subsequently, a homography can be determined using the
-find_homography() function and a projection of the image can be
-plotted using the accompanying plot module.
-
-Author: Bas Hoonhout
-E-mail: bas.hoonhout@deltares.nl
-License: GPL
-'''
-
-import numpy as np
-import cv2
-
 __author__ = "Bas Hoonhout"
 __copyright__ = "Copyright 2014, The NEMO Project"
 __credits__ = []
@@ -34,7 +7,10 @@ __license__ = "GPL"
 __version__ = "1.0.1"
 __maintainer__ = "Bas Hoonhout"
 __email__ = "bas.hoonhout@deltares.nl"
-__status__ = "Production"
+__status__ = "production"
+
+import numpy as np
+import cv2
 
 
 def find_homography(UV, XYZ, K, distortion=np.zeros((1,4)), z=0):
