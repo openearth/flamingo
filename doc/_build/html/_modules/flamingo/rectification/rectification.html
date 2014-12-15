@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>flamingo.rectification.rectification &mdash; Flamingo 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for flamingo.rectification.rectification</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Bas Hoonhout&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2014, The NEMO Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Bas Hoonhout&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;bas.hoonhout@deltares.nl&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;production&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+
+<div class="viewcode-block" id="find_homography"><a class="viewcode-back" href="../../../rectification.html#flamingo.rectification.rectification.find_homography">[docs]</a><span class="k">def</span> <span class="nf">find_homography</span><span class="p">(</span><span class="n">UV</span><span class="p">,</span> <span class="n">XYZ</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)),</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Find homography based on ground control points</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    UV : np.ndarray</span>
+<span class="sd">        Nx2 array of image coordinates of gcp&#39;s</span>
+<span class="sd">    XYZ : np.ndarray</span>
+<span class="sd">        Nx3 array of real-world coordinates of gcp&#39;s</span>
+<span class="sd">    K : np.ndarray</span>
+<span class="sd">        3x3 array containing camera matrix</span>
+<span class="sd">    distortion : np.ndarray, optional</span>
+<span class="sd">        1xP array with distortion coefficients with P = 4, 5 or 8</span>
+<span class="sd">    z : float, optional</span>
+<span class="sd">        Real-world elevation on which the image should be projected</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        3x3 homography matrix</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Function uses the OpenCV image rectification workflow as described in</span>
+<span class="sd">    http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html</span>
+<span class="sd">    starting with solvePnP.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; camera_id = 4</span>
+<span class="sd">    &gt;&gt;&gt; r = argus2.rest.get_rectification_data(&#39;kijkduin&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; H = flamingo.rectification.find_homography(r[camera_id][&#39;UV&#39;],</span>
+<span class="sd">                                                   r[camera_id][&#39;XYZ&#39;],</span>
+<span class="sd">                                                   r[camera_id][&#39;K&#39;])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">UV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">UV</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">XYZ</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">XYZ</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    
+    <span class="c"># compute camera pose</span>
+<span class="c">#    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)[1:]</span>
+    <span class="n">rvec</span><span class="p">,</span> <span class="n">tvec</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">solvePnP</span><span class="p">(</span><span class="n">XYZ</span><span class="p">,</span> <span class="n">UV</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">distortion</span><span class="p">)</span>
+    
+    <span class="c"># convert rotation vector to rotation matrix</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Rodrigues</span><span class="p">(</span><span class="n">rvec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c"># assume height of projection plane</span>
+    <span class="n">R</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">z</span>
+
+    <span class="c"># add translation vector</span>
+    <span class="n">R</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">tvec</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c"># compute homography</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span>
+
+    <span class="c"># normalize homography</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">/</span> <span class="n">H</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">H</span>
+
+</div>
+<div class="viewcode-block" id="get_pixel_coordinates"><a class="viewcode-back" href="../../../rectification.html#flamingo.rectification.rectification.get_pixel_coordinates">[docs]</a><span class="k">def</span> <span class="nf">get_pixel_coordinates</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get pixel coordinates given an image</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img : np.ndarray</span>
+<span class="sd">        NxMx1 or NxMx3 image matrix</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing u-coordinates</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing v-coordinates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c"># get pixel coordinates</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                       <span class="nb">range</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">V</span>
+
+</div>
+<div class="viewcode-block" id="rectify_image"><a class="viewcode-back" href="../../../rectification.html#flamingo.rectification.rectification.rectify_image">[docs]</a><span class="k">def</span> <span class="nf">rectify_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get projection of image pixels in real-world coordinates</span>
+<span class="sd">       given an image and homography</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img : np.ndarray</span>
+<span class="sd">        NxMx1 or NxMx3 image matrix</span>
+<span class="sd">    H : np.ndarray</span>
+<span class="sd">        3x3 homography matrix</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing real-world x-coordinates</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing real-world y-coordinates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">U</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">get_pixel_coordinates</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">rectify_coordinates</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span>
+
+</div>
+<div class="viewcode-block" id="rectify_coordinates"><a class="viewcode-back" href="../../../rectification.html#flamingo.rectification.rectification.rectify_coordinates">[docs]</a><span class="k">def</span> <span class="nf">rectify_coordinates</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">H</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get projection of image pixels in real-world coordinates</span>
+<span class="sd">       given image coordinate matrices and  homography</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U : np.ndarray</span>
+<span class="sd">        NxM matrix containing u-coordinates</span>
+<span class="sd">    V : np.ndarray</span>
+<span class="sd">        NxM matrix containing v-coordinates</span>
+<span class="sd">    H : np.ndarray</span>
+<span class="sd">        3x3 homography matrix</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing real-world x-coordinates</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxM matrix containing real-world y-coordinates</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">UV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">U</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                    <span class="n">V</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c"># transform image using homography</span>
+    <span class="n">XY</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">perspectiveTransform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">UV</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">H</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c"># reshape pixel coordinates back to image size</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">XY</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">XY</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bas Hoonhout.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
