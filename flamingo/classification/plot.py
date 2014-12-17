@@ -5,27 +5,27 @@ from matplotlib import pyplot as plt
 import matplotlib.colors
 import numpy as np
 
-def plot_prediction(ds, im, Y, cm='jet', axs=None):
+def plot_prediction(ds, im, Y, clist, cm='jet', axs=None):
 
     Y = Y.flatten()
     
     seg = filesys.read_export_file(ds, im, 'segments')
 
-    prediction = utils.labels2image(Y, seg)
+    prediction = utils.labels2image(Y, seg, clist)
 
     if axs is None:
         fig, axs = plt.subplots()
     else:
         fig = axs.get_figure()
         
-    axs.imshow(prediction, vmin=0, vmax=len(cl), cmap=cm)
+    axs.imshow(prediction, vmin=0, vmax=len(clist), cmap=cm)
 
     return fig, axs
 
 
 def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None):
  
-    # TODO: kick Max for doing this
+    # TODO: kick Max for doing this. And then kick BasHo! He demolished everything! Reverse engineering! Murder! Fire!
     #model, meta, train_sets, test_sets, prior_sets = classify.reinitialize_model(
     #    ds, model, class_aggregation=class_aggregation)
 
@@ -65,15 +65,15 @@ def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None)
             plot_prediction(ds,
                         fname,
                         grnd,
-                        classlist,
-                        cmap_argus,
+                        cm=cmap_argus,
+                        clist=classlist,
                         axs=axs[i,1])
 
             plot_prediction(ds,
                         fname,
                         pred,
-                        classlist,
-                        cmap_argus,
+                        cm=cmap_argus,
+                        clist=classlist,
                         axs=axs[i,2])
         
             axs[i,0].set_title(fname)

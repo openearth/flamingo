@@ -18,7 +18,8 @@ import matplotlib.patches
 
 def plot_rectified(X, Y, imgs,
                    rotation=None, translation=None, max_distance=1e4,
-                   ax=None, figsize=(30,20), color=True):
+                   ax=None, figsize=(30,20), cmap='Greys',
+                   color=True, n_alpha=0):
     '''Plot the projection of multiple RGB images in a single axis.
 
     Plot a list of images using corresponding lists of real-world
@@ -49,6 +50,8 @@ def plot_rectified(X, Y, imgs,
         2-tuple or list containing figure dimensions
     color : bool, optional
         Whether color image should be plotted or grayscale
+    n_alpha : int
+        Number of border pixels to use to increase alpha
 
     Returns
     -------
@@ -74,11 +77,11 @@ def plot_rectified(X, Y, imgs,
         x, y = rotate_translate(x, y, rotation=rotation, translation=translation)
 
         # plot
-        im = ax.pcolormesh(x[o:,:], y[o:,:], np.mean(img[o:,...], -1), cmap='Greys')
+        im = ax.pcolormesh(x[o:,:], y[o:,:], np.mean(img[o:,...], -1), cmap=cmap)
 
         # add colors
         if color:
-            rgba = _construct_rgba_vector(img[o:,...])
+            rgba = _construct_rgba_vector(img[o:,...], n_alpha=n_alpha)
             im.set_array(None) # remove the array
             im.set_edgecolor('none')
             im.set_facecolor(rgba)
@@ -243,13 +246,15 @@ def find_horizon_offset(x, y, max_distance=1e4):
     return offset
 
 
-def _construct_rgba_vector(img):
+def _construct_rgba_vector(img, n_alpha=0):
     '''Construct RGBA vector to be used to color faces of pcolormesh
 
     Parameters
     ----------
     img : np.ndarray
         NxMx3 RGB image matrix
+    n_alpha : int
+        Number of border pixels to use to increase alpha
 
     Returns
     -------
@@ -257,10 +262,16 @@ def _construct_rgba_vector(img):
         (N*M)x4 RGBA image vector
     '''
 
-    if np.any(img > 1):
-        img /= 255.0
-
+    alpha = np.ones(img.shape[:2])    
+    
+    if n_alpha > 0:
+        for i, a in enumerate(np.linspace(0, 1, n_alpha)):
+            alpha[:,[i,-2-i]] = a
+        
     rgb = img[:,:-1,:].reshape((-1,3)) # we have 1 less faces than grid cells
-    rgba = np.concatenate((rgb, np.ones((rgb.shape[0],1))), axis=1)
+    rgba = np.concatenate((rgb, alpha[:,:-1].reshape((-1, 1))), axis=1)
+
+    if np.any(img > 1):
+        rgba[:,:3] /= 255.0
     
     return rgba

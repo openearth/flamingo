@@ -2,15 +2,10 @@
 
 Usage:
     classify-images preprocess <dataset> [--segmentate] [--channels] [--features] [--extract] [--update] [--normalize] [--relloc] [--relloc_maps] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
-
     classify-images partition <dataset> [--n=N] [--frac=FRAC] [--images=FILE] [--config=FILE] [--verbose]
-
     classify-images train <dataset> [--type=NAME] [--partitions=N] [--images=FILE] [--config=FILE] [--verbose]
-
     classify-images score <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--verbose]
-
     classify-images predict <dataset> [--model=NAME] [--images=FILE] [--config=FILE] [--overwrite] [--verbose]
-
     classify-images regularization <dataset> [--type=NAME] [--images=FILE] [--config=FILE] [--verbose]
 
 Positional arguments:
@@ -40,13 +35,14 @@ Options:
 
 import re
 import os
+import sys
 import time
 import json
-import pandas
+import glob
 import logging
-import mimetypes
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cross_validation import train_test_split
 
@@ -178,12 +174,15 @@ def run_training(ds,
     # create feature block list
     feature_blocks = create_feature_list(feature_blocks)
 
+    # create partitions list
+    partitions = create_partitions_list(partitions)
+
     # initialize models, training and test sets
     logger.info(
         'Preparation of models, train and test sets started...')
     models, meta, train_sets, test_sets, prior_sets = \
         initialize_models(
-            ds, images, feature_blocks, model_type=model_type,
+        ds, images, feature_blocks, model_type=model_type,
         class_aggregation=class_aggregation, partitions=partitions)
     logger.info(
         'Preparation of models, train and test sets finished.')
@@ -201,20 +200,37 @@ def run_training(ds,
 
  
 @config.parse_config()
-def run_scoring(ds, model=None, class_aggregation=None, cfg=None):
+def run_scoring(ds, models=None, class_aggregation=None, cfg=None):
 
-    if model is None:
-        model = filesys.get_model_list(ds)[-1]
-
-    model, meta, train_sets, test_sets, prior_sets = \
-        reinitialize_model(
-        ds, model, class_aggregation=class_aggregation)
+    if models is None:
+        models = filesys.get_model_list(ds)[:1]
+    elif type(models) is str:
+        if ',' in models:
+            models = models.split(',')
+        elif not filesys.check_model_file(ds, models):
+            models = [x for x in glob.glob(models)
+                      if '.meta.' not in x and '.backup.' not in x]
+        else:
+            models = [models]
 
     logger.info('Testing of model started...')
-    scores = cls.models.score_models([[model]], train_sets, test_sets)
+
+    scores = []
+    for model in models:
+        logger.info('Scoring model "%s"...' % model)
+
+        model, meta, train_sets, test_sets, prior_sets = \
+            reinitialize_model(
+            ds, model, class_aggregation=class_aggregation)
+
+        scores.append(cls.models.score_models([[model]], train_sets, test_sets))
+
     logger.info('Testing of model finished.')
 
-    return scores
+    if len(scores) > 0:
+        return pd.concat(scores, axis=0)
+    else:
+        return None
 
 
 @config.parse_config(['features'])
@@ -606,9 +622,9 @@ def run_regularization(ds, images='all', feature_blocks='all',
     # create feature block list
     feature_blocks = create_feature_list(feature_blocks)
 
-    scores = pandas.DataFrame(data=np.empty((len(C),2)), 
-                              columns=['Train', 'Test'], 
-                              index=C)
+    scores = pd.DataFrame(data=np.empty((len(C),2)), 
+                          columns=['Train', 'Test'], 
+                          index=C)
 
     # loop over range of regularization coefficients,
     # train model and determine score
@@ -688,9 +704,8 @@ def initialize_models(ds, images='all', feature_blocks='all',
     # number of features
     n_features = len(X[0].columns)
 
-    # select partitions
-    if partitions == 'all':
-        partitions = range(len(images_train))
+    # create partitions list
+    partitions = create_partitions_list(partitions, len(images_train))
 
     # construct models
     if not type(model_type) is list:
@@ -744,12 +759,12 @@ def reinitialize_model(ds, model, class_aggregation=None):
     # construct data arrays from dataframes and partitions
     train_sets, test_sets, prior_sets = \
         features_to_input(ds,
-                           meta['images'],
-                           [meta['images_train']],
-                           [meta['images_test']],
-                           X,
-                           Y,
-                           X_rlp)
+                          meta['images'],
+                          [meta['images_train']],
+                          [meta['images_test']],
+                          X,
+                          Y,
+                          X_rlp)
 
     return models, meta, train_sets, test_sets, prior_sets
 
@@ -809,27 +824,44 @@ def create_image_list(ds, images):
                 logger.warn(
                     'Image not found in dataset "%s": %s' % (ds, im))
 
-    print imlist
     return imlist
 
 
 def create_feature_list(feature_blocks):
+
     allfb = cls.features.blocks.list_blocks()
+
+    if type(feature_blocks) is str:
+        if feature_blocks == 'all':
+            feature_blocks = allfb
+        else:
+            feature_blocks = feature_blocks.split(',')
+
     if type(feature_blocks) is dict:
         return feature_blocks
     elif type(feature_blocks) is list:
-        feature_blocks = {k: v
-                          for k, v in allfb.iteritems()
-                          if k in feature_blocks or k.replace(
+        feature_blocks = {
+            k: v
+            for k, v in allfb.iteritems()
+            if k in feature_blocks or k.replace(
                 'extract_blocks_', '') in feature_blocks}
-    elif feature_blocks == 'all':
-        feature_blocks = allfb
     else:
         msg = 'Features should be a list of feature block names or the keyword "all"'
         logger.warn(msg)
         raise ValueError(msg)
 
     return feature_blocks
+
+
+def create_partitions_list(partitions, n=5):
+
+    if type(partitions) is str:
+        if partitions == 'all':
+            partitions = range(n)
+        else:
+            partitions = [int(x) for x in partitions.split(',')]
+
+    return partitions
 
 
 def create_feature_collection(feature_blocks):
@@ -877,8 +909,8 @@ def features_to_input(ds, images, images_train, images_test,
     test_sets = []
     prior_sets = []
     
-    if partitions == 'all':
-        partitions = range(len(images_train))
+    # create partitions list
+    partitions = create_partitions_list(partitions, len(images_train))
 
     for i in partitions:
 
@@ -1002,17 +1034,24 @@ def main():
     if arguments['train']:
         run_training(
             arguments['<dataset>'],
+            images=images,
             model_type=arguments['--type'],
             partitions=partitions,
             cfg=cfg
         )
 
     if arguments['score']:
-        print run_scoring(
+        scores = run_scoring(
             arguments['<dataset>'],
-            model=arguments['--model'],
+            models=arguments['--model'],
             cfg=cfg
-        ).to_string()
+        )
+
+        if scores is not None:
+            print scores.to_string()
+            print pd.DataFrame(scores.mean(), columns=['mean']).T.to_string()
+        else:
+            print 'No scoring results'
 
     if arguments['predict']:
         run_prediction(

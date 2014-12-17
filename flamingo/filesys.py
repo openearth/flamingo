@@ -267,6 +267,12 @@ def read_model_file(ds, model_name):
     return model, meta
 
 
+def check_model_file(ds, model_name):
+    model_name = re.sub('\.pkl$', '', model_name)
+    fname = os.path.join(get_image_path(ds), '%s.pkl' % model_name)
+    return os.path.exists(fname)
+
+
 def read_default_categories(ds):
     'Read list of uniquely defined classes in dataset'
     

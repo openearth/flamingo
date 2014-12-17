@@ -220,29 +220,29 @@ def _empty_block_frame(block, n=1, columns=[], data=None, fill_value=np.empty((0
 
 
 @__extract_blocks(grayscale=True, color=False, channel=False)
-def extract_blocks_pixel(data, segments, **kwargs):
+def extract_blocks_pixel(data, segments, properties_pixel=_PROP_PIXEL, **kwargs):
 
     regionprops = skimage.measure.regionprops(
         np.asarray(segments) + 1, intensity_image=data)
-    features = [{key: feature[key] for key in _PROP_PIXEL}
+    features = [{key: feature[key] for key in properties_pixel}
                 for feature in regionprops]  # if feature._slice is not None]
 
     df = _empty_block_frame(
-        'pixel', np.max(segments) + 1, _PROP_PIXEL, data=features)
+        'pixel', np.max(segments) + 1, properties_pixel, data=features)
 
     return df
 
 
 @__extract_blocks(grayscale=True, color=True, channel=True)
-def extract_blocks_intensity(data, segments, **kwargs):
+def extract_blocks_intensity(data, segments, properties_intensity=_PROP_INTENSITY, **kwargs):
 
     regionprops = skimage.measure.regionprops(
         np.asarray(segments) + 1, intensity_image=data)
-    features = [{key: feature[key] for key in _PROP_INTENSITY}
+    features = [{key: feature[key] for key in properties_intensity}
                 for feature in regionprops]  # if feature._slice is not None]
 
     df = _empty_block_frame(
-        'intensity', np.max(segments) + 1, _PROP_INTENSITY, data=features)
+        'intensity', np.max(segments) + 1, properties_intensity, data=features)
 
     return df
 
@@ -296,25 +296,20 @@ def extract_blocks_mask(data, segments, features=[], **kwargs):
 
 
 @__extract_blocks(grayscale=True, color=True, channel=False, derived_from=['image_masked'])
-def extract_blocks_grey(data,
-                        segments,
-                        features=[],
+def extract_blocks_grey(data, segments, features=[],
+                        distances=[5, 7, 11],
+                        angles=np.linspace(0, np.pi, num=6, endpoint=False),
+                        properties_grey=['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM'],
                         **kwargs):
 
-    settings = {'distances':[5, 7, 11],
-                'angles':np.linspace(0, 1 * np.pi, num=6, endpoint=False),
-                'properties':['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM']}
-
-    settings.update(kwargs)
-
     df = _empty_block_frame(
-        'grey', np.max(segments) + 1, ['grey_%s' % x for x in settings['properties']])
+        'grey', np.max(segments) + 1, ['grey_%s' % x for x in properties_grey])
 
     for i, feature in features.iterrows():
         greyprops = skimage.feature.greycomatrix(features.ix[i, 'image_masked'],
-                                                 distances=settings['distances'],
-                                                 angles=settings['angles'])
-        for prop in settings['properties']:
+                                                 distances=distances,
+                                                 angles=angles)
+        for prop in properties_grey:
             df.ix[i, 'grey_%s' %
                   prop] = skimage.feature.greycoprops(greyprops, prop) # slow
 

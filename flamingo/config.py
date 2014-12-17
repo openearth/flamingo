@@ -33,7 +33,7 @@ CLASSIFICATION_DEFAULTS = {
                            'frac_validation' : 0.0,
                            'frac_test' : 0.25,
                            'force_split' : False},
-    'train'             : {'partitions' : 'all'},
+    'training'          : {'partitions' : 'all'},
     'score'             : {},
     'regularization'    : {'partition' : 0,
                            'C' : [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]}
