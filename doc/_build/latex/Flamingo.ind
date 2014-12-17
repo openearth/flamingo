@@ -4,7 +4,7 @@
   \bigletter A
   \item add\_channels() (in module flamingo.classification.channels), \hyperpage{14}
   \item aggregate\_scores() (in module flamingo.classification.test), \hyperpage{14}
-  \item average\_colors() (in module flamingo.segmentation.superpixels), \hyperpage{6}
+  \item average\_colors() (in module flamingo.segmentation.superpixels), \hyperpage{7}
 
   \indexspace
   \bigletter C
@@ -18,7 +18,7 @@
 
   \indexspace
   \bigletter E
-  \item extract\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{12}
+  \item extract\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{13}
 
   \indexspace
   \bigletter F
@@ -26,12 +26,12 @@
   \item find\_horizon\_offset() (in module flamingo.rectification.plot), \hyperpage{5}
   \item flamingo.calibrate (module), \hyperpage{18}
   \item flamingo.classification.channels (module), \hyperpage{14}
-  \item flamingo.classification.features.blocks (module), \hyperpage{12}
-  \item flamingo.classification.features.features (module), \hyperpage{12}
+  \item flamingo.classification.features.blocks (module), \hyperpage{13}
+  \item flamingo.classification.features.features (module), \hyperpage{13}
   \item flamingo.classification.features.normalize (module), \hyperpage{13}
   \item flamingo.classification.features.relativelocation (module), \hyperpage{13}
   \item flamingo.classification.features.scaleinvariant (module), \hyperpage{13}
-  \item flamingo.classification.models (module), \hyperpage{10}
+  \item flamingo.classification.models (module), \hyperpage{11}
   \item flamingo.classification.plot (module), \hyperpage{15}
   \item flamingo.classification.test (module), \hyperpage{14}
   \item flamingo.classification.utils (module), \hyperpage{15}
@@ -43,7 +43,7 @@
   \item flamingo.rectify (module), \hyperpage{17}
   \item flamingo.segmentation.plot (module), \hyperpage{9}
   \item flamingo.segmentation.postprocess (module), \hyperpage{8}
-  \item flamingo.segmentation.superpixels (module), \hyperpage{6}
+  \item flamingo.segmentation.superpixels (module), \hyperpage{7}
 
   \indexspace
   \bigletter G
@@ -56,7 +56,7 @@
   \item get\_image\_list() (in module flamingo.filesys), \hyperpage{19}
   \item get\_image\_location() (in module flamingo.filesys), \hyperpage{19}
   \item get\_image\_path() (in module flamingo.filesys), \hyperpage{19}
-  \item get\_model() (in module flamingo.classification.models), \hyperpage{10}
+  \item get\_model() (in module flamingo.classification.models), \hyperpage{11}
   \item get\_model\_list() (in module flamingo.filesys), \hyperpage{19}
   \item get\_pixel\_coordinates() (in module flamingo.rectification.rectification), \hyperpage{4}
   \item get\_segmentation() (in module flamingo.segmentation.superpixels), \hyperpage{7}
@@ -73,8 +73,8 @@
 
   \indexspace
   \bigletter L
-  \item linearize() (in module flamingo.classification.features.features), \hyperpage{12}
-  \item list\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{12}
+  \item linearize() (in module flamingo.classification.features.features), \hyperpage{13}
+  \item list\_blocks() (in module flamingo.classification.features.blocks), \hyperpage{13}
 
   \indexspace
   \bigletter P

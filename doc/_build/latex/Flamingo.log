@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.8.11)  15 DEC 2014 22:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.8.11)  17 DEC 2014 21:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1006,159 +1006,159 @@ Underfull \hbox (badness 10000) in paragraph at lines 412--412
 
 [5] [6]
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 608.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 611.
 
-Underfull \hbox (badness 10000) in paragraph at lines 616--616
+Underfull \hbox (badness 10000) in paragraph at lines 619--619
 []\T1/ptm/m/it/10 img\T1/ptm/m/n/10 , \T1/ptm/m/it/10 method='slic'\T1/ptm/m/n/
 10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 616--616
+Underfull \hbox (badness 10000) in paragraph at lines 619--619
 \T1/ptm/m/it/10 method_params={}\T1/ptm/m/n/10 , \T1/ptm/m/it/10 ex-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 616--616
+Underfull \hbox (badness 10000) in paragraph at lines 619--619
 \T1/ptm/m/it/10 tract_contours=False\T1/ptm/m/n/10 , \T1/ptm/m/it/10 re-
  []
 
 [7] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 814--814
+Underfull \hbox (badness 10000) in paragraph at lines 817--817
 []\T1/ptm/m/it/10 fig\T1/ptm/m/n/10 , \T1/ptm/m/it/10 dpi=96\T1/ptm/m/n/10 , \T
 1/ptm/m/it/10 axis_only=True\T1/ptm/m/n/10 , \T1/ptm/m/it/10 trans-par-
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 874--877
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 877--880
 []\T1/ptm/m/n/10 Binary im-age data or 2-tuple with mat-plotlib.figure.Figure a
 nd mat-
  []
 
-[9]
-Underfull \hbox (badness 8075) in paragraph at lines 888--888
+
+Underfull \hbox (badness 8075) in paragraph at lines 891--891
 []\T1/ptm/m/it/10 img\T1/ptm/m/n/10 , \T1/ptm/m/it/10 cmap='Set2'\T1/ptm/m/n/10
  , \T1/ptm/m/it/10 dpi=96\T1/ptm/m/n/10 , \T1/ptm/m/it/10 slice=0\T1/ptm/m/n/10
  , \T1/ptm/m/it/10 trans-par-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 913--916
+Underfull \hbox (badness 10000) in paragraph at lines 916--919
 []\T1/ptm/m/n/10 Binary im-age data or 2-tuple with mat-plotlib.figure.Figure a
 nd mat-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 961--961
+Underfull \hbox (badness 10000) in paragraph at lines 964--964
 []\T1/ptm/m/it/10 model_type='LR'\T1/ptm/m/n/10 , \T1/ptm/m/it/10 n_states=None
 \T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 961--961
+Underfull \hbox (badness 10000) in paragraph at lines 964--964
 \T1/ptm/m/it/10 n_features=None\T1/ptm/m/n/10 , \T1/ptm/m/it/10 rlp_maps=None\T
 1/ptm/m/n/10 ,
  []
 
 [10]
-Underfull \hbox (badness 6445) in paragraph at lines 992--992
+Underfull \hbox (badness 6445) in paragraph at lines 995--995
 []\T1/ptm/m/it/10 model\T1/ptm/m/n/10 , \T1/ptm/m/it/10 X_train\T1/ptm/m/n/10 ,
  \T1/ptm/m/it/10 Y_train\T1/ptm/m/n/10 , \T1/ptm/m/it/10 X_test\T1/ptm/m/n/10 ,
  \T1/ptm/m/it/10 Y_test\T1/ptm/m/n/10 ,
  []
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 1086--1086
+Underfull \hbox (badness 10000) in paragraph at lines 1089--1089
 []\T1/ptm/m/it/10 model\T1/ptm/m/n/10 , \T1/ptm/m/it/10 X_train\T1/ptm/m/n/10 ,
  \T1/ptm/m/it/10 Y_train\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1128--1130
+Underfull \hbox (badness 10000) in paragraph at lines 1131--1133
 []\T1/ptm/m/n/10 training
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1181--1181
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 1184--1184
 []\T1/ptm/m/it/10 data\T1/ptm/m/n/10 , \T1/ptm/m/it/10 seg-ments\T1/ptm/m/n/10 
 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1181--1181
+Underfull \hbox (badness 10000) in paragraph at lines 1184--1184
 \T1/ptm/m/it/10 col-orspace='rgb'\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1181--1181
+Underfull \hbox (badness 10000) in paragraph at lines 1184--1184
 \T1/ptm/m/it/10 blocks=None\T1/ptm/m/n/10 ,
  []
 
-[12]
-Underfull \hbox (badness 10000) in paragraph at lines 1197--1197
+
+Underfull \hbox (badness 10000) in paragraph at lines 1200--1200
 []\T1/ptm/m/it/10 annotations\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1197--1197
+Underfull \hbox (badness 10000) in paragraph at lines 1200--1200
 \T1/ptm/m/it/10 age_size\T1/ptm/m/n/10 , \T1/ptm/m/it/10 su-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1197--1197
+Underfull \hbox (badness 10000) in paragraph at lines 1200--1200
 \T1/ptm/m/it/10 per-pixel_grid\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1253--1253
+Underfull \hbox (badness 10000) in paragraph at lines 1256--1256
 []\T1/ptm/m/it/10 Y\T1/ptm/m/n/10 , \T1/ptm/m/it/10 maps\T1/ptm/m/n/10 , \T1/pt
 m/m/it/10 cen-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1253--1253
+Underfull \hbox (badness 10000) in paragraph at lines 1256--1256
 \T1/ptm/m/it/10 troids=None\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1253--1253
+Underfull \hbox (badness 10000) in paragraph at lines 1256--1256
 \T1/ptm/m/it/10 img_size=None\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1253--1253
+Underfull \hbox (badness 10000) in paragraph at lines 1256--1256
 \T1/ptm/m/it/10 win-
  []
 
 
-Overfull \hbox (36.46394pt too wide) in paragraph at lines 1253--1253
+Overfull \hbox (36.46394pt too wide) in paragraph at lines 1256--1256
 \T1/ptm/m/it/10 ner_takes_all_mode=False\T1/pcr/m/n/10 ) 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1261--1262
+Underfull \hbox (badness 10000) in paragraph at lines 1264--1265
 []\T1/ptm/b/n/10 Ipred \T1/ptm/m/n/10 (\T1/ptm/m/it/10 list of lists of tu-ple 
 of lists of ar-rays with size
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1289--1289
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 1292--1292
 []\T1/ptm/m/it/10 img, col-orspace='rgb', meth-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1289--1289
+Underfull \hbox (badness 10000) in paragraph at lines 1292--1292
 \T1/ptm/m/it/10 ods=['gabor', `gaus-sian', `so-bel'],
  []
 
-[13]
-Underfull \hbox (badness 10000) in paragraph at lines 1324--1324
+
+Underfull \hbox (badness 10000) in paragraph at lines 1327--1327
 []\T1/ptm/m/it/10 models\T1/ptm/m/n/10 , \T1/ptm/m/it/10 train_sets\T1/ptm/m/n/
 10 , \T1/ptm/m/it/10 test_sets\T1/ptm/m/n/10 ,
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1377--1377
+Underfull \hbox (badness 10000) in paragraph at lines 1380--1380
 []\T1/ptm/m/it/10 scores\T1/ptm/m/n/10 , \T1/ptm/m/it/10 ylim=(0.75\T1/ptm/m/n/
 10 , \T1/ptm/m/it/10 1)\T1/ptm/m/n/10 , \T1/ptm/m/it/10 file-
  []
@@ -1170,13 +1170,13 @@ Chapter 2.
 [17] [18]
 Chapter 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1609--1613
+Underfull \hbox (badness 10000) in paragraph at lines 1607--1611
 []\T1/ptm/m/n/10 Pickle files with a trained model. Each model file is ac-com-p
 a-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1609--1613
+Underfull \hbox (badness 10000) in paragraph at lines 1607--1611
 \T1/ptm/m/n/10 nied by a meta file. Each model file name has the fol-low-ing fo
 r-mat:
  []
@@ -1184,17 +1184,17 @@ r-mat:
 [19
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1722--1722
+Underfull \hbox (badness 10000) in paragraph at lines 1720--1720
 []\T1/ptm/m/it/10 ds, im, blocks=['extract_blocks_grey', `ex-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1722--1722
+Underfull \hbox (badness 10000) in paragraph at lines 1720--1720
 \T1/ptm/m/it/10 tract_blocks_intensity', `ex-tract_blocks_mask',
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1722--1722
+Underfull \hbox (badness 10000) in paragraph at lines 1720--1720
 \T1/ptm/m/it/10 `ex-tract_blocks_pixel', `ex-tract_blocks_shape', `ex-
  []
 
@@ -1209,28 +1209,28 @@ Chapter 5.
 ] [24
 
 ]
-Overfull \hbox (6.6225pt too wide) in paragraph at lines 1917--1918
+Overfull \hbox (6.6225pt too wide) in paragraph at lines 1915--1916
 []\T1/pcr/m/n/10 flamingo.classification.features.blocks\T1/ptm/m/n/10 ,
  []
 
 
-Overfull \hbox (18.6225pt too wide) in paragraph at lines 1918--1919
+Overfull \hbox (18.6225pt too wide) in paragraph at lines 1916--1917
 []\T1/pcr/m/n/10 flamingo.classification.features.features\T1/ptm/m/n/10 ,
  []
 
 
-Overfull \hbox (24.6225pt too wide) in paragraph at lines 1919--1920
+Overfull \hbox (24.6225pt too wide) in paragraph at lines 1917--1918
 []\T1/pcr/m/n/10 flamingo.classification.features.normalize\T1/ptm/m/n/10 ,
  []
 
 
-Overfull \hbox (66.6225pt too wide) in paragraph at lines 1920--1921
+Overfull \hbox (66.6225pt too wide) in paragraph at lines 1918--1919
 []\T1/pcr/m/n/10 flamingo.classification.features.relativelocation\T1/ptm/m/n/1
 0 ,
  []
 
 
-Overfull \hbox (54.6225pt too wide) in paragraph at lines 1921--1922
+Overfull \hbox (54.6225pt too wide) in paragraph at lines 1919--1920
 []\T1/pcr/m/n/10 flamingo.classification.features.scaleinvariant\T1/ptm/m/n/10 
 ,
  []
@@ -1414,15 +1414,15 @@ Overfull \hbox (4.6898pt too wide) in paragraph at lines 121--122
  []
 
 [28])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1939.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1939.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1937.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1937.
  (./Flamingo.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1939.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1939.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1937.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1937.
 
 Package rerunfilecheck Info: File `Flamingo.out' has not changed.
 (rerunfilecheck)             Checksum: 4B8FAA5470C783444E08DF2D5575EFEF;831.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1939.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1937.
  ) 
 Here is how much of TeX's memory you used:
  9390 strings out of 493108
@@ -1431,7 +1431,7 @@ Here is how much of TeX's memory you used:
  12447 multiletter control sequences out of 15000+600000
  66340 words of font info for 74 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 36i,12n,49p,1046b,567s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,12n,49p,1049b,569s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2014/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/local/texlive/2
 014/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2014/texm
@@ -1441,10 +1441,10 @@ ype1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/u
 rw/helvetic/uhvr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmr8a.p
 fb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Flamingo.pdf (32 pages, 172672 bytes).
+Output written on Flamingo.pdf (32 pages, 172903 bytes).
 PDF statistics:
- 522 PDF objects out of 1000 (max. 8388607)
- 469 compressed objects within 5 object streams
+ 523 PDF objects out of 1000 (max. 8388607)
+ 470 compressed objects within 5 object streams
  141 named destinations out of 1000 (max. 500000)
  141 words of extra memory for PDF output out of 10000 (max. 10000000)
 

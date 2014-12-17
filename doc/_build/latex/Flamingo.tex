@@ -14,7 +14,7 @@
 
 
 \title{Flamingo Documentation}
-\date{December 15, 2014}
+\date{December 17, 2014}
 \release{1.0.1}
 \author{Bas Hoonhout}
 \newcommand{\sphinxlogo}{}
@@ -348,7 +348,7 @@ float
 \index{plot\_coverage() (in module flamingo.rectification.plot)}
 
 \begin{fulllineitems}
-\phantomsection\label{rectification:flamingo.rectification.plot.plot_coverage}\pysiglinewithargsret{\code{flamingo.rectification.plot.}\bfcode{plot\_coverage}}{\emph{X}, \emph{Y}, \emph{rotation=None}, \emph{translation=None}, \emph{max\_distance=10000.0}, \emph{ax=None}, \emph{figsize=(30}, \emph{20)}, \emph{cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x10d7571d0\textgreater{}}, \emph{alpha=0.4}}{}
+\phantomsection\label{rectification:flamingo.rectification.plot.plot_coverage}\pysiglinewithargsret{\code{flamingo.rectification.plot.}\bfcode{plot\_coverage}}{\emph{X}, \emph{Y}, \emph{rotation=None}, \emph{translation=None}, \emph{max\_distance=10000.0}, \emph{ax=None}, \emph{figsize=(30}, \emph{20)}, \emph{cmap=\textless{}matplotlib.colors.LinearSegmentedColormap object at 0x114790750\textgreater{}}, \emph{alpha=0.4}}{}
 Plot the coverage of the projection of multiple images in a single axis.
 
 Plot the outline of lists of real-world x and y coordinate
@@ -409,7 +409,7 @@ Axis object containing plot
 \index{plot\_rectified() (in module flamingo.rectification.plot)}
 
 \begin{fulllineitems}
-\phantomsection\label{rectification:flamingo.rectification.plot.plot_rectified}\pysiglinewithargsret{\code{flamingo.rectification.plot.}\bfcode{plot\_rectified}}{\emph{X}, \emph{Y}, \emph{imgs}, \emph{rotation=None}, \emph{translation=None}, \emph{max\_distance=10000.0}, \emph{ax=None}, \emph{figsize=(30}, \emph{20)}, \emph{color=True}}{}
+\phantomsection\label{rectification:flamingo.rectification.plot.plot_rectified}\pysiglinewithargsret{\code{flamingo.rectification.plot.}\bfcode{plot\_rectified}}{\emph{X}, \emph{Y}, \emph{imgs}, \emph{rotation=None}, \emph{translation=None}, \emph{max\_distance=10000.0}, \emph{ax=None}, \emph{figsize=(30}, \emph{20)}, \emph{cmap='Greys'}, \emph{color=True}, \emph{n\_alpha=0}}{}
 Plot the projection of multiple RGB images in a single axis.
 
 Plot a list of images using corresponding lists of real-world
@@ -447,6 +447,9 @@ Larger numbers are considered to be beyond the horizon.
 
 \item {} 
 \textbf{color} (\emph{bool, optional}) -- Whether color image should be plotted or grayscale
+
+\item {} 
+\textbf{n\_alpha} (\href{http://docs.python.org/library/functions.html\#int}{\emph{int}}) -- Number of border pixels to use to increase alpha
 
 \end{itemize}
 
@@ -1525,15 +1528,10 @@ Train, score and use classification models on image datasets.
 \begin{description}
 \item[{Usage:}] \leavevmode
 classify-images preprocess \textless{}dataset\textgreater{} {[}--segmentate{]} {[}--channels{]} {[}--features{]} {[}--extract{]} {[}--update{]} {[}--normalize{]} {[}--relloc{]} {[}--relloc\_maps{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--overwrite{]} {[}--verbose{]}
-
 classify-images partition \textless{}dataset\textgreater{} {[}--n=N{]} {[}--frac=FRAC{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--verbose{]}
-
 classify-images train \textless{}dataset\textgreater{} {[}--type=NAME{]} {[}--partitions=N{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--verbose{]}
-
 classify-images score \textless{}dataset\textgreater{} {[}--model=NAME{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--verbose{]}
-
 classify-images predict \textless{}dataset\textgreater{} {[}--model=NAME{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--overwrite{]} {[}--verbose{]}
-
 classify-images regularization \textless{}dataset\textgreater{} {[}--type=NAME{]} {[}--images=FILE{]} {[}--config=FILE{]} {[}--verbose{]}
 
 \item[{Positional arguments:}] \leavevmode
@@ -1806,7 +1804,7 @@ The module also supplies wrappers for the automated updating of a function call 
 \phantomsection\label{index:module-flamingo.config}\index{flamingo.config (module)}\index{CLASSIFICATION\_DEFAULTS (in module flamingo.config)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:flamingo.config.CLASSIFICATION_DEFAULTS}\pysigline{\code{flamingo.config.}\bfcode{CLASSIFICATION\_DEFAULTS}\strong{ = \{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `train': \{`partitions': `all'\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}
+\phantomsection\label{index:flamingo.config.CLASSIFICATION_DEFAULTS}\pysigline{\code{flamingo.config.}\bfcode{CLASSIFICATION\_DEFAULTS}\strong{ = \{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `training': \{`partitions': `all'\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}
 Configuration constants for classification toolbox
 
 \end{fulllineitems}
@@ -1830,7 +1828,7 @@ Wrapper for parsing config file for specific function call
 \index{read\_config() (in module flamingo.config)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:flamingo.config.read_config}\pysiglinewithargsret{\code{flamingo.config.}\bfcode{read\_config}}{\emph{cfgfile, defaults=\{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `train': \{`partitions': `all'\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}{}
+\phantomsection\label{index:flamingo.config.read_config}\pysiglinewithargsret{\code{flamingo.config.}\bfcode{read\_config}}{\emph{cfgfile, defaults=\{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `training': \{`partitions': `all'\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}{}
 Read configuration file and update default settings
 
 \end{fulllineitems}
@@ -1838,7 +1836,7 @@ Read configuration file and update default settings
 \index{write\_config() (in module flamingo.config)}
 
 \begin{fulllineitems}
-\phantomsection\label{index:flamingo.config.write_config}\pysiglinewithargsret{\code{flamingo.config.}\bfcode{write\_config}}{\emph{cfgfile, defaults=\{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `train': \{`partitions': `all'\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}{}
+\phantomsection\label{index:flamingo.config.write_config}\pysiglinewithargsret{\code{flamingo.config.}\bfcode{write\_config}}{\emph{cfgfile, defaults=\{`channels': \{`enabled': True, `methods': {[}'gabor', `gaussian', `sobel'{]}, `methods\_params': \{`frequencies': {[}0.05, 0.15, 0.25{]}, `sigmas': {[}1, 8, 15{]}, `thetas': {[}0.0, 0.785, 1.571, 2.356{]}\}\}, `segmentation': \{`remove\_disjoint': True, `extract\_contours': False, `enabled': True, `method': `slic', `method\_params': \{\}\}, `relative\_location': \{`sigma': 2, `enabled': False, `n': 100\}, `features': \{`feature\_blocks': `all', `enabled': True, `blocks\_params': \{\}\}, `score': \{\}, `partition': \{`n\_partitions': 5, `force\_split': False, `enabled': True, `frac\_test': 0.25, `frac\_validation': 0.0\}, `training': \{`partitions': `all'\}, `regularization': \{`C': {[}0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0{]}, `partition': 0\}, `general': \{`model\_type': `LR', `colorspace': `rgb', `class\_aggregation': `', `model\_dataset': `'\}\}}}{}
 Write configuration file
 
 \end{fulllineitems}

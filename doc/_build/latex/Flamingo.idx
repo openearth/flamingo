@@ -8,8 +8,8 @@
 \indexentry{plot\_coverage() (in module flamingo.rectification.plot)|hyperpage}{5}
 \indexentry{plot\_rectified() (in module flamingo.rectification.plot)|hyperpage}{5}
 \indexentry{rotate\_translate() (in module flamingo.rectification.plot)|hyperpage}{6}
-\indexentry{flamingo.segmentation.superpixels (module)|hyperpage}{6}
-\indexentry{average\_colors() (in module flamingo.segmentation.superpixels)|hyperpage}{6}
+\indexentry{flamingo.segmentation.superpixels (module)|hyperpage}{7}
+\indexentry{average\_colors() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
 \indexentry{check\_segmentation() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
 \indexentry{get\_contours() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
 \indexentry{get\_segmentation() (in module flamingo.segmentation.superpixels)|hyperpage}{7}
@@ -23,17 +23,17 @@
 \indexentry{get\_image\_data() (in module flamingo.segmentation.plot)|hyperpage}{9}
 \indexentry{plot() (in module flamingo.segmentation.plot)|hyperpage}{9}
 \indexentry{plot\_image() (in module flamingo.segmentation.plot)|hyperpage}{10}
-\indexentry{flamingo.classification.models (module)|hyperpage}{10}
-\indexentry{get\_model() (in module flamingo.classification.models)|hyperpage}{10}
+\indexentry{flamingo.classification.models (module)|hyperpage}{11}
+\indexentry{get\_model() (in module flamingo.classification.models)|hyperpage}{11}
 \indexentry{score\_model() (in module flamingo.classification.models)|hyperpage}{11}
 \indexentry{score\_models() (in module flamingo.classification.models)|hyperpage}{11}
 \indexentry{train\_model() (in module flamingo.classification.models)|hyperpage}{12}
 \indexentry{train\_models() (in module flamingo.classification.models)|hyperpage}{12}
-\indexentry{flamingo.classification.features.features (module)|hyperpage}{12}
-\indexentry{linearize() (in module flamingo.classification.features.features)|hyperpage}{12}
-\indexentry{flamingo.classification.features.blocks (module)|hyperpage}{12}
-\indexentry{extract\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{12}
-\indexentry{list\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{12}
+\indexentry{flamingo.classification.features.features (module)|hyperpage}{13}
+\indexentry{linearize() (in module flamingo.classification.features.features)|hyperpage}{13}
+\indexentry{flamingo.classification.features.blocks (module)|hyperpage}{13}
+\indexentry{extract\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{13}
+\indexentry{list\_blocks() (in module flamingo.classification.features.blocks)|hyperpage}{13}
 \indexentry{flamingo.classification.features.scaleinvariant (module)|hyperpage}{13}
 \indexentry{flamingo.classification.features.normalize (module)|hyperpage}{13}
 \indexentry{flamingo.classification.features.relativelocation (module)|hyperpage}{13}
