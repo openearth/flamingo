@@ -9,6 +9,12 @@ from features import relativelocation
 from utils import *
 
 class LogisticRegression(sklearn.linear_model.LogisticRegression):
+    '''Logistic Regressor
+
+    Equal to :class:`sklearn.linear_model.LogisticRegression`
+    (inherited), but also takes non-linearized structured data as
+    input.
+    '''
 
     def fit(self, X, Y):
         X, Y = linearize_data(X, Y)
@@ -22,7 +28,29 @@ class LogisticRegression(sklearn.linear_model.LogisticRegression):
         Y = linearize_data(Y=Y)
         return super(LogisticRegression, self).score(X, Y)
 
+
 class LogisticRegressionRLP(LogisticRegression):
+    '''Logistic Regressor with support for Relative Location Priors
+
+    Equal to :class:`flamingo.classification.models.LogisticRegression`
+    (inherited), but supports the use of Relative Location Priors as
+    proposed by [Gould2008]_.
+
+    Arguments
+    ---------
+    rlp_maps : dict
+        Dictionary with for each class an np.ndarray with a relative
+        location map
+    rlp_stats : dict
+        Dictionary with for each relative location feature a mean and
+        standard deviation for normalizing to standard normal space
+
+    Notes
+    -----
+    Only arguments additional to :class:`flamingo.classification.models.LogisticRegression` are listed.
+
+    .. [Gould2008] Stephen Gould, Jim Rodgers, David Cohen, Gal Elidan, Daphne Koller (2008). Multi-Class Segmentation with Relative Location Prior. International Journal of Computer Vision. `doi:10.1007/s11263-008-0140-x <http://dx.doi.org/10.1007/s11263-008-0140-x>`_
+    '''
 
     rlp_maps = None
     rlp_stats = None
@@ -48,15 +76,11 @@ class LogisticRegressionRLP(LogisticRegression):
         shp = X.shape[:2]
         X = self.compute_rlp_features(X)
         Y = super(LogisticRegressionRLP, self).predict(X)
-        with open('/flamingo/debug/%d_final.pkl' % self.n,'wb') as fp: # BAS: WHAT THE HELL IS THIS ?!?!
-            pickle.dump(Y.reshape(shp), fp)
         return Y
 
     def score(self, X, Y):
         scores = []
         for Xi, Yi in zip(X, Y):
-            with open('/flamingo/debug/%d_annotated.pkl' % self.n,'wb') as fp: # BAS: OH, SYSTEMATIC BULLSHIT...
-                pickle.dump(Yi, fp)
             scores.append(super(LogisticRegressionRLP, self).score(Xi, Yi))
             self.n += 1
         return np.mean(scores)
@@ -70,13 +94,9 @@ class LogisticRegressionRLP(LogisticRegression):
 
             # first prediction round
             Y = super(LogisticRegressionRLP, self).predict(X_ext).reshape(X.shape[:-1])
-            with open('/flamingo/debug/%d_firstprediction.pkl' % self.n,'wb') as fp: # BAS: SHOW ME THE WAY TO THE NEXT DEBUG FLAG
-                pickle.dump(Y, fp)
 
             # voting based on first prediction round and relative location prior
             votes, ivote = relativelocation.vote_image(Y, self.rlp_maps)
-            with open('/flamingo/debug/%d_votes.pkl' % self.n,'wb') as fp: # BAS: REALLY? REALLY, REALLY, REALLY?
-                pickle.dump(ivote, fp)
 
             # translate voted probabilities to relative location features
             for c in votes.items:
@@ -92,7 +112,13 @@ class LogisticRegressionRLP(LogisticRegression):
     def _rlp_initialized(self):
         return self.rlp_maps is not None and self.rlp_stats is not None
 
+
 class SupportVectorMachine(sklearn.svm.LinearSVC):
+    '''Support Vecor Machine
+
+    Equal to :class:`sklearn.svm.LinearSVC` (inherited), but also
+    takes non-linearized structured data as input.
+    '''
 
     def fit(self, X, Y):
         X, Y = linearize_data(X, Y)
@@ -106,7 +132,22 @@ class SupportVectorMachine(sklearn.svm.LinearSVC):
         Y = linearize_data(Y=Y)
         return super(SupportVectorMachine, self).score(X, Y)
 
+
 class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
+    '''Conditional Random Field
+
+    Equal to :class:`pystruct.learners.OneSlackSSVM` (inherited), but
+    also takes string class labels as input.
+
+    Arguments
+    ---------
+    clist : list
+        List with possible class names
+
+    Notes
+    -----
+    Only arguments additional to :class:`pystruct.learners.OneSlackSSVM` are listed.
+    '''
 
     def __init__(self, model, max_iter=10000, C=1.0, check_constraints=False, verbose=0, 
                  negativity_constraint=None, n_jobs=1, break_on_bad=False, show_loss_every=0, tol=1e-3,
@@ -150,6 +191,20 @@ class ConditionalRandomField(pystruct.learners.OneSlackSSVM):
 
 
 class ConditionalRandomFieldPerceptron(pystruct.learners.StructuredPerceptron):
+    '''Conditional Random Field
+
+    Equal to :class:`pystruct.learners.StructuredPerceptron`
+    (inherited), but also takes string class labels as input.
+
+    Arguments
+    ---------
+    clist : list
+        List with possible class names
+
+    Notes
+    -----
+    Only arguments additional to :class:`pystruct.learners.StrcturedPerceptron` are listed.
+    '''
 
     def __init__(self, model, max_iter=100, verbose=0, batch=False, decay_exponent=0., decay_t0=0., average=False, clist=None):
         
@@ -204,7 +259,6 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
         Number of classes (CRF only)
     n_features : integer
         Number of features (CRF only)
-
     '''
 
     if rlp_maps is not None and model_type == 'LR_RLP':
@@ -225,6 +279,7 @@ def get_model(model_type='LR', n_states=None, n_features=None, rlp_maps=None, rl
     else:
         raise ValueError('Unknown model type [%s]' % model_type)
 
+
 def train_models(models, train_sets, prior_sets=None, callback=None):
     '''Trains a set of model against a series of training sets
 
@@ -233,20 +288,19 @@ def train_models(models, train_sets, prior_sets=None, callback=None):
     models : list
         List of model objects. Model objects should have a fit() method.
     train_sets : list
-        List of tuples containing training data.
-        The first item in a tuple is a 2D array. Each row is a training instance,
-            while each column is a feature.
-        The second item in a tuple is an array containing class annotations for each
-            training instance.
-    prior_sets: list
-        List of 2D arrays containing prior data.
-        Similar to first tuple item in train_sets
-        Each item is a 2D array. Each row is a training instance,
-            while each column is a feature.
-    callback: function
-        Callback function that is called after training of a model finished.
-        Function accepts two parameters: the model object and a tuple with location
-            indices in the resulting model matrix.
+        List of tuples containing training data. The first item in a
+        tuple is a 2D array. Each row is a training instance, while
+        each column is a feature. The second item in a tuple is an
+        array containing class annotations for each training instance.
+    prior_sets: list, optional
+        List of 2D arrays containing prior data. Similar to first
+        tuple item in train_sets. Each item is a 2D array. Each row is
+        a training instance, while each column is a feature.
+    callback: function, optional
+        Callback function that is called after training of a model
+        finished. Function accepts two parameters: the model object
+        and a tuple with location indices in the resulting model
+        matrix.
 
     Returns
     -------
@@ -276,6 +330,7 @@ def train_models(models, train_sets, prior_sets=None, callback=None):
 
     return mtx
 
+
 def train_model(model, X_train, Y_train, X_train_prior=None):
     '''Trains a single model against a single training set
 
@@ -284,10 +339,13 @@ def train_model(model, X_train, Y_train, X_train_prior=None):
     model : object
         Bare model object. Model object should hava a fit() method.
     X_train : list or numpy.ndarray
-        2D array containing training data. Each row is a training instance,
-            while each column is a feature.
+        2D array containing training data. Each row is a training
+        instance, while each column is a feature.
     Y_train : list or numpy.ndarray
         Array containing class annotations for each training instance.
+    X_train_prior : list or numpy.ndarray, optional
+        2D array containing prior data. Each row is a training
+        instance, while each column is a feature.
 
     Notes
     -----
@@ -300,6 +358,7 @@ def train_model(model, X_train, Y_train, X_train_prior=None):
     except TypeError:
         model.fit(X_train, Y_train)
 
+
 def score_models(models, train_sets, test_sets, **kwargs):
     '''Compute train/test scores for a set of trained models
 
@@ -308,9 +367,13 @@ def score_models(models, train_sets, test_sets, **kwargs):
     models : list
         List of lists with each item a trained instance of a model.
     train_sets : list
-        List of tuples containing training data corresponding to the model list.
+        List of tuples containing training data corresponding to the
+        model list.
     test_sets : list
-        List of tuples containing test data corresponding to the model list.
+        List of tuples containing test data corresponding to the model
+        list.
+    **kwargs
+        Additional arguments passed to the scoring function
 
     Returns
     -------
@@ -323,18 +386,16 @@ def score_models(models, train_sets, test_sets, **kwargs):
     -----
     Models should be trained.
     Model and set lists should be of equal length.
-    In case of N models and M training sets the models should be organized in a 
-        N-length list of M-length lists.
-    The train and test sets should both be M-length lists.
+    In case of N models and M training sets the models should be
+    organized in a N-length list of M-length lists. The train and test
+    sets should both be M-length lists.
 
     Examples
     --------
 
     >>> models = [models.get_model(model_type='LR'),
                   models.get_model(model_type='CRF', n_states=5, n_features=10)]
-
     >>> models_trained = models.train_models(models, [(X_train, Y_train)])
-
     >>> scores = test.score_models(models, [(X_train, Y_train)], [(X_test, Y_test)])
     '''
 
@@ -358,7 +419,8 @@ def score_models(models, train_sets, test_sets, **kwargs):
 
     return df
 
-def score_model(model, X_train, Y_train, X_test, Y_test, maps=None, stats=None, features=None):
+
+def score_model(model, X_train, Y_train, X_test, Y_test):
     '''Scores a single model using a train and test set
 
     Parameters
@@ -380,7 +442,6 @@ def score_model(model, X_train, Y_train, X_test, Y_test, maps=None, stats=None, 
 
     score_test : float
         Test score
-
     '''
 
     score_train = model.score(X_train, Y_train)
@@ -388,7 +449,30 @@ def score_model(model, X_train, Y_train, X_test, Y_test, maps=None, stats=None, 
 
     return score_train, score_test
 
+
 def predict_models(models, sets):
+    '''Run class predictions for a set of trained models and corresponding data
+
+    Parameters
+    ----------
+    models : list
+        List of lists with each item a trained instance of a model.
+    sets : list
+        List of tuples containing data corresponding to the model list.
+
+    Returns
+    -------
+    list
+        List of lists containing np.ndarrays with class predictions for each
+        image and each model.
+
+    Notes
+    -----
+    Models should be trained.
+    Model and set lists should be of equal length.
+    In case of N models and M training sets the models should be
+    organized in a N-length list of M-length lists.
+    '''
 
     Y = []
 
@@ -401,14 +485,31 @@ def predict_models(models, sets):
             
     return Y
 
+
 def predict_model(model, X):
+    '''Run class prediction of image with a single model
+
+    Parameters
+    ----------
+    model : object
+        Trained model object. Model object should have a score() method.
+    X : list or numpy.ndarray
+        2D array containing training data.
+        Each row is a training instance, while each column is a feature.
+
+    Returns
+    -------
+    np.ndarray
+        Class prediction for image
+    '''
 
     Y = model.predict(X)
     
     return Y  #Y.reshape((X.shape[:-1]))
 
+
 def __enumerate_sets(i, train_sets, test_sets):
-    'Set generator'
+    '''Generator for train/test sets'''
     
     try:
         for record in enumerate(zip(train_sets, test_sets)):
@@ -417,7 +518,10 @@ def __enumerate_sets(i, train_sets, test_sets):
         for record in enumerate(zip(train_sets[i], test_sets[i])):
             yield record
 
+
 def __number_of_sets(train_sets, test_sets):
+    '''Returns the number of items in a set'''
+
     try:
         (X_train, Y_train), (X_test, Y_test) = zip(train_sets, test_sets)[0]
         m = len(train_sets)
@@ -426,6 +530,9 @@ def __number_of_sets(train_sets, test_sets):
 
     return m
 
+
 def __modelname(model):
+    '''Returns string representation of a model object'''
+
     return str(type(model)).replace("<class '","").replace("'>","")
 

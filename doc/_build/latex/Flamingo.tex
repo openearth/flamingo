@@ -958,7 +958,96 @@ it provides functions for model training and optimization that are largely based
 
 
 \subsection{Models}
-\label{classification:models}\label{classification:module-flamingo.classification.models}\index{flamingo.classification.models (module)}\index{get\_model() (in module flamingo.classification.models)}
+\label{classification:models}\label{classification:module-flamingo.classification.models}\index{flamingo.classification.models (module)}\index{ConditionalRandomField (class in flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.ConditionalRandomField}\pysiglinewithargsret{\strong{class }\code{flamingo.classification.models.}\bfcode{ConditionalRandomField}}{\emph{model}, \emph{max\_iter=10000}, \emph{C=1.0}, \emph{check\_constraints=False}, \emph{verbose=0}, \emph{negativity\_constraint=None}, \emph{n\_jobs=1}, \emph{break\_on\_bad=False}, \emph{show\_loss\_every=0}, \emph{tol=0.001}, \emph{inference\_cache=0}, \emph{inactive\_threshold=1e-05}, \emph{inactive\_window=50}, \emph{logger=None}, \emph{cache\_tol='auto'}, \emph{switch\_to=None}, \emph{clist=None}}{}
+Conditional Random Field
+
+Equal to \code{pystruct.learners.OneSlackSSVM} (inherited), but
+also takes string class labels as input.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\textbf{clist} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with possible class names
+
+\end{description}\end{quote}
+\paragraph{Notes}
+
+Only arguments additional to \code{pystruct.learners.OneSlackSSVM} are listed.
+
+\end{fulllineitems}
+
+\index{ConditionalRandomFieldPerceptron (class in flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.ConditionalRandomFieldPerceptron}\pysiglinewithargsret{\strong{class }\code{flamingo.classification.models.}\bfcode{ConditionalRandomFieldPerceptron}}{\emph{model}, \emph{max\_iter=100}, \emph{verbose=0}, \emph{batch=False}, \emph{decay\_exponent=0.0}, \emph{decay\_t0=0.0}, \emph{average=False}, \emph{clist=None}}{}
+Conditional Random Field
+
+Equal to \code{pystruct.learners.StructuredPerceptron}
+(inherited), but also takes string class labels as input.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\textbf{clist} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with possible class names
+
+\end{description}\end{quote}
+\paragraph{Notes}
+
+Only arguments additional to \code{pystruct.learners.StrcturedPerceptron} are listed.
+
+\end{fulllineitems}
+
+\index{LogisticRegression (class in flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.LogisticRegression}\pysiglinewithargsret{\strong{class }\code{flamingo.classification.models.}\bfcode{LogisticRegression}}{\emph{penalty='l2'}, \emph{dual=False}, \emph{tol=0.0001}, \emph{C=1.0}, \emph{fit\_intercept=True}, \emph{intercept\_scaling=1}, \emph{class\_weight=None}, \emph{random\_state=None}}{}
+Logistic Regressor
+
+Equal to \code{sklearn.linear\_model.LogisticRegression}
+(inherited), but also takes non-linearized structured data as
+input.
+
+\end{fulllineitems}
+
+\index{LogisticRegressionRLP (class in flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.LogisticRegressionRLP}\pysiglinewithargsret{\strong{class }\code{flamingo.classification.models.}\bfcode{LogisticRegressionRLP}}{\emph{penalty='l2'}, \emph{dual=False}, \emph{tol=0.0001}, \emph{C=1.0}, \emph{fit\_intercept=True}, \emph{intercept\_scaling=1}, \emph{class\_weight=None}, \emph{random\_state=None}, \emph{rlp\_maps=None}, \emph{rlp\_stats=None}}{}
+Logistic Regressor with support for Relative Location Priors
+
+Equal to {\hyperref[classification:flamingo.classification.models.LogisticRegression]{\code{flamingo.classification.models.LogisticRegression}}}
+(inherited), but supports the use of Relative Location Priors as
+proposed by {\hyperref[classification:gould2008]{{[}Gould2008{]}}}.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{rlp\_maps} (\href{http://docs.python.org/library/stdtypes.html\#dict}{\emph{dict}}) -- Dictionary with for each class an np.ndarray with a relative
+location map
+
+\item {} 
+\textbf{rlp\_stats} (\href{http://docs.python.org/library/stdtypes.html\#dict}{\emph{dict}}) -- Dictionary with for each relative location feature a mean and
+standard deviation for normalizing to standard normal space
+
+\end{itemize}
+
+\end{description}\end{quote}
+\paragraph{Notes}
+
+Only arguments additional to {\hyperref[classification:flamingo.classification.models.LogisticRegression]{\code{flamingo.classification.models.LogisticRegression}}} are listed.
+
+\end{fulllineitems}
+
+\index{SupportVectorMachine (class in flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.SupportVectorMachine}\pysiglinewithargsret{\strong{class }\code{flamingo.classification.models.}\bfcode{SupportVectorMachine}}{\emph{penalty='l2'}, \emph{loss='l2'}, \emph{dual=True}, \emph{tol=0.0001}, \emph{C=1.0}, \emph{multi\_class='ovr'}, \emph{fit\_intercept=True}, \emph{intercept\_scaling=1}, \emph{class\_weight=None}, \emph{verbose=0}, \emph{random\_state=None}}{}
+Support Vecor Machine
+
+Equal to \code{sklearn.svm.LinearSVC} (inherited), but also
+takes non-linearized structured data as input.
+
+\end{fulllineitems}
+
+\index{get\_model() (in module flamingo.classification.models)}
 
 \begin{fulllineitems}
 \phantomsection\label{classification:flamingo.classification.models.get_model}\pysiglinewithargsret{\code{flamingo.classification.models.}\bfcode{get\_model}}{\emph{model\_type='LR'}, \emph{n\_states=None}, \emph{n\_features=None}, \emph{rlp\_maps=None}, \emph{rlp\_stats=None}, \emph{C=1.0}}{}
@@ -989,10 +1078,68 @@ Number of features (CRF only)
 
 \end{fulllineitems}
 
+\index{predict\_model() (in module flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.predict_model}\pysiglinewithargsret{\code{flamingo.classification.models.}\bfcode{predict\_model}}{\emph{model}, \emph{X}}{}
+Run class prediction of image with a single model
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{model} (\href{http://docs.python.org/library/functions.html\#object}{\emph{object}}) -- Trained model object. Model object should have a score() method.
+
+\item {} 
+\textbf{X} (\emph{list or numpy.ndarray}) -- 2D array containing training data.
+Each row is a training instance, while each column is a feature.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Class prediction for image
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{predict\_models() (in module flamingo.classification.models)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.models.predict_models}\pysiglinewithargsret{\code{flamingo.classification.models.}\bfcode{predict\_models}}{\emph{models}, \emph{sets}}{}
+Run class predictions for a set of trained models and corresponding data
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{models} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of lists with each item a trained instance of a model.
+
+\item {} 
+\textbf{sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing data corresponding to the model list.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+List of lists containing np.ndarrays with class predictions for each
+image and each model.
+
+\item[{Return type}] \leavevmode
+list
+
+\end{description}\end{quote}
+\paragraph{Notes}
+
+Models should be trained.
+Model and set lists should be of equal length.
+In case of N models and M training sets the models should be
+organized in a N-length list of M-length lists.
+
+\end{fulllineitems}
+
 \index{score\_model() (in module flamingo.classification.models)}
 
 \begin{fulllineitems}
-\phantomsection\label{classification:flamingo.classification.models.score_model}\pysiglinewithargsret{\code{flamingo.classification.models.}\bfcode{score\_model}}{\emph{model}, \emph{X\_train}, \emph{Y\_train}, \emph{X\_test}, \emph{Y\_test}, \emph{maps=None}, \emph{stats=None}, \emph{features=None}}{}
+\phantomsection\label{classification:flamingo.classification.models.score_model}\pysiglinewithargsret{\code{flamingo.classification.models.}\bfcode{score\_model}}{\emph{model}, \emph{X\_train}, \emph{Y\_train}, \emph{X\_test}, \emph{Y\_test}}{}
 Scores a single model using a train and test set
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
@@ -1039,10 +1186,17 @@ Compute train/test scores for a set of trained models
 \textbf{models} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of lists with each item a trained instance of a model.
 
 \item {} 
-\textbf{train\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing training data corresponding to the model list.
+\textbf{train\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing training data corresponding to the
+model list.
 
 \item {} 
-\textbf{test\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing test data corresponding to the model list.
+\textbf{test\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing test data corresponding to the model
+list.
+
+\item {} 
+\textbf{**kwargs} -- 
+Additional arguments passed to the scoring function
+
 
 \end{itemize}
 
@@ -1059,25 +1213,15 @@ pandas.DataFrame
 
 Models should be trained.
 Model and set lists should be of equal length.
-In case of N models and M training sets the models should be organized in a
-\begin{quote}
-
-N-length list of M-length lists.
-\end{quote}
-
-The train and test sets should both be M-length lists.
+In case of N models and M training sets the models should be
+organized in a N-length list of M-length lists. The train and test
+sets should both be M-length lists.
 \paragraph{Examples}
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{models} \PYG{o}{=} \PYG{p}{[}\PYG{n}{models}\PYG{o}{.}\PYG{n}{get\PYGZus{}model}\PYG{p}{(}\PYG{n}{model\PYGZus{}type}\PYG{o}{=}\PYG{l+s}{\PYGZsq{}}\PYG{l+s}{LR}\PYG{l+s}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{,}
 \PYG{g+go}{              models.get\PYGZus{}model(model\PYGZus{}type=\PYGZsq{}CRF\PYGZsq{}, n\PYGZus{}states=5, n\PYGZus{}features=10)]}
-\end{Verbatim}
-
-\begin{Verbatim}[commandchars=\\\{\}]
 \PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{models\PYGZus{}trained} \PYG{o}{=} \PYG{n}{models}\PYG{o}{.}\PYG{n}{train\PYGZus{}models}\PYG{p}{(}\PYG{n}{models}\PYG{p}{,} \PYG{p}{[}\PYG{p}{(}\PYG{n}{X\PYGZus{}train}\PYG{p}{,} \PYG{n}{Y\PYGZus{}train}\PYG{p}{)}\PYG{p}{]}\PYG{p}{)}
-\end{Verbatim}
-
-\begin{Verbatim}[commandchars=\\\{\}]
 \PYG{g+gp}{\PYGZgt{}\PYGZgt{}\PYGZgt{} }\PYG{n}{scores} \PYG{o}{=} \PYG{n}{test}\PYG{o}{.}\PYG{n}{score\PYGZus{}models}\PYG{p}{(}\PYG{n}{models}\PYG{p}{,} \PYG{p}{[}\PYG{p}{(}\PYG{n}{X\PYGZus{}train}\PYG{p}{,} \PYG{n}{Y\PYGZus{}train}\PYG{p}{)}\PYG{p}{]}\PYG{p}{,} \PYG{p}{[}\PYG{p}{(}\PYG{n}{X\PYGZus{}test}\PYG{p}{,} \PYG{n}{Y\PYGZus{}test}\PYG{p}{)}\PYG{p}{]}\PYG{p}{)}
 \end{Verbatim}
 
@@ -1094,11 +1238,15 @@ Trains a single model against a single training set
 \textbf{model} (\href{http://docs.python.org/library/functions.html\#object}{\emph{object}}) -- Bare model object. Model object should hava a fit() method.
 
 \item {} 
-\textbf{X\_train} (\emph{list or numpy.ndarray}) -- 2D array containing training data. Each row is a training instance,
-while each column is a feature.
+\textbf{X\_train} (\emph{list or numpy.ndarray}) -- 2D array containing training data. Each row is a training
+instance, while each column is a feature.
 
 \item {} 
 \textbf{Y\_train} (\emph{list or numpy.ndarray}) -- Array containing class annotations for each training instance.
+
+\item {} 
+\textbf{X\_train\_prior} (\emph{list or numpy.ndarray, optional}) -- 2D array containing prior data. Each row is a training
+instance, while each column is a feature.
 
 \end{itemize}
 
@@ -1120,40 +1268,21 @@ Trains a set of model against a series of training sets
 \textbf{models} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of model objects. Model objects should have a fit() method.
 
 \item {} 
-\textbf{train\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- 
-List of tuples containing training data.
-The first item in a tuple is a 2D array. Each row is a training instance,
-\begin{quote}
-
-while each column is a feature.
-\end{quote}
-\begin{description}
-\item[{The second item in a tuple is an array containing class annotations for each}] \leavevmode
-training instance.
-
-\end{description}
-
+\textbf{train\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of tuples containing training data. The first item in a
+tuple is a 2D array. Each row is a training instance, while
+each column is a feature. The second item in a tuple is an
+array containing class annotations for each training instance.
 
 \item {} 
-\textbf{prior\_sets} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- 
-List of 2D arrays containing prior data.
-Similar to first tuple item in train\_sets
-Each item is a 2D array. Each row is a training instance,
-\begin{quote}
-
-while each column is a feature.
-\end{quote}
-
+\textbf{prior\_sets} (\emph{list, optional}) -- List of 2D arrays containing prior data. Similar to first
+tuple item in train\_sets. Each item is a 2D array. Each row is
+a training instance, while each column is a feature.
 
 \item {} 
-\textbf{callback} (\emph{function}) -- 
-Callback function that is called after training of a model finished.
-Function accepts two parameters: the model object and a tuple with location
-\begin{quote}
-
-indices in the resulting model matrix.
-\end{quote}
-
+\textbf{callback} (\emph{function, optional}) -- Callback function that is called after training of a model
+finished. Function accepts two parameters: the model object
+and a tuple with location indices in the resulting model
+matrix.
 
 \end{itemize}
 
@@ -1290,11 +1419,116 @@ Labelled image based on classes in votes with maximum probability for every supe
 
 \begin{fulllineitems}
 \phantomsection\label{classification:flamingo.classification.channels.add_channels}\pysiglinewithargsret{\code{flamingo.classification.channels.}\bfcode{add\_channels}}{\emph{img, colorspace='rgb', methods={[}'gabor', `gaussian', `sobel'{]}, methods\_params=None}}{}
-add channels to an image.
-Channels are:
-- 0: greyscale
-- 1,2,3: colorspace
-- extra channels
+Add artificial channels to an image
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{img} (\emph{np.ndarray}) -- NxMx3 array with colored image data
+
+\item {} 
+\textbf{colorspace} (\emph{str, optional}) -- String indicating colorspace of \emph{img} (rgb/hsv/etc.)
+
+\item {} 
+\textbf{methods} (\emph{list, optional}) -- List of strings indicating channels to be added
+
+\item {} 
+\textbf{methods\_params} (\emph{dict, optional}) -- Dictionairy with named options for channel functions
+
+\end{itemize}
+
+\end{description}\end{quote}
+\paragraph{Notes}
+
+Currently implemented channels are:
+* gabor, with options \emph{frequencies} and \emph{thetas}
+* gaussian, with option \emph{sigmas}
+* sobel, without any options
+\begin{quote}\begin{description}
+\item[{Returns}] \leavevmode
+NxMx(3+P) array with image data with extra channels where P
+is the number of channels added
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{get\_channel\_bounds() (in module flamingo.classification.channels)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.channels.get_channel_bounds}\pysiglinewithargsret{\code{flamingo.classification.channels.}\bfcode{get\_channel\_bounds}}{\emph{methods={[}'gabor', `gaussian', `sobel'{]}, methods\_params=None}}{}
+Get theoretical bounds of channel values
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{methods} (\emph{list, optional}) -- List of strings indicating channels to be added
+
+\item {} 
+\textbf{methods\_params} (\emph{dict, optional}) -- Dictionairy with named options for channel functions
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+List of dicts with keys \emph{min} and \emph{max} indicating the
+theoretical boundaries of the channel values
+
+\item[{Return type}] \leavevmode
+list
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{get\_number\_channels() (in module flamingo.classification.channels)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.channels.get_number_channels}\pysiglinewithargsret{\code{flamingo.classification.channels.}\bfcode{get\_number\_channels}}{\emph{methods={[}'gabor', `gaussian', `sobel'{]}, methods\_params=None}}{}
+Get number of artificial channels
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{methods} (\emph{list, optional}) -- List of strings indicating channels to be added
+
+\item {} 
+\textbf{methods\_params} (\emph{dict, optional}) -- Dictionairy with named options for channel functions
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Number of channels added when using the specified settings
+
+\item[{Return type}] \leavevmode
+int
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{normalize\_channel() (in module flamingo.classification.channels)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.channels.normalize_channel}\pysiglinewithargsret{\code{flamingo.classification.channels.}\bfcode{normalize\_channel}}{\emph{channel}, \emph{channelstats}}{}
+Scale channel to uint8 based on maximum possible filter response
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{channel} (\emph{np.ndarray}) -- Array with channel values
+
+\item {} 
+\textbf{channelstats} (\href{http://docs.python.org/library/stdtypes.html\#dict}{\emph{dict}}) -- Dictionary with fields \emph{min} and \emph{max} indicating the channel
+value bounds of the dataset and used for normalization
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Array with normalized channel values
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
 
 \end{fulllineitems}
 
@@ -1453,7 +1687,37 @@ aspect ratio.
 
 
 \subsection{Utils}
-\label{classification:module-flamingo.classification.utils}\label{classification:utils}\index{flamingo.classification.utils (module)}\index{check\_sets() (in module flamingo.classification.utils)}
+\label{classification:module-flamingo.classification.utils}\label{classification:utils}\index{flamingo.classification.utils (module)}\index{aggregate\_classes() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.aggregate_classes}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{aggregate\_classes}}{\emph{Y}, \emph{aggregation=None}}{}
+Aggregate class labels into a subsection of class labels
+
+Replaces all class labels in Y with substitutes from the
+dictionary \emph{aggregation}.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{Y} (\emph{tuple, list or np.ndarray}) -- Array containing class labels
+
+\item {} 
+\textbf{class\_aggregation} (\emph{dict, optional}) -- Dictionary containing class replacements where each key
+is a the replacement value of all classes in the
+corresponding list
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Aggregated class labels
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{check\_sets() (in module flamingo.classification.utils)}
 
 \begin{fulllineitems}
 \phantomsection\label{classification:flamingo.classification.utils.check_sets}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{check\_sets}}{\emph{train\_sets}, \emph{test\_sets}, \emph{models=None}}{}
@@ -1470,6 +1734,171 @@ Checks if train sets, test sets and models have matching dimensions
 \textbf{models} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List of lists with each item a trained instance of a model.
 
 \end{itemize}
+
+\item[{Raises}] \leavevmode
+\code{ValueError} --
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{delinearize\_data() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.delinearize_data}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{delinearize\_data}}{\emph{Y}, \emph{X}}{}
+De-linearizes structured label data
+
+Transforms linearized labell data suitible for the use with LR
+and SVM into structured data for the use with CRF and SSVM.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{Y} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with np.ndarrays for each images with label data in one
+dimensions (u*v)
+
+\item {} 
+\textbf{X} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with np.ndarray for each image with feature data in two
+dimensions (u*v and feature number)
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Delinearized Y data
+
+\item[{Return type}] \leavevmode
+list
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{get\_classes() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.get_classes}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{get\_classes}}{\emph{Y}}{}
+Get list of unique classes in Y
+
+Returns a list of unique classes in Y with all None values removed
+and regardless of the shape and type of Y.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\textbf{Y} (\emph{list or np.ndarray}) -- List with np.ndarrays or np.ndarray with class labels
+
+\item[{Returns}] \leavevmode
+Array with unique class labels in Y not being None
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{int2labels() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.int2labels}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{int2labels}}{\emph{Y}, \emph{classes=None}}{}
+Transforms class numbers in string class labels
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{Y} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with np.ndarrays with class numbers
+
+\item {} 
+\textbf{classes} (\emph{list, optional}) -- List with unique class labels possibly in Y
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Array with class labels rather than numbers
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{labels2image() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.labels2image}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{labels2image}}{\emph{Y}, \emph{seg}, \emph{classes=None}}{}
+Transforms class labels and segmentation into class image
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{Y} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with np.ndarrays with class labels
+
+\item {} 
+\textbf{seg} (\emph{np.ndarray}) -- MxN array with superpixel numbers
+
+\item {} 
+\textbf{classes} (\emph{list, optional}) -- List with unique class labels possibly in Y
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Unnormalized single-channel image of class assignments
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{labels2int() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.labels2int}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{labels2int}}{\emph{Y}, \emph{classes=None}}{}
+Transforms string class labels in numbers
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{Y} (\href{http://docs.python.org/library/functions.html\#list}{\emph{list}}) -- List with np.ndarrays with class labels
+
+\item {} 
+\textbf{classes} (\emph{list, optional}) -- List with unique class labels possibly in Y
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Array with class numbers rather than labels
+
+\item[{Return type}] \leavevmode
+np.ndarray
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{linearize\_data() (in module flamingo.classification.utils)}
+
+\begin{fulllineitems}
+\phantomsection\label{classification:flamingo.classification.utils.linearize_data}\pysiglinewithargsret{\code{flamingo.classification.utils.}\bfcode{linearize\_data}}{\emph{X=None}, \emph{Y=None}}{}
+Linearizes structured data
+
+Transforms structured data suitible for the use with CRF and SSVM
+into non-structrued data with a single dimension suitible for the
+use with LR or SVM.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\textbf{X} (\emph{list, optional}) -- List with np.ndarray for each image with feature data in three
+dimensions (u, v and feature number)
+
+\item {} 
+\textbf{Y} (\emph{list, optional}) -- List with np.ndarrays for each images with label data in two
+dimensions (u and v)
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Either linearized X, linearized Y or both are returned
+depending on the input
+
+\item[{Return type}] \leavevmode
+np.ndarray or 2-tuple
 
 \end{description}\end{quote}
 
@@ -1904,6 +2333,12 @@ model\PYGZus{}dataset =
 \emph{search}
 
 \end{itemize}
+
+\begin{thebibliography}{Gould2008}
+\bibitem[Gould2008]{Gould2008}{\phantomsection\label{classification:gould2008} 
+Stephen Gould, Jim Rodgers, David Cohen, Gal Elidan, Daphne Koller (2008). Multi-Class Segmentation with Relative Location Prior. International Journal of Computer Vision. \href{http://dx.doi.org/10.1007/s11263-008-0140-x}{doi:10.1007/s11263-008-0140-x}
+}
+\end{thebibliography}
 
 
 \renewcommand{\indexname}{Python Module Index}

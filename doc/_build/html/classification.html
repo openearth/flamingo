@@ -72,6 +72,90 @@ it provides functions for model training and optimization that are largely based
 </div>
 <div class="section" id="module-flamingo.classification.models">
 <span id="models"></span><h2>Models<a class="headerlink" href="#module-flamingo.classification.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="flamingo.classification.models.ConditionalRandomField">
+<em class="property">class </em><tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">ConditionalRandomField</tt><big>(</big><em>model</em>, <em>max_iter=10000</em>, <em>C=1.0</em>, <em>check_constraints=False</em>, <em>verbose=0</em>, <em>negativity_constraint=None</em>, <em>n_jobs=1</em>, <em>break_on_bad=False</em>, <em>show_loss_every=0</em>, <em>tol=0.001</em>, <em>inference_cache=0</em>, <em>inactive_threshold=1e-05</em>, <em>inactive_window=50</em>, <em>logger=None</em>, <em>cache_tol='auto'</em>, <em>switch_to=None</em>, <em>clist=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#ConditionalRandomField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.ConditionalRandomField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conditional Random Field</p>
+<p>Equal to <tt class="xref py py-class docutils literal"><span class="pre">pystruct.learners.OneSlackSSVM</span></tt> (inherited), but
+also takes string class labels as input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with possible class names</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Only arguments additional to <tt class="xref py py-class docutils literal"><span class="pre">pystruct.learners.OneSlackSSVM</span></tt> are listed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flamingo.classification.models.ConditionalRandomFieldPerceptron">
+<em class="property">class </em><tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">ConditionalRandomFieldPerceptron</tt><big>(</big><em>model</em>, <em>max_iter=100</em>, <em>verbose=0</em>, <em>batch=False</em>, <em>decay_exponent=0.0</em>, <em>decay_t0=0.0</em>, <em>average=False</em>, <em>clist=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#ConditionalRandomFieldPerceptron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.ConditionalRandomFieldPerceptron" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conditional Random Field</p>
+<p>Equal to <tt class="xref py py-class docutils literal"><span class="pre">pystruct.learners.StructuredPerceptron</span></tt>
+(inherited), but also takes string class labels as input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>clist</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with possible class names</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Only arguments additional to <tt class="xref py py-class docutils literal"><span class="pre">pystruct.learners.StrcturedPerceptron</span></tt> are listed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flamingo.classification.models.LogisticRegression">
+<em class="property">class </em><tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">LogisticRegression</tt><big>(</big><em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1</em>, <em>class_weight=None</em>, <em>random_state=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#LogisticRegression"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.LogisticRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logistic Regressor</p>
+<p>Equal to <tt class="xref py py-class docutils literal"><span class="pre">sklearn.linear_model.LogisticRegression</span></tt>
+(inherited), but also takes non-linearized structured data as
+input.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="flamingo.classification.models.LogisticRegressionRLP">
+<em class="property">class </em><tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">LogisticRegressionRLP</tt><big>(</big><em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1</em>, <em>class_weight=None</em>, <em>random_state=None</em>, <em>rlp_maps=None</em>, <em>rlp_stats=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#LogisticRegressionRLP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.LogisticRegressionRLP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logistic Regressor with support for Relative Location Priors</p>
+<p>Equal to <a class="reference internal" href="#flamingo.classification.models.LogisticRegression" title="flamingo.classification.models.LogisticRegression"><tt class="xref py py-class docutils literal"><span class="pre">flamingo.classification.models.LogisticRegression</span></tt></a>
+(inherited), but supports the use of Relative Location Priors as
+proposed by <a class="reference internal" href="#gould2008" id="id1">[Gould2008]</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rlp_maps</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dictionary with for each class an np.ndarray with a relative
+location map</li>
+<li><strong>rlp_stats</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dictionary with for each relative location feature a mean and
+standard deviation for normalizing to standard normal space</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Only arguments additional to <a class="reference internal" href="#flamingo.classification.models.LogisticRegression" title="flamingo.classification.models.LogisticRegression"><tt class="xref py py-class docutils literal"><span class="pre">flamingo.classification.models.LogisticRegression</span></tt></a> are listed.</p>
+<table class="docutils citation" frame="void" id="gould2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Gould2008]</a></td><td>Stephen Gould, Jim Rodgers, David Cohen, Gal Elidan, Daphne Koller (2008). Multi-Class Segmentation with Relative Location Prior. International Journal of Computer Vision. <a class="reference external" href="http://dx.doi.org/10.1007/s11263-008-0140-x">doi:10.1007/s11263-008-0140-x</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="flamingo.classification.models.SupportVectorMachine">
+<em class="property">class </em><tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">SupportVectorMachine</tt><big>(</big><em>penalty='l2'</em>, <em>loss='l2'</em>, <em>dual=True</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>multi_class='ovr'</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1</em>, <em>class_weight=None</em>, <em>verbose=0</em>, <em>random_state=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#SupportVectorMachine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.SupportVectorMachine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support Vecor Machine</p>
+<p>Equal to <tt class="xref py py-class docutils literal"><span class="pre">sklearn.svm.LinearSVC</span></tt> (inherited), but also
+takes non-linearized structured data as input.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="flamingo.classification.models.get_model">
 <tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">get_model</tt><big>(</big><em>model_type='LR'</em>, <em>n_states=None</em>, <em>n_features=None</em>, <em>rlp_maps=None</em>, <em>rlp_stats=None</em>, <em>C=1.0</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.get_model" title="Permalink to this definition">¶</a></dt>
@@ -104,8 +188,63 @@ Number of features (CRF only)</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="flamingo.classification.models.predict_model">
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">predict_model</tt><big>(</big><em>model</em>, <em>X</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#predict_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.predict_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run class prediction of image with a single model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; Trained model object. Model object should have a score() method.</li>
+<li><strong>X</strong> (<em>list or numpy.ndarray</em>) &#8211; 2D array containing training data.
+Each row is a training instance, while each column is a feature.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Class prediction for image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.models.predict_models">
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">predict_models</tt><big>(</big><em>models</em>, <em>sets</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#predict_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.predict_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run class predictions for a set of trained models and corresponding data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>models</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of lists with each item a trained instance of a model.</li>
+<li><strong>sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing data corresponding to the model list.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of lists containing np.ndarrays with class predictions for each
+image and each model.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Models should be trained.
+Model and set lists should be of equal length.
+In case of N models and M training sets the models should be
+organized in a N-length list of M-length lists.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="flamingo.classification.models.score_model">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_test</em>, <em>Y_test</em>, <em>maps=None</em>, <em>stats=None</em>, <em>features=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#score_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_test</em>, <em>Y_test</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#score_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scores a single model using a train and test set</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -143,8 +282,12 @@ Test score</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>models</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of lists with each item a trained instance of a model.</li>
-<li><strong>train_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing training data corresponding to the model list.</li>
-<li><strong>test_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing test data corresponding to the model list.</li>
+<li><strong>train_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing training data corresponding to the
+model list.</li>
+<li><strong>test_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing test data corresponding to the model
+list.</li>
+<li><strong>**kwargs</strong> &#8211; <p>Additional arguments passed to the scoring function</p>
+</li>
 </ul>
 </td>
 </tr>
@@ -161,19 +304,14 @@ Columns &#8220;train&#8221; and &#8220;test&#8221; contain the train and test sc
 <p class="rubric">Notes</p>
 <p>Models should be trained.
 Model and set lists should be of equal length.
-In case of N models and M training sets the models should be organized in a</p>
-<blockquote>
-<div>N-length list of M-length lists.</div></blockquote>
-<p>The train and test sets should both be M-length lists.</p>
+In case of N models and M training sets the models should be
+organized in a N-length list of M-length lists. The train and test
+sets should both be M-length lists.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">model_type</span><span class="o">=</span><span class="s">&#39;LR&#39;</span><span class="p">),</span>
 <span class="go">              models.get_model(model_type=&#39;CRF&#39;, n_states=5, n_features=10)]</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">models_trained</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">train_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="p">[(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)])</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">scores</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">score_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="p">[(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)],</span> <span class="p">[(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">models_trained</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">train_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="p">[(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scores</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">score_models</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="p">[(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)],</span> <span class="p">[(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -188,9 +326,11 @@ In case of N models and M training sets the models should be organized in a</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>model</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; Bare model object. Model object should hava a fit() method.</li>
-<li><strong>X_train</strong> (<em>list or numpy.ndarray</em>) &#8211; 2D array containing training data. Each row is a training instance,
-while each column is a feature.</li>
+<li><strong>X_train</strong> (<em>list or numpy.ndarray</em>) &#8211; 2D array containing training data. Each row is a training
+instance, while each column is a feature.</li>
 <li><strong>Y_train</strong> (<em>list or numpy.ndarray</em>) &#8211; Array containing class annotations for each training instance.</li>
+<li><strong>X_train_prior</strong> (<em>list or numpy.ndarray, optional</em>) &#8211; 2D array containing prior data. Each row is a training
+instance, while each column is a feature.</li>
 </ul>
 </td>
 </tr>
@@ -210,26 +350,17 @@ while each column is a feature.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>models</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of model objects. Model objects should have a fit() method.</li>
-<li><strong>train_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>List of tuples containing training data.
-The first item in a tuple is a 2D array. Each row is a training instance,</p>
-<blockquote>
-<div>while each column is a feature.</div></blockquote>
-<dl class="docutils">
-<dt>The second item in a tuple is an array containing class annotations for each</dt>
-<dd>training instance.</dd>
-</dl>
-</li>
-<li><strong>prior_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; <p>List of 2D arrays containing prior data.
-Similar to first tuple item in train_sets
-Each item is a 2D array. Each row is a training instance,</p>
-<blockquote>
-<div>while each column is a feature.</div></blockquote>
-</li>
-<li><strong>callback</strong> (<em>function</em>) &#8211; <p>Callback function that is called after training of a model finished.
-Function accepts two parameters: the model object and a tuple with location</p>
-<blockquote>
-<div>indices in the resulting model matrix.</div></blockquote>
-</li>
+<li><strong>train_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing training data. The first item in a
+tuple is a 2D array. Each row is a training instance, while
+each column is a feature. The second item in a tuple is an
+array containing class annotations for each training instance.</li>
+<li><strong>prior_sets</strong> (<em>list, optional</em>) &#8211; List of 2D arrays containing prior data. Similar to first
+tuple item in train_sets. Each item is a 2D array. Each row is
+a training instance, while each column is a feature.</li>
+<li><strong>callback</strong> (<em>function, optional</em>) &#8211; Callback function that is called after training of a model
+finished. Function accepts two parameters: the model object
+and a tuple with location indices in the resulting model
+matrix.</li>
 </ul>
 </td>
 </tr>
@@ -353,11 +484,111 @@ Labelled image based on classes in votes with maximum probability for every supe
 <dl class="function">
 <dt id="flamingo.classification.channels.add_channels">
 <tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">add_channels</tt><big>(</big><em>img, colorspace='rgb', methods=['gabor', 'gaussian', 'sobel'], methods_params=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/channels.html#add_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.add_channels" title="Permalink to this definition">¶</a></dt>
-<dd><p>add channels to an image.
-Channels are:
-- 0: greyscale
-- 1,2,3: colorspace
-- extra channels</p>
+<dd><p>Add artificial channels to an image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>img</strong> (<em>np.ndarray</em>) &#8211; NxMx3 array with colored image data</li>
+<li><strong>colorspace</strong> (<em>str, optional</em>) &#8211; String indicating colorspace of <em>img</em> (rgb/hsv/etc.)</li>
+<li><strong>methods</strong> (<em>list, optional</em>) &#8211; List of strings indicating channels to be added</li>
+<li><strong>methods_params</strong> (<em>dict, optional</em>) &#8211; Dictionairy with named options for channel functions</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Currently implemented channels are:
+* gabor, with options <em>frequencies</em> and <em>thetas</em>
+* gaussian, with option <em>sigmas</em>
+* sobel, without any options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">NxMx(3+P) array with image data with extra channels where P
+is the number of channels added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.channels.get_channel_bounds">
+<tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">get_channel_bounds</tt><big>(</big><em>methods=['gabor', 'gaussian', 'sobel'], methods_params=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/channels.html#get_channel_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.get_channel_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get theoretical bounds of channel values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>methods</strong> (<em>list, optional</em>) &#8211; List of strings indicating channels to be added</li>
+<li><strong>methods_params</strong> (<em>dict, optional</em>) &#8211; Dictionairy with named options for channel functions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of dicts with keys <em>min</em> and <em>max</em> indicating the
+theoretical boundaries of the channel values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.channels.get_number_channels">
+<tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">get_number_channels</tt><big>(</big><em>methods=['gabor', 'gaussian', 'sobel'], methods_params=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/channels.html#get_number_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.get_number_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of artificial channels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>methods</strong> (<em>list, optional</em>) &#8211; List of strings indicating channels to be added</li>
+<li><strong>methods_params</strong> (<em>dict, optional</em>) &#8211; Dictionairy with named options for channel functions</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Number of channels added when using the specified settings</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.channels.normalize_channel">
+<tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">normalize_channel</tt><big>(</big><em>channel</em>, <em>channelstats</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/channels.html#normalize_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.normalize_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale channel to uint8 based on maximum possible filter response</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>channel</strong> (<em>np.ndarray</em>) &#8211; Array with channel values</li>
+<li><strong>channelstats</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; Dictionary with fields <em>min</em> and <em>max</em> indicating the channel
+value bounds of the dataset and used for normalization</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array with normalized channel values</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -489,6 +720,34 @@ aspect ratio.</dd>
 <div class="section" id="module-flamingo.classification.utils">
 <span id="utils"></span><h2>Utils<a class="headerlink" href="#module-flamingo.classification.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="flamingo.classification.utils.aggregate_classes">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">aggregate_classes</tt><big>(</big><em>Y</em>, <em>aggregation=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#aggregate_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.aggregate_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate class labels into a subsection of class labels</p>
+<p>Replaces all class labels in Y with substitutes from the
+dictionary <em>aggregation</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Y</strong> (<em>tuple, list or np.ndarray</em>) &#8211; Array containing class labels</li>
+<li><strong>class_aggregation</strong> (<em>dict, optional</em>) &#8211; Dictionary containing class replacements where each key
+is a the replacement value of all classes in the
+corresponding list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Aggregated class labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="flamingo.classification.utils.check_sets">
 <tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">check_sets</tt><big>(</big><em>train_sets</em>, <em>test_sets</em>, <em>models=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#check_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.check_sets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if train sets, test sets and models have matching dimensions</p>
@@ -496,11 +755,165 @@ aspect ratio.</dd>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>train_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing training data corresponding to the model list.</li>
 <li><strong>test_sets</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of tuples containing test data corresponding to the model list.</li>
 <li><strong>models</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List of lists with each item a trained instance of a model.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.delinearize_data">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">delinearize_data</tt><big>(</big><em>Y</em>, <em>X</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#delinearize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.delinearize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>De-linearizes structured label data</p>
+<p>Transforms linearized labell data suitible for the use with LR
+and SVM into structured data for the use with CRF and SSVM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Y</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with np.ndarrays for each images with label data in one
+dimensions (u*v)</li>
+<li><strong>X</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with np.ndarray for each image with feature data in two
+dimensions (u*v and feature number)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Delinearized Y data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.get_classes">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">get_classes</tt><big>(</big><em>Y</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#get_classes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.get_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of unique classes in Y</p>
+<p>Returns a list of unique classes in Y with all None values removed
+and regardless of the shape and type of Y.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>Y</strong> (<em>list or np.ndarray</em>) &#8211; List with np.ndarrays or np.ndarray with class labels</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Array with unique class labels in Y not being None</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.int2labels">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">int2labels</tt><big>(</big><em>Y</em>, <em>classes=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#int2labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.int2labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms class numbers in string class labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Y</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with np.ndarrays with class numbers</li>
+<li><strong>classes</strong> (<em>list, optional</em>) &#8211; List with unique class labels possibly in Y</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array with class labels rather than numbers</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.labels2image">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">labels2image</tt><big>(</big><em>Y</em>, <em>seg</em>, <em>classes=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#labels2image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.labels2image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms class labels and segmentation into class image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Y</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with np.ndarrays with class labels</li>
+<li><strong>seg</strong> (<em>np.ndarray</em>) &#8211; MxN array with superpixel numbers</li>
+<li><strong>classes</strong> (<em>list, optional</em>) &#8211; List with unique class labels possibly in Y</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Unnormalized single-channel image of class assignments</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.labels2int">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">labels2int</tt><big>(</big><em>Y</em>, <em>classes=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#labels2int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.labels2int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms string class labels in numbers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Y</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; List with np.ndarrays with class labels</li>
+<li><strong>classes</strong> (<em>list, optional</em>) &#8211; List with unique class labels possibly in Y</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Array with class numbers rather than labels</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.classification.utils.linearize_data">
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">linearize_data</tt><big>(</big><em>X=None</em>, <em>Y=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#linearize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.linearize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linearizes structured data</p>
+<p>Transforms structured data suitible for the use with CRF and SSVM
+into non-structrued data with a single dimension suitible for the
+use with LR or SVM.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>list, optional</em>) &#8211; List with np.ndarray for each image with feature data in three
+dimensions (u, v and feature number)</li>
+<li><strong>Y</strong> (<em>list, optional</em>) &#8211; List with np.ndarrays for each images with label data in two
+dimensions (u and v)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Either linearized X, linearized Y or both are returned
+depending on the input</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray or 2-tuple</p>
 </td>
 </tr>
 </tbody>

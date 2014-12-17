@@ -3,6 +3,27 @@ import sys
 import logging
 
 def linearize_data(X=None, Y=None):
+    '''Linearizes structured data
+
+    Transforms structured data suitible for the use with CRF and SSVM
+    into non-structrued data with a single dimension suitible for the
+    use with LR or SVM.
+
+    Parameters
+    ----------
+    X : list, optional
+        List with np.ndarray for each image with feature data in three
+        dimensions (u, v and feature number)
+    Y : list, optional
+        List with np.ndarrays for each images with label data in two
+        dimensions (u and v)
+
+    Returns
+    -------
+    np.ndarray or 2-tuple
+        Either linearized X, linearized Y or both are returned
+        depending on the input
+    '''
 
     if X is not None:
         X = np.vstack([x.reshape((-1,x.shape[-1])) for x in X])
@@ -18,10 +39,50 @@ def linearize_data(X=None, Y=None):
 
 
 def delinearize_data(Y, X):
+    '''De-linearizes structured label data
+
+    Transforms linearized labell data suitible for the use with LR
+    and SVM into structured data for the use with CRF and SSVM.
+
+    Parameters
+    ----------
+    Y : list
+        List with np.ndarrays for each images with label data in one
+        dimensions (u*v)
+    X : list
+        List with np.ndarray for each image with feature data in two
+        dimensions (u*v and feature number)
+
+    Returns
+    -------
+    list
+        Delinearized Y data
+    '''
+
     return [Yi.reshape(Xi.shape[:2]) for Xi, Yi in zip(X, Y)]
 
 
 def aggregate_classes(Y, aggregation=None):
+    '''Aggregate class labels into a subsection of class labels
+
+    Replaces all class labels in Y with substitutes from the
+    dictionary *aggregation*.
+
+    Parameters
+    ----------
+    Y : tuple, list or np.ndarray
+        Array containing class labels
+    class_aggregation : dict, optional
+        Dictionary containing class replacements where each key
+        is a the replacement value of all classes in the
+        corresponding list
+
+    Returns
+    -------
+    np.ndarray
+        Aggregated class labels
+    '''
+
     if aggregation is not None:
         if type(Y) is tuple:
             Y = list(Y)
@@ -48,6 +109,22 @@ def aggregate_classes(Y, aggregation=None):
 
 
 def get_classes(Y):
+    '''Get list of unique classes in Y
+
+    Returns a list of unique classes in Y with all None values removed
+    and regardless of the shape and type of Y.
+
+    Parameters
+    ----------
+    Y : list or np.ndarray
+        List with np.ndarrays or np.ndarray with class labels
+
+    Returns
+    -------
+    np.ndarray
+        Array with unique class labels in Y not being None
+    '''
+
     classes = []
 
     try:
@@ -74,6 +151,9 @@ def check_sets(train_sets, test_sets, models=None):
     models : list
         List of lists with each item a trained instance of a model.
 
+    Raises
+    ------
+    ValueError
     '''
 
     if len(train_sets) != len(test_sets):
@@ -86,6 +166,20 @@ def check_sets(train_sets, test_sets, models=None):
 
 
 def labels2int(Y, classes=None):
+    '''Transforms string class labels in numbers
+
+    Parameters
+    ----------
+    Y : list
+        List with np.ndarrays with class labels
+    classes : list, optional
+        List with unique class labels possibly in Y
+
+    Returns
+    -------
+    np.ndarray
+        Array with class numbers rather than labels
+    '''
 
     if classes is None:
         classes = np.unique(linearize_data(Y=Y))
@@ -99,6 +193,20 @@ def labels2int(Y, classes=None):
 
 
 def int2labels(Y, classes=None):
+    '''Transforms class numbers in string class labels
+
+    Parameters
+    ----------
+    Y : list
+        List with np.ndarrays with class numbers
+    classes : list, optional
+        List with unique class labels possibly in Y
+
+    Returns
+    -------
+    np.ndarray
+        Array with class labels rather than numbers
+    '''
 
     if classes is None:
         classes = np.unique(linearize_data(Y=Y))
@@ -111,7 +219,23 @@ def int2labels(Y, classes=None):
     return np.asarray(Ystr)
 
 def labels2image(Y, seg, classes=None):
-    
+    '''Transforms class labels and segmentation into class image
+
+    Parameters
+    ----------
+    Y : list
+        List with np.ndarrays with class labels
+    seg : np.ndarray
+        MxN array with superpixel numbers
+    classes : list, optional
+        List with unique class labels possibly in Y
+
+    Returns
+    -------
+    np.ndarray
+        Unnormalized single-channel image of class assignments
+    '''
+
     Y = Y.flatten()
     prediction = np.empty(seg.shape)
     

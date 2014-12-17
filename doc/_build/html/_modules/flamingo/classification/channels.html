@@ -48,24 +48,56 @@
           <div class="body">
             
   <h1>Source code for flamingo.classification.channels</h1><div class="highlight"><pre>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="c">#!/usr/bin/env python</span>
 
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Bas Hoonhout&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2014, The NEMO Project&quot;</span>
+<span class="n">__credits__</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Bas Hoonhout&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;bas.hoonhout@deltares.nl&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;production&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">skimage.color</span>
+
 
 <span class="n">_FREQS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
 <span class="n">_SIGMAS</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
 <span class="n">_THETAS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mf">0.25</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="add_channels"><a class="viewcode-back" href="../../../classification.html#flamingo.classification.channels.add_channels">[docs]</a><span class="k">def</span> <span class="nf">add_channels</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">colorspace</span><span class="o">=</span><span class="s">&#39;rgb&#39;</span><span class="p">,</span>
                  <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;gabor&#39;</span><span class="p">,</span> <span class="s">&#39;gaussian&#39;</span><span class="p">,</span> <span class="s">&#39;sobel&#39;</span><span class="p">],</span>
                  <span class="n">methods_params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;add channels to an image.</span>
-<span class="sd">    Channels are:</span>
-<span class="sd">    - 0: greyscale</span>
-<span class="sd">    - 1,2,3: colorspace</span>
-<span class="sd">    - extra channels</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&#39;&#39;&#39;Add artificial channels to an image</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img : np.ndarray</span>
+<span class="sd">        NxMx3 array with colored image data</span>
+<span class="sd">    colorspace : str, optional</span>
+<span class="sd">        String indicating colorspace of *img* (rgb/hsv/etc.)</span>
+<span class="sd">    methods : list, optional</span>
+<span class="sd">        List of strings indicating channels to be added</span>
+<span class="sd">    methods_params : dict, optional</span>
+<span class="sd">        Dictionairy with named options for channel functions</span>
+<span class="sd">        </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Currently implemented channels are:</span>
+<span class="sd">    * gabor, with options *frequencies* and *thetas*</span>
+<span class="sd">    * gaussian, with option *sigmas*</span>
+<span class="sd">    * sobel, without any options</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        NxMx(3+P) array with image data with extra channels where P</span>
+<span class="sd">        is the number of channels added</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">if</span> <span class="n">colorspace</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;rgb&#39;</span><span class="p">:</span>
         <span class="n">gray</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -76,10 +108,7 @@
             <span class="s">&#39;Unsupported colorspace [</span><span class="si">%s</span><span class="s">]&#39;</span> <span class="o">%</span> <span class="n">colorspace</span><span class="p">)</span>
 
     <span class="c"># default settings</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">methods_params</span><span class="p">:</span>
-        <span class="n">methods_params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;frequencies&#39;</span><span class="p">:</span><span class="n">_FREQS</span><span class="p">,</span>
-                          <span class="s">&#39;sigmas&#39;</span><span class="p">:</span><span class="n">_SIGMAS</span><span class="p">,</span>
-                          <span class="s">&#39;thetas&#39;</span><span class="p">:</span><span class="n">_THETAS</span><span class="p">}</span>
+    <span class="n">methods_params</span> <span class="o">=</span> <span class="n">_update_params</span><span class="p">(</span><span class="n">methods_params</span><span class="p">)</span>
 
     <span class="c"># create extra channels</span>
     <span class="n">channels</span> <span class="o">=</span> <span class="p">[]</span>
@@ -133,12 +162,34 @@
     <span class="k">return</span> <span class="n">allchannels</span>
 
 </div>
-<span class="k">def</span> <span class="nf">get_channel_bounds</span><span class="p">(</span><span class="n">gabor</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">stats</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&#39;max&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s">&#39;min&#39;</span><span class="p">:</span> <span class="mf">255.</span><span class="p">}</span>
-             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">get_number_channels</span><span class="p">())]</span>
+<div class="viewcode-block" id="get_channel_bounds"><a class="viewcode-back" href="../../../classification.html#flamingo.classification.channels.get_channel_bounds">[docs]</a><span class="k">def</span> <span class="nf">get_channel_bounds</span><span class="p">(</span><span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;gabor&#39;</span><span class="p">,</span> <span class="s">&#39;gaussian&#39;</span><span class="p">,</span> <span class="s">&#39;sobel&#39;</span><span class="p">],</span>
+                       <span class="n">methods_params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get theoretical bounds of channel values</span>
 
-    <span class="k">if</span> <span class="n">gabor</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_FREQS</span><span class="p">):</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    methods : list, optional</span>
+<span class="sd">        List of strings indicating channels to be added</span>
+<span class="sd">    methods_params : dict, optional</span>
+<span class="sd">        Dictionairy with named options for channel functions</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        List of dicts with keys *min* and *max* indicating the</span>
+<span class="sd">        theoretical boundaries of the channel values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c"># default settings</span>
+    <span class="n">methods_params</span> <span class="o">=</span> <span class="n">_update_params</span><span class="p">(</span><span class="n">methods_params</span><span class="p">)</span>
+
+    <span class="c"># initialize all bounds to 0 and 255</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&#39;max&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s">&#39;min&#39;</span><span class="p">:</span> <span class="mf">255.</span><span class="p">}</span>
+             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">get_number_channels</span><span class="p">(</span><span class="n">methods</span><span class="p">,</span> <span class="n">methods_params</span><span class="p">))]</span>
+
+    <span class="c"># update gabor channel bounds, if requested</span>
+    <span class="k">if</span> <span class="s">&#39;gabor&#39;</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frequency</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">methods_params</span><span class="p">[</span><span class="s">&#39;frequencies&#39;</span><span class="p">]):</span>
             <span class="n">k</span> <span class="o">=</span> <span class="n">skimage</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">gabor_kernel</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">frequency</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">resp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="mf">255.</span>
             <span class="n">resp</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
@@ -149,15 +200,71 @@
     
     <span class="k">return</span> <span class="n">stats</span>
 
+</div>
+<div class="viewcode-block" id="get_number_channels"><a class="viewcode-back" href="../../../classification.html#flamingo.classification.channels.get_number_channels">[docs]</a><span class="k">def</span> <span class="nf">get_number_channels</span><span class="p">(</span><span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;gabor&#39;</span><span class="p">,</span> <span class="s">&#39;gaussian&#39;</span><span class="p">,</span> <span class="s">&#39;sobel&#39;</span><span class="p">],</span>
+                        <span class="n">methods_params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get number of artificial channels</span>
 
-<span class="k">def</span> <span class="nf">get_number_channels</span><span class="p">():</span>
-    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">_FREQS</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">_SIGMAS</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    methods : list, optional</span>
+<span class="sd">        List of strings indicating channels to be added</span>
+<span class="sd">    methods_params : dict, optional</span>
+<span class="sd">        Dictionairy with named options for channel functions</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of channels added when using the specified settings</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
+    <span class="n">methods_params</span> <span class="o">=</span> <span class="n">_update_params</span><span class="p">(</span><span class="n">methods_params</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">normalize_channel</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">channelstats</span><span class="p">):</span>
-    <span class="c"># Scale channel to uint8 based on maximum possible filter response</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s">&#39;gabor&#39;</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">methods_params</span><span class="p">[</span><span class="s">&#39;frequencies&#39;</span><span class="p">])</span> <span class="o">*</span> \
+             <span class="nb">len</span><span class="p">(</span><span class="n">methods_params</span><span class="p">[</span><span class="s">&#39;thetas&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="s">&#39;gaussian&#39;</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">methods_params</span><span class="p">[</span><span class="s">&#39;sigmas&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="s">&#39;sobel&#39;</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">n</span>
+
+</div>
+<div class="viewcode-block" id="normalize_channel"><a class="viewcode-back" href="../../../classification.html#flamingo.classification.channels.normalize_channel">[docs]</a><span class="k">def</span> <span class="nf">normalize_channel</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">channelstats</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Scale channel to uint8 based on maximum possible filter response</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    channel : np.ndarray</span>
+<span class="sd">        Array with channel values</span>
+<span class="sd">    channelstats : dict</span>
+<span class="sd">        Dictionary with fields *min* and *max* indicating the channel</span>
+<span class="sd">        value bounds of the dataset and used for normalization</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        Array with normalized channel values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">((</span><span class="n">channel</span><span class="o">-</span><span class="n">channelstats</span><span class="p">[</span><span class="s">&#39;min&#39;</span><span class="p">])</span> <span class="o">/</span> 
                     <span class="p">(</span><span class="n">channelstats</span><span class="p">[</span><span class="s">&#39;max&#39;</span><span class="p">]</span><span class="o">-</span><span class="n">channelstats</span><span class="p">[</span><span class="s">&#39;min&#39;</span><span class="p">])</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_update_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Set channel options to module defaults&#39;&#39;&#39;</span>
+
+    <span class="n">methods_params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;frequencies&#39;</span><span class="p">:</span><span class="n">_FREQS</span><span class="p">,</span>
+                      <span class="s">&#39;sigmas&#39;</span><span class="p">:</span><span class="n">_SIGMAS</span><span class="p">,</span>
+                      <span class="s">&#39;thetas&#39;</span><span class="p">:</span><span class="n">_THETAS</span><span class="p">}</span>
+
+    <span class="n">methods_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">methods_params</span>
 </pre></div>
 
           </div>
