@@ -8,43 +8,43 @@
     
     <title>Classification &mdash; Flamingo 1.0.1 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
+        URL_ROOT:    './',
         VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Flamingo 1.0.1 documentation" href="../../index.html" />
-    <link rel="next" title="Calibration" href="../calibration/index.html" />
-    <link rel="prev" title="Segmentation" href="../segmentation/index.html" /> 
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="index.html" />
+    <link rel="next" title="Calibration" href="calibration.html" />
+    <link rel="prev" title="Segmentation" href="segmentation.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../calibration/index.html" title="Calibration"
+          <a href="calibration.html" title="Calibration"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../segmentation/index.html" title="Segmentation"
+          <a href="segmentation.html" title="Segmentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -74,7 +74,7 @@ it provides functions for model training and optimization that are largely based
 <span id="models"></span><h2>Models<a class="headerlink" href="#module-flamingo.classification.models" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.models.get_model">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">get_model</tt><big>(</big><em>model_type='LR'</em>, <em>n_states=None</em>, <em>n_features=None</em>, <em>rlp_maps=None</em>, <em>rlp_stats=None</em>, <em>C=1.0</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/models.html#get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.get_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">get_model</tt><big>(</big><em>model_type='LR'</em>, <em>n_states=None</em>, <em>n_features=None</em>, <em>rlp_maps=None</em>, <em>rlp_stats=None</em>, <em>C=1.0</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.get_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a bare model object</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -105,7 +105,7 @@ Number of features (CRF only)</li>
 
 <dl class="function">
 <dt id="flamingo.classification.models.score_model">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_test</em>, <em>Y_test</em>, <em>maps=None</em>, <em>stats=None</em>, <em>features=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/models.html#score_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_test</em>, <em>Y_test</em>, <em>maps=None</em>, <em>stats=None</em>, <em>features=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#score_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scores a single model using a train and test set</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -135,7 +135,7 @@ Test score</li>
 
 <dl class="function">
 <dt id="flamingo.classification.models.score_models">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_models</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>test_sets</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/models.html#score_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_models" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">score_models</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>test_sets</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#score_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.score_models" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute train/test scores for a set of trained models</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -180,7 +180,7 @@ In case of N models and M training sets the models should be organized in a</p>
 
 <dl class="function">
 <dt id="flamingo.classification.models.train_model">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">train_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_train_prior=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/models.html#train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.train_model" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">train_model</tt><big>(</big><em>model</em>, <em>X_train</em>, <em>Y_train</em>, <em>X_train_prior=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#train_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.train_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trains a single model against a single training set</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,7 +202,7 @@ while each column is a feature.</li>
 
 <dl class="function">
 <dt id="flamingo.classification.models.train_models">
-<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">train_models</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>prior_sets=None</em>, <em>callback=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/models.html#train_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.train_models" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.models.</tt><tt class="descname">train_models</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>prior_sets=None</em>, <em>callback=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/models.html#train_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.models.train_models" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trains a set of model against a series of training sets</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -248,25 +248,25 @@ Function accepts two parameters: the model object and a tuple with location</p>
 <span id="features"></span><h2>Features<a class="headerlink" href="#module-flamingo.classification.features.features" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.features.features.linearize">
-<tt class="descclassname">flamingo.classification.features.features.</tt><tt class="descname">linearize</tt><big>(</big><em>features</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/features.html#linearize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.features.linearize" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.features.</tt><tt class="descname">linearize</tt><big>(</big><em>features</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/features.html#linearize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.features.linearize" title="Permalink to this definition">¶</a></dt>
 <dd><p>convert all items in each matrix feature into individual features</p>
 </dd></dl>
 
 <span class="target" id="module-flamingo.classification.features.blocks"></span><dl class="function">
 <dt id="flamingo.classification.features.blocks.extract_blocks">
-<tt class="descclassname">flamingo.classification.features.blocks.</tt><tt class="descname">extract_blocks</tt><big>(</big><em>data</em>, <em>segments</em>, <em>colorspace='rgb'</em>, <em>blocks=None</em>, <em>blocks_params={}</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/blocks.html#extract_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.blocks.extract_blocks" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.blocks.</tt><tt class="descname">extract_blocks</tt><big>(</big><em>data</em>, <em>segments</em>, <em>colorspace='rgb'</em>, <em>blocks=None</em>, <em>blocks_params={}</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/blocks.html#extract_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.blocks.extract_blocks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract all blocks in right order</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="flamingo.classification.features.blocks.list_blocks">
-<tt class="descclassname">flamingo.classification.features.blocks.</tt><tt class="descname">list_blocks</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/blocks.html#list_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.blocks.list_blocks" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.blocks.</tt><tt class="descname">list_blocks</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/blocks.html#list_blocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.blocks.list_blocks" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all block extraction functions in module</p>
 </dd></dl>
 
 <span class="target" id="module-flamingo.classification.features.scaleinvariant"></span><span class="target" id="module-flamingo.classification.features.normalize"></span><span class="target" id="module-flamingo.classification.features.relativelocation"></span><dl class="function">
 <dt id="flamingo.classification.features.relativelocation.compute_prior">
-<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">compute_prior</tt><big>(</big><em>annotations</em>, <em>centroids</em>, <em>image_size</em>, <em>superpixel_grid</em>, <em>n=100</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/relativelocation.html#compute_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.compute_prior" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">compute_prior</tt><big>(</big><em>annotations</em>, <em>centroids</em>, <em>image_size</em>, <em>superpixel_grid</em>, <em>n=100</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/relativelocation.html#compute_prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.compute_prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute relative location prior according to Gould et al. (2008)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -290,7 +290,7 @@ Half the size of the dimensionless image map</td>
 
 <dl class="function">
 <dt id="flamingo.classification.features.relativelocation.smooth_maps">
-<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">smooth_maps</tt><big>(</big><em>maps</em>, <em>sigma=2</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/relativelocation.html#smooth_maps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.smooth_maps" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">smooth_maps</tt><big>(</big><em>maps</em>, <em>sigma=2</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/relativelocation.html#smooth_maps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.smooth_maps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convolve relative location prior maps with a gaussian filter for smoothing purposes</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -321,7 +321,7 @@ Size of the gaussian kernel that is to be convolved with the relative location p
 
 <dl class="function">
 <dt id="flamingo.classification.features.relativelocation.vote_image">
-<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">vote_image</tt><big>(</big><em>Y</em>, <em>maps</em>, <em>centroids=None</em>, <em>img_size=None</em>, <em>winner_takes_all_mode=False</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/features/relativelocation.html#vote_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.vote_image" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.features.relativelocation.</tt><tt class="descname">vote_image</tt><big>(</big><em>Y</em>, <em>maps</em>, <em>centroids=None</em>, <em>img_size=None</em>, <em>winner_takes_all_mode=False</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/features/relativelocation.html#vote_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.features.relativelocation.vote_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class voting based on 1st order prediction and relative location prior maps</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -352,7 +352,7 @@ Labelled image based on classes in votes with maximum probability for every supe
 <span id="channels"></span><h2>Channels<a class="headerlink" href="#module-flamingo.classification.channels" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.channels.add_channels">
-<tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">add_channels</tt><big>(</big><em>img, colorspace='rgb', methods=['gabor', 'gaussian', 'sobel'], methods_params=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/channels.html#add_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.add_channels" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.channels.</tt><tt class="descname">add_channels</tt><big>(</big><em>img, colorspace='rgb', methods=['gabor', 'gaussian', 'sobel'], methods_params=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/channels.html#add_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.channels.add_channels" title="Permalink to this definition">¶</a></dt>
 <dd><p>add channels to an image.
 Channels are:
 - 0: greyscale
@@ -365,7 +365,7 @@ Channels are:
 <span id="test"></span><h2>Test<a class="headerlink" href="#module-flamingo.classification.test" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.test.aggregate_scores">
-<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">aggregate_scores</tt><big>(</big><em>scores</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/test.html#aggregate_scores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.aggregate_scores" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">aggregate_scores</tt><big>(</big><em>scores</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/test.html#aggregate_scores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.aggregate_scores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Aggregate model scores over training and test sets</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -384,7 +384,7 @@ Should have at least one level index names &#8220;model&#8221;.</td>
 
 <dl class="function">
 <dt id="flamingo.classification.test.compute_learning_curve">
-<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">compute_learning_curve</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>test_sets</em>, <em>step=10</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/test.html#compute_learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.compute_learning_curve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">compute_learning_curve</tt><big>(</big><em>models</em>, <em>train_sets</em>, <em>test_sets</em>, <em>step=10</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/test.html#compute_learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.compute_learning_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes learning curves for combinations of models and training/test sets</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -426,7 +426,7 @@ of training sets used.</p>
 
 <dl class="function">
 <dt id="flamingo.classification.test.plot_learning_curve">
-<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">plot_learning_curve</tt><big>(</big><em>scores</em>, <em>ylim=(0.75</em>, <em>1)</em>, <em>filename=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/test.html#plot_learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.plot_learning_curve" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.test.</tt><tt class="descname">plot_learning_curve</tt><big>(</big><em>scores</em>, <em>ylim=(0.75</em>, <em>1)</em>, <em>filename=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/test.html#plot_learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.test.plot_learning_curve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots learning curves</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -459,7 +459,7 @@ List with axes handles for all plots</li>
 <span id="visualization"></span><h2>Visualization<a class="headerlink" href="#module-flamingo.classification.plot" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.plot.save_figure">
-<tt class="descclassname">flamingo.classification.plot.</tt><tt class="descname">save_figure</tt><big>(</big><em>fig</em>, <em>filename</em>, <em>ext=''</em>, <em>figsize=None</em>, <em>dpi=30</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/plot.html#save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.plot.save_figure" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.plot.</tt><tt class="descname">save_figure</tt><big>(</big><em>fig</em>, <em>filename</em>, <em>ext=''</em>, <em>figsize=None</em>, <em>dpi=30</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/plot.html#save_figure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.plot.save_figure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save figure to file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -490,7 +490,7 @@ aspect ratio.</dd>
 <span id="utils"></span><h2>Utils<a class="headerlink" href="#module-flamingo.classification.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.classification.utils.check_sets">
-<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">check_sets</tt><big>(</big><em>train_sets</em>, <em>test_sets</em>, <em>models=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/classification/utils.html#check_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.check_sets" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.classification.utils.</tt><tt class="descname">check_sets</tt><big>(</big><em>train_sets</em>, <em>test_sets</em>, <em>models=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/classification/utils.html#check_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.classification.utils.check_sets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if train sets, test sets and models have matching dimensions</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -516,7 +516,7 @@ aspect ratio.</dd>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Classification</a><ul>
 <li><a class="reference internal" href="#module-flamingo.classification.models">Models</a></li>
@@ -530,19 +530,19 @@ aspect ratio.</dd>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../segmentation/index.html"
+  <p class="topless"><a href="segmentation.html"
                         title="previous chapter">Segmentation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../calibration/index.html"
+  <p class="topless"><a href="calibration.html"
                         title="next chapter">Calibration</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../../_sources/flamingo/classification/index.txt"
+    <li><a href="_sources/classification.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
+    <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -561,18 +561,18 @@ aspect ratio.</dd>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../calibration/index.html" title="Calibration"
+          <a href="calibration.html" title="Calibration"
              >next</a> |</li>
         <li class="right" >
-          <a href="../segmentation/index.html" title="Segmentation"
+          <a href="segmentation.html" title="Segmentation"
              >previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

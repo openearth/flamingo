@@ -8,45 +8,43 @@
     
     <title>Rectification &mdash; Flamingo 1.0.1 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
+        URL_ROOT:    './',
         VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Flamingo 1.0.1 documentation" href="../../index.html" />
-    <link rel="up" title="Welcome to Flamingo’s documentation!" href="../index.html" />
-    <link rel="next" title="Segmentation" href="../segmentation/index.html" />
-    <link rel="prev" title="Welcome to Flamingo’s documentation!" href="../index.html" /> 
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="index.html" />
+    <link rel="next" title="Segmentation" href="segmentation.html" />
+    <link rel="prev" title="Welcome to Flamingo’s documentation!" href="index.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../segmentation/index.html" title="Segmentation"
+          <a href="segmentation.html" title="Segmentation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="Welcome to Flamingo’s documentation!"
+          <a href="index.html" title="Welcome to Flamingo’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
-          <li><a href="../index.html" accesskey="U">Welcome to Flamingo&#8217;s documentation!</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -78,7 +76,7 @@ plotted using the accompanying <a class="reference internal" href="#module-flami
 <h2>Rectification<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-flamingo.rectification.rectification"></span><dl class="function">
 <dt id="flamingo.rectification.rectification.find_homography">
-<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">find_homography</tt><big>(</big><em>UV</em>, <em>XYZ</em>, <em>K</em>, <em>distortion=array([[ 0.</em>, <em>0.</em>, <em>0.</em>, <em>0.]])</em>, <em>z=0</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/rectification.html#find_homography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.find_homography" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">find_homography</tt><big>(</big><em>UV</em>, <em>XYZ</em>, <em>K</em>, <em>distortion=array([[ 0.</em>, <em>0.</em>, <em>0.</em>, <em>0.]])</em>, <em>z=0</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/rectification.html#find_homography"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.find_homography" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find homography based on ground control points</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -117,7 +115,7 @@ starting with solvePnP.</p>
 
 <dl class="function">
 <dt id="flamingo.rectification.rectification.get_pixel_coordinates">
-<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">get_pixel_coordinates</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/rectification.html#get_pixel_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.get_pixel_coordinates" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">get_pixel_coordinates</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/rectification.html#get_pixel_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.get_pixel_coordinates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get pixel coordinates given an image</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -139,7 +137,7 @@ NxM matrix containing v-coordinates</li>
 
 <dl class="function">
 <dt id="flamingo.rectification.rectification.rectify_coordinates">
-<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">rectify_coordinates</tt><big>(</big><em>U</em>, <em>V</em>, <em>H</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/rectification.html#rectify_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.rectify_coordinates" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">rectify_coordinates</tt><big>(</big><em>U</em>, <em>V</em>, <em>H</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/rectification.html#rectify_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.rectify_coordinates" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Get projection of image pixels in real-world coordinates</dt>
 <dd>given image coordinate matrices and  homography</dd>
@@ -170,7 +168,7 @@ NxM matrix containing real-world y-coordinates</li>
 
 <dl class="function">
 <dt id="flamingo.rectification.rectification.rectify_image">
-<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">rectify_image</tt><big>(</big><em>img</em>, <em>H</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/rectification.html#rectify_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.rectify_image" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.rectification.</tt><tt class="descname">rectify_image</tt><big>(</big><em>img</em>, <em>H</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/rectification.html#rectify_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.rectification.rectify_image" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Get projection of image pixels in real-world coordinates</dt>
 <dd>given an image and homography</dd>
@@ -203,7 +201,7 @@ NxM matrix containing real-world y-coordinates</li>
 <span id="visualization"></span><h2>Visualization<a class="headerlink" href="#module-flamingo.rectification.plot" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.rectification.plot.find_horizon_offset">
-<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">find_horizon_offset</tt><big>(</big><em>x</em>, <em>y</em>, <em>max_distance=10000.0</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/plot.html#find_horizon_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.find_horizon_offset" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">find_horizon_offset</tt><big>(</big><em>x</em>, <em>y</em>, <em>max_distance=10000.0</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/plot.html#find_horizon_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.find_horizon_offset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find minimum number of pixels to crop to guarantee all pixels are within specified distance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -229,7 +227,7 @@ Larger numbers are considered to be beyond the horizon.</li>
 
 <dl class="function">
 <dt id="flamingo.rectification.plot.plot_coverage">
-<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">plot_coverage</tt><big>(</big><em>X</em>, <em>Y</em>, <em>rotation=None</em>, <em>translation=None</em>, <em>max_distance=10000.0</em>, <em>ax=None</em>, <em>figsize=(30</em>, <em>20)</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x1163e7610&gt;</em>, <em>alpha=0.4</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/plot.html#plot_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.plot_coverage" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">plot_coverage</tt><big>(</big><em>X</em>, <em>Y</em>, <em>rotation=None</em>, <em>translation=None</em>, <em>max_distance=10000.0</em>, <em>ax=None</em>, <em>figsize=(30</em>, <em>20)</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object at 0x114790750&gt;</em>, <em>alpha=0.4</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/plot.html#plot_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.plot_coverage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the coverage of the projection of multiple images in a single axis.</p>
 <p>Plot the outline of lists of real-world x and y coordinate
 matrices. The resulting composition can be rotated and
@@ -269,7 +267,7 @@ Axis object containing plot</li>
 
 <dl class="function">
 <dt id="flamingo.rectification.plot.plot_rectified">
-<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">plot_rectified</tt><big>(</big><em>X</em>, <em>Y</em>, <em>imgs</em>, <em>rotation=None</em>, <em>translation=None</em>, <em>max_distance=10000.0</em>, <em>ax=None</em>, <em>figsize=(30</em>, <em>20)</em>, <em>color=True</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/plot.html#plot_rectified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.plot_rectified" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">plot_rectified</tt><big>(</big><em>X</em>, <em>Y</em>, <em>imgs</em>, <em>rotation=None</em>, <em>translation=None</em>, <em>max_distance=10000.0</em>, <em>ax=None</em>, <em>figsize=(30</em>, <em>20)</em>, <em>cmap='Greys'</em>, <em>color=True</em>, <em>n_alpha=0</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/plot.html#plot_rectified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.plot_rectified" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the projection of multiple RGB images in a single axis.</p>
 <p>Plot a list of images using corresponding lists of real-world
 x and y coordinate matrices. The resulting composition can be
@@ -291,6 +289,7 @@ Larger numbers are considered to be beyond the horizon.</li>
 <li><strong>ax</strong> (<em>matplotlib.axes.AxesSubplot, optional</em>) &#8211; Axis object used for plotting</li>
 <li><strong>figsize</strong> (<em>tuple, optional</em>) &#8211; 2-tuple or list containing figure dimensions</li>
 <li><strong>color</strong> (<em>bool, optional</em>) &#8211; Whether color image should be plotted or grayscale</li>
+<li><strong>n_alpha</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of border pixels to use to increase alpha</li>
 </ul>
 </td>
 </tr>
@@ -309,7 +308,7 @@ Axis object containing plot</li>
 
 <dl class="function">
 <dt id="flamingo.rectification.plot.rotate_translate">
-<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">rotate_translate</tt><big>(</big><em>x</em>, <em>y</em>, <em>rotation=None</em>, <em>translation=None</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/rectification/plot.html#rotate_translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.rotate_translate" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.rectification.plot.</tt><tt class="descname">rotate_translate</tt><big>(</big><em>x</em>, <em>y</em>, <em>rotation=None</em>, <em>translation=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/rectification/plot.html#rotate_translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.rectification.plot.rotate_translate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate and/or translate coordinate system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -345,7 +344,7 @@ NxM matrix containing rotated/translated y-coordinates</li>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Rectification</a><ul>
 <li><a class="reference internal" href="#id1">Rectification</a></li>
@@ -355,19 +354,19 @@ NxM matrix containing rotated/translated y-coordinates</li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../index.html"
+  <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to Flamingo&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../segmentation/index.html"
+  <p class="topless"><a href="segmentation.html"
                         title="next chapter">Segmentation</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../../_sources/flamingo/rectification/index.txt"
+    <li><a href="_sources/rectification.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
+    <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -386,19 +385,18 @@ NxM matrix containing rotated/translated y-coordinates</li>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../segmentation/index.html" title="Segmentation"
+          <a href="segmentation.html" title="Segmentation"
              >next</a> |</li>
         <li class="right" >
-          <a href="../index.html" title="Welcome to Flamingo’s documentation!"
+          <a href="index.html" title="Welcome to Flamingo’s documentation!"
              >previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Welcome to Flamingo&#8217;s documentation!</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

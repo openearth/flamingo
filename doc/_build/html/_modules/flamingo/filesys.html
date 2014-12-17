@@ -317,6 +317,12 @@
     <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">meta</span>
 
 </div>
+<span class="k">def</span> <span class="nf">check_model_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;\.pkl$&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_image_path</span><span class="p">(</span><span class="n">ds</span><span class="p">),</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.pkl&#39;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="read_default_categories"><a class="viewcode-back" href="../../index.html#flamingo.filesys.read_default_categories">[docs]</a><span class="k">def</span> <span class="nf">read_default_categories</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
     <span class="s">&#39;Read list of uniquely defined classes in dataset&#39;</span>
     

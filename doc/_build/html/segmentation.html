@@ -8,43 +8,43 @@
     
     <title>Segmentation &mdash; Flamingo 1.0.1 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
+        URL_ROOT:    './',
         VERSION:     '1.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Flamingo 1.0.1 documentation" href="../../index.html" />
-    <link rel="next" title="Classification" href="../classification/index.html" />
-    <link rel="prev" title="Rectification" href="../rectification/index.html" /> 
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="index.html" />
+    <link rel="next" title="Classification" href="classification.html" />
+    <link rel="prev" title="Rectification" href="rectification.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../classification/index.html" title="Classification"
+          <a href="classification.html" title="Classification"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../rectification/index.html" title="Rectification"
+          <a href="rectification.html" title="Rectification"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -69,7 +69,7 @@ images.</p>
 <span id="superpixels"></span><h2>Superpixels<a class="headerlink" href="#module-flamingo.segmentation.superpixels" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.average_colors">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">average_colors</tt><big>(</big><em>img</em>, <em>segments</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#average_colors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.average_colors" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">average_colors</tt><big>(</big><em>img</em>, <em>segments</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#average_colors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.average_colors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Average colors per superpixels</p>
 <p>Returns an image where each pixel has the average color of the
 superpixel that it belongs to.</p>
@@ -96,7 +96,7 @@ respectively</li>
 
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.check_segmentation">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">check_segmentation</tt><big>(</big><em>segments</em>, <em>nx</em>, <em>ny</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#check_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.check_segmentation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">check_segmentation</tt><big>(</big><em>segments</em>, <em>nx</em>, <em>ny</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#check_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.check_segmentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if segmentation data is complete</p>
 <p>Checks if the segmentation data indeed contains nx*ny segments and
 if the set of segment numbers is continuous.</p>
@@ -122,7 +122,7 @@ if the set of segment numbers is continuous.</p>
 
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.get_contours">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_contours</tt><big>(</big><em>segments</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#get_contours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_contours" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_contours</tt><big>(</big><em>segments</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#get_contours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_contours" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return contours of superpixels</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -147,7 +147,7 @@ a list of 2-tuples with an x and y coordinate.</td>
 
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.get_segmentation">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_segmentation</tt><big>(</big><em>img</em>, <em>method='slic'</em>, <em>method_params={}</em>, <em>extract_contours=False</em>, <em>remove_disjoint=True</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#get_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_segmentation" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_segmentation</tt><big>(</big><em>img</em>, <em>method='slic'</em>, <em>method_params={}</em>, <em>extract_contours=False</em>, <em>remove_disjoint=True</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#get_segmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_segmentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return segmentation of image</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -184,7 +184,7 @@ step.</li>
 
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.get_superpixel_grid">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_superpixel_grid</tt><big>(</big><em>segments</em>, <em>img_shape</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#get_superpixel_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_superpixel_grid" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">get_superpixel_grid</tt><big>(</big><em>segments</em>, <em>img_shape</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#get_superpixel_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.get_superpixel_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return shape of superpixels grid</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -208,7 +208,7 @@ step.</li>
 
 <dl class="function">
 <dt id="flamingo.segmentation.superpixels.shuffle_pixels">
-<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">shuffle_pixels</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/superpixels.html#shuffle_pixels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.shuffle_pixels" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.superpixels.</tt><tt class="descname">shuffle_pixels</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/superpixels.html#shuffle_pixels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.superpixels.shuffle_pixels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shuffle class identifiers</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,7 +236,7 @@ step.</li>
 <span id="postprocessing"></span><h2>Postprocessing<a class="headerlink" href="#module-flamingo.segmentation.postprocess" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.segmentation.postprocess.region_growing">
-<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">region_growing</tt><big>(</big><em>mask</em>, <em>connectivity=8</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/postprocess.html#region_growing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.region_growing" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">region_growing</tt><big>(</big><em>mask</em>, <em>connectivity=8</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/postprocess.html#region_growing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.region_growing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simple region growing algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -264,7 +264,7 @@ List of 2-tuples with coordinates at the edge of the region</li>
 
 <dl class="function">
 <dt id="flamingo.segmentation.postprocess.regularize">
-<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">regularize</tt><big>(</big><em>segments</em>, <em>nx</em>, <em>ny</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/postprocess.html#regularize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.regularize" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">regularize</tt><big>(</big><em>segments</em>, <em>nx</em>, <em>ny</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/postprocess.html#regularize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.regularize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a regular grid from a collection of image segments</p>
 <p>The number of segments supplied is supposed to be larger than the
 number of segments in the target grid (nx*ny). A regular grid of
@@ -296,7 +296,7 @@ a regular grid</p>
 
 <dl class="function">
 <dt id="flamingo.segmentation.postprocess.remove_disjoint">
-<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">remove_disjoint</tt><big>(</big><em>segments</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/postprocess.html#remove_disjoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.remove_disjoint" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.postprocess.</tt><tt class="descname">remove_disjoint</tt><big>(</big><em>segments</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/postprocess.html#remove_disjoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.postprocess.remove_disjoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove disjoint regions in segmentation</p>
 <p>Remove disjoint regions in segmentation by running a region
 growing algorihtm for each segment. Any segment that appears to
@@ -325,7 +325,7 @@ segments</td>
 <span id="visualization"></span><h2>Visualization<a class="headerlink" href="#module-flamingo.segmentation.plot" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="flamingo.segmentation.plot.get_image_data">
-<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">get_image_data</tt><big>(</big><em>fig</em>, <em>dpi=96</em>, <em>axis_only=True</em>, <em>transparent=True</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/plot.html#get_image_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.get_image_data" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">get_image_data</tt><big>(</big><em>fig</em>, <em>dpi=96</em>, <em>axis_only=True</em>, <em>transparent=True</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/plot.html#get_image_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.get_image_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get binary image data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -351,7 +351,7 @@ segments</td>
 
 <dl class="function">
 <dt id="flamingo.segmentation.plot.plot">
-<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">plot</tt><big>(</big><em>img</em>, <em>segments</em>, <em>mark_boundaries=True</em>, <em>shuffle=False</em>, <em>average=False</em>, <em>slice=1</em>, <em>raw=False</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/plot.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.plot" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">plot</tt><big>(</big><em>img</em>, <em>segments</em>, <em>mark_boundaries=True</em>, <em>shuffle=False</em>, <em>average=False</em>, <em>slice=1</em>, <em>raw=False</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/plot.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot segmentation result</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -383,7 +383,7 @@ matplotlib.axes.AxesSubplot objects</p>
 
 <dl class="function">
 <dt id="flamingo.segmentation.plot.plot_image">
-<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">plot_image</tt><big>(</big><em>img</em>, <em>cmap='Set2'</em>, <em>dpi=96</em>, <em>slice=0</em>, <em>transparent=True</em>, <em>raw=False</em><big>)</big><a class="reference internal" href="../../_modules/flamingo/segmentation/plot.html#plot_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.plot_image" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">flamingo.segmentation.plot.</tt><tt class="descname">plot_image</tt><big>(</big><em>img</em>, <em>cmap='Set2'</em>, <em>dpi=96</em>, <em>slice=0</em>, <em>transparent=True</em>, <em>raw=False</em><big>)</big><a class="reference internal" href="_modules/flamingo/segmentation/plot.html#plot_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.segmentation.plot.plot_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get binary image data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -420,7 +420,7 @@ matplotlib.axes.AxesSubplot objects</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Segmentation</a><ul>
 <li><a class="reference internal" href="#module-flamingo.segmentation.superpixels">Superpixels</a></li>
@@ -431,19 +431,19 @@ matplotlib.axes.AxesSubplot objects</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../rectification/index.html"
+  <p class="topless"><a href="rectification.html"
                         title="previous chapter">Rectification</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../classification/index.html"
+  <p class="topless"><a href="classification.html"
                         title="next chapter">Classification</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../../_sources/flamingo/segmentation/index.txt"
+    <li><a href="_sources/segmentation.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
+    <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -462,18 +462,18 @@ matplotlib.axes.AxesSubplot objects</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
+          <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../classification/index.html" title="Classification"
+          <a href="classification.html" title="Classification"
              >next</a> |</li>
         <li class="right" >
-          <a href="../rectification/index.html" title="Rectification"
+          <a href="rectification.html" title="Rectification"
              >previous</a> |</li>
-        <li><a href="../../index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">Flamingo 1.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
