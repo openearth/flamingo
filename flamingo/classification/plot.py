@@ -82,6 +82,120 @@ def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None)
 
     return fig,axs
 
+
+def plot_learning_curve(scores, ylim=(.75,1), filename=None):
+    '''Plots learning curves
+
+    Parameters
+    ----------
+    scores : pandas.DataFrame
+        DataFrame containing all scores used to plot one or more learning curves.
+        Should at least have the index "n" indicating the number of training samples
+        used.
+    ylim : 2-tuple, optional
+        Vertical axis limit for learning curve plots.
+    filename : string, optional
+        If given, plots are saved to indicated file path.
+
+    Returns
+    -------
+    list
+        List with figure handles for all plots
+    list
+        List with axes handles for all plots
+
+    '''
+
+    scores_iterate = scores.reset_index('n')
+
+    figs = []
+    axss = []
+
+    idx = np.vstack([x.ravel() for x in np.meshgrid(*scores_iterate.index.levels)])
+    for i in range(idx.shape[1]):
+        cs = scores.xs(idx[:,i], level=scores_iterate.index.names)
+    
+        fig, axs = plt.subplots()
+        axs.plot(cs.index, zip(cs['train'],cs['test']))
+        axs.legend(('test score','training score'))
+        axs.set_xlabel('Number of training images')
+        axs.set_ylim(ylim)
+
+        save_figure(fig, filename, ext=''.join(['_%s' % i for i in idx[:,i]]))
+
+        figs.append(fig)
+        axss.append(axs)
+
+    if len(figs) == 1:
+        return figs[0], axss[0]
+    else:
+        return figs, axss
+
+def plot_confusion_matrix(mtxs, classes, cmap='Reds'):
+    
+    figs = []
+    axss = []
+
+    n = len(classes)
+
+    for row in mtxs:
+        for mtx in row:
+            fig, axs = plt.subplots(1,2)
+
+            mtx_norm = mtx / np.repeat(mtx.sum(axis = 1), n).reshape((n,n))
+            mtx_norm[np.isnan(mtx_norm)] = 0
+
+            axs[0].matshow(mtx_norm, cmap=cmap)
+            axs[0].set_xticks(range(n))
+            axs[0].set_yticks(range(n))
+            axs[0].set_xticklabels(classes, rotation=90)
+            axs[0].set_yticklabels(classes, rotation=0)
+            axs[0].set_ylabel('ground truth')
+            axs[0].set_xlabel('predicted')
+
+            axs[1].matshow(mtx, cmap=cmap)
+            axs[1].set_xticks(range(n))
+            axs[1].set_yticks([])
+            axs[1].set_xticklabels(classes, rotation=90)
+            axs[1].set_xlabel('predicted')
+
+            figs.append(figs)
+            axss.append(axs)
+
+    return figs, axss
+
+def plot_regularization_curve(x, y):
+    pass
+
+def plot_feature_weights(model, meta, normalize=True, sort=True, figsize=(20,5), cmap='bwr'):
+
+    weights = model.coef_
+
+    # sort weights
+    idx = range(weights.shape[1])
+    if sort:
+        idx = sorted(idx, key=lambda i: np.max(np.abs(weights[:,i])))
+        idx.reverse()
+
+    # normalize weights
+    if normalize:
+        weights = weights / np.tile(np.max(np.abs(weights), axis=0), (weights.shape[0], 1))
+
+    features, classes = meta['features'], meta['classes']
+    features.extend(['prob_%s' % c for c in classes])
+
+    fig, axs = plt.subplots(figsize=figsize)
+    axs.matshow(weights[:,idx], cmap=cmap)
+    axs.set_xticks(range(len(features)))
+    axs.set_xticklabels(np.asarray(features)[idx], rotation=90)
+    axs.set_yticks(range(len(classes)))
+    axs.set_yticklabels(classes)
+    axs.set_xlim((-.5,len(features)-.5))
+    axs.set_ylim((-.5,len(classes)-.5))
+
+    return fig, axs
+
+
 def save_figure(fig, filename, ext='', figsize=None, dpi=30, **kwargs):
     '''Save figure to file
 
