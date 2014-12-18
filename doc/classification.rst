@@ -23,12 +23,28 @@ Features
 
 .. automodule:: flamingo.classification.features.features
    :members:
+
+Blocks
+^^^^^^
+
 .. automodule:: flamingo.classification.features.blocks
    :members:
+
+Scale invariant features
+^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. automodule:: flamingo.classification.features.scaleinvariant
    :members:
+
+Normalizing features
+^^^^^^^^^^^^^^^^^^^^
+
 .. automodule:: flamingo.classification.features.normalize
    :members:
+
+Relative location prior
+^^^^^^^^^^^^^^^^^^^^^^^
+
 .. automodule:: flamingo.classification.features.relativelocation
    :members:
 

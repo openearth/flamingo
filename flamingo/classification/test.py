@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+__author__ = "Bas Hoonhout"
+__copyright__ = "Copyright 2014, The NEMO Project"
+__credits__ = []
+__license__ = "GPL"
+__version__ = "1.0.1"
+__maintainer__ = "Bas Hoonhout"
+__email__ = "bas.hoonhout@deltares.nl"
+__status__ = "production"
+
 import numpy as np
 import pandas
 import matplotlib.pyplot as plt
@@ -6,14 +17,15 @@ import sklearn.linear_model
 from models import *
 from utils import *
 
+
 def aggregate_scores(scores):
     '''Aggregate model scores over training and test sets
 
     Parameters
     ----------
     scores : pandas.DataFrame
-        DataFrame with test scores for different models and training sets.
-        Should have at least one level index names "model".
+        DataFrame with test scores for different models and training
+        sets. Should have at least one level index named "model".
 
     Returns
     -------
@@ -24,36 +36,41 @@ def aggregate_scores(scores):
 
     return scores.mean(level='model')
 
+
 def compute_learning_curve(models, train_sets, test_sets, step=10, **kwargs):
     '''Computes learning curves for combinations of models and training/test sets
 
     Parameters
     ----------
     models : list
-        List of model objects. Model objects should have a fit() and score() method.
+        List of model objects. Model objects should have a fit() and
+        score() method.
     train_sets : list
-        List of tuples containing training data corresponding to the model list.
+        List of tuples containing training data corresponding to the
+        model list.
     test_sets : list
-        List of tuples containing test data corresponding to the model list.
+        List of tuples containing test data corresponding to the model
+        list.
     step : integer, optional
         Step size of learning curve (default: 10)
     **kwargs : dict-like
-        All other named arguments are redirected to the function models.train_models()
+        All other named arguments are redirected to the function
+        models.train_models()
 
     Returns
     -------
     all_scores : pandas.DataFrame
         MultiIndex DataFrame containing training and test scores.
-        Indices "model" and "set" indicate the model and training set number used.
-        Index "n" indicates the number of samples used during training.
-        Columns "train" and "test" contain the train and test scores respectively.
+        Indices "model" and "set" indicate the model and training set
+        number used. Index "n" indicates the number of samples used
+        during training. Columns "train" and "test" contain the train
+        and test scores respectively.
     all_models : list
         List with trained models.
-        Each item corresponds to a single point on the learning curve and
-        can consist of several models organized in a NxM matrix where
-        N is the original number of models trained and M is the number
-        of training sets used.
-
+        Each item corresponds to a single point on the learning curve
+        and can consist of several models organized in a NxM matrix
+        where N is the original number of models trained and M is the
+        number of training sets used.
     '''
 
     check_sets(train_sets, test_sets)
@@ -80,7 +97,28 @@ def compute_learning_curve(models, train_sets, test_sets, step=10, **kwargs):
 
     return pandas.concat(all_scores, axis=0), all_models
 
-def compute_confusion_matrix(models, train_sets, test_sets):
+
+def compute_confusion_matrix(models, test_sets):
+    '''Computes confusion matrix for combinations of models and training/test sets
+
+    Parameters
+    ----------
+    models : list
+        List of model objects. Model objects should have a fit() and
+        score() method.
+    test_sets : list
+        List of tuples containing test data corresponding to the model
+        list.
+
+    Returns
+    -------
+    mtxs : list
+        List of lists with np.ndarrays that contain confusion matrices
+        for each combination of test set and model
+    classes : list
+        List with all unique classes in test sets and the axis labels
+        of the confusion matrices
+    '''
 
     check_sets(train_sets, test_sets)
 
@@ -104,6 +142,3 @@ def compute_confusion_matrix(models, train_sets, test_sets):
                     mtxs[i][j][i1,i2] += 1
                 
     return mtxs, classes
-
-def compute_regularization_curve(models, train_sets, test_sets):
-    pass
