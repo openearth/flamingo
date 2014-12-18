@@ -44,6 +44,7 @@ import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors
 from sklearn.cross_validation import train_test_split
 
 from flamingo import classification as cls
@@ -276,6 +277,83 @@ def run_prediction(ds, images='all', model=None,
         fig, axs = plot.plot_prediction(ds, im, classes)
         plot.save_figure(
             fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
+
+
+def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None):
+ 
+    if model is list:
+        model = model[part]
+    elif part > 0:
+        raise IOError
+
+    classlist = filesys.read_default_categories(ds)
+    classlist = cls.utils.aggregate_classes(np.array(classlist), class_aggregation)
+    classlist = list(np.unique(classlist))
+
+    eqinds = resolve_indices(ds, test_sets[0][1], meta, class_aggregation)
+
+    n = np.shape(test_sets)[-1]
+
+    fig,axs = plt.subplots(n,3,figsize=(20,10 * round(n / 2)))
+
+    cdict = {
+        'red'  :  ((0., .5, .5), (.2, .5, 1.), (.4, 1., .66),
+                   (.6, .66, .13), (.8, .13, .02), (1., .02, .02)),
+        'green':  ((0., .5, .5), (.2, .5, .95), (.4, .95, 1.),
+                   (.6, 1., .69), (.8, .69, .24), (1., .24, .24)),
+        'blue' :  ((0., .5, .5), (.2, .5, 0.), (.4, 0., 1.),
+                   (.6, 1., .30), (.8, .30, .75), (1., .75, .75))
+        }
+    cmap_argus = matplotlib.colors.LinearSegmentedColormap('argus_classes', cdict, 5)
+
+    for i, fname in enumerate(meta['images_test'][:-1]):
+        if any(eqinds[:,1] == i):
+            gind = np.where(eqinds[:,1] == i)[0][0]
+            grnd = test_sets[part][1][gind]
+            pred = model.predict([test_sets[part][0][gind]])[0]
+            score = float(np.sum(pred == grnd)) / np.prod(grnd.shape) * 100
+        
+            img = filesys.read_image_file(ds,fname)
+            axs[i,0].imshow(img)
+
+            plot.plot_prediction(ds,
+                                 fname,
+                                 grnd,
+                                 cm=cmap_argus,
+                                 clist=classlist,
+                                 axs=axs[i,1])
+
+            plot.plot_prediction(ds,
+                                 fname,
+                                 pred,
+                                 cm=cmap_argus,
+                                 clist=classlist,
+                                 axs=axs[i,2])
+        
+            axs[i,0].set_title(fname)
+            axs[i,1].set_title('groundtruth')
+            axs[i,2].set_title('prediction (%0.1f%%)' % score)
+
+    return fig,axs
+        
+
+def resolve_indices(ds, Y, meta, agg):
+    eqinds = np.empty((len(Y),2))
+    for i in range(len(Y)):
+        for j in range(len(meta['images_test'])):
+            Y = filesys.read_export_file(ds, meta['images_test'][j],'classes')
+            if Y:
+                metim = filesys.read_export_file(ds, meta['images_test'][j],'meta')
+                Ya = np.array(Y)
+                if np.prod(metim['superpixel_grid']) == len(Ya):
+                    Yr = Ya.reshape((metim['superpixel_grid']))
+                    Ya = utils.aggregate_classes(Yr,agg)
+                    if np.prod(Yr.shape) == np.prod(Ytest[i].shape):
+                        if np.all(Yr == Ytest[i]):
+                            eqinds[i,:] = np.array([i,j])
+                            break
+
+    return eqinds
 
 
 @config.parse_config(['segmentation'])
