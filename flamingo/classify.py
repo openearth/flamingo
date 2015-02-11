@@ -318,7 +318,7 @@ def run_channel_extraction(ds, images=[], colorspace='rgb',
     logger.info('Channel extraction started...')
 
     stats = [{'max': 0., 'min': 255.}
-             for i in range(channels.get_number_channels())]
+             for i in range(channels.get_number_channels(methods_params=methods_params, methods=methods))]
 
     for i, im in iterate_images(ds, images, overwrite, ['channels']):
 
