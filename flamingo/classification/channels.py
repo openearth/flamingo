@@ -16,6 +16,7 @@ import skimage.color
 
 _FREQS = np.arange(0.05, 0.30, 0.1)
 _SIGMAS = range(1, 21, 7)
+_SIGMAS2 = [3, 5, 7]
 _THETAS = np.arange(0, np.pi, 0.25*np.pi)
 
 
@@ -65,14 +66,15 @@ def add_channels(img, colorspace='rgb',
 
     # Create a set of gabor kernels and apply them
     if 'gabor' in methods:
-        for i, frequency in enumerate(methods_params['frequencies']):
+        for i, (frequency, sigma) in enumerate(product(methods_params['frequencies'],
+                                                       methods_params['sigmas2'])):
             response = []
             for theta in methods_params['thetas']:
                 real, imag = skimage.filter.gabor_filter(
                     gray,
                     frequency=frequency,
-                    #sigma_x=sigma,
-                    #sigma_y=sigma,
+                    sigma_x=sigma,
+                    sigma_y=sigma,
                     theta=theta)
                 response.append(np.sqrt(real ** 2 + imag ** 2))
         
@@ -172,7 +174,8 @@ def get_number_channels(methods=['gabor', 'gaussian', 'sobel'],
 
     n = 0
     if 'gabor' in methods:
-        n += len(methods_params['frequencies'])
+        n += len(methods_params['frequencies']) + \
+            len(methods_params['sigmas2'])
 
     if 'gaussian' in methods:
         n += len(methods_params['sigmas'])
@@ -209,6 +212,7 @@ def _update_params(params):
 
     methods_params = {'frequencies':_FREQS,
                       'sigmas':_SIGMAS,
+                      'sigmas2':_SIGMAS2,
                       'thetas':_THETAS}
 
     methods_params.update(params)
