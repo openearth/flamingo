@@ -440,7 +440,7 @@ def run_channel_normalization(ds, images=[], model_dataset=None,
             img = filesys.read_export_file(ds, im, 'channels')
             for j in range(4, img.shape[-1]):
                 img[...,j] = channels.normalize_channel(img[...,j],
-                                                        stats[i-4])
+                                                        stats[j-4])
             filesys.write_export_file(ds, im, 'channels.normalized', img)
 
     logger.info('Channel normalization finished.')
