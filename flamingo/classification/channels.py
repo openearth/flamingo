@@ -174,7 +174,7 @@ def get_number_channels(methods=['gabor', 'gaussian', 'sobel'],
 
     n = 0
     if 'gabor' in methods:
-        n += len(methods_params['frequencies']) + \
+        n += len(methods_params['frequencies']) * \
             len(methods_params['sigmas2'])
 
     if 'gaussian' in methods:
