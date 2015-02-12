@@ -396,7 +396,8 @@ def run_channel_extraction(ds, images=[], colorspace='rgb',
     logger.info('Channel extraction started...')
 
     stats = [{'max': 0., 'min': 255.}
-             for i in range(channels.get_number_channels(methods_params=methods_params, methods=methods))]
+             for i in range(channels.get_number_channels(methods_params=methods_params,
+                                                         methods=methods))]
 
     for i, im in iterate_images(ds, images, overwrite, ['channels']):
 
@@ -420,7 +421,9 @@ def run_channel_extraction(ds, images=[], colorspace='rgb',
 
 @config.parse_config(['channels'])
 def run_channel_normalization(ds, images=[], model_dataset=None,
-                              overwrite=False, cfg=None):
+                              methods=['gabor', 'gaussian', 'sobel'],
+                              methods_params=None, overwrite=False,
+                              cfg=None):
 
     logger.info('Channel normalization started...')
 
@@ -430,7 +433,7 @@ def run_channel_normalization(ds, images=[], model_dataset=None,
     if not stats:
         logger.info(
             'Using theoretical channel boundaries for normalization.')
-        stats = channels.get_channel_bounds()
+        stats = channels.get_channel_bounds(methods=methods, methods_params=methods_params)
 
     for i, im in iterate_images(ds, images, overwrite, 'channels.normalized'):
         if filesys.check_export_file(ds, im, 'channels'):
