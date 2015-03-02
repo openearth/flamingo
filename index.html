@@ -1,0 +1,551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Flamingo’s documentation! &mdash; Flamingo 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Flamingo 1.0.1 documentation" href="#" />
+    <link rel="next" title="Rectification" href="rectification.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rectification.html" title="Rectification"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-flamingo-s-documentation">
+<h1>Welcome to Flamingo&#8217;s documentation!<a class="headerlink" href="#welcome-to-flamingo-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The Flamingo toolbox is an open-source toolbox for image segmentation, classification and rectification.
+It is developed by the Department of Hydraulic Engineering of Delft University of Technology for coastal image analysis.
+The toolbox is built around the <em>scikit-image</em>, <em>scikit-learn</em>, <em>OpenCV</em> and <em>pystruct</em> toolboxes.</p>
+<p>Flamingo is developed and maintained by:</p>
+<div class="line-block">
+<div class="line">Bas Hoonhout &lt;<a class="reference external" href="mailto:b&#46;m&#46;hoonhout&#37;&#52;&#48;tudelft&#46;nl">b<span>&#46;</span>m<span>&#46;</span>hoonhout<span>&#64;</span>tudelft<span>&#46;</span>nl</a>&gt;</div>
+<div class="line">Max Radermacher &lt;<a class="reference external" href="mailto:m&#46;radermacher&#37;&#52;&#48;tudelft&#46;nl">m<span>&#46;</span>radermacher<span>&#64;</span>tudelft<span>&#46;</span>nl</a>&gt;</div>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rectification.html">Rectification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rectification.html#id1">Rectification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rectification.html#module-flamingo.rectification.plot">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Segmentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="segmentation.html#module-flamingo.segmentation.superpixels">Superpixels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="segmentation.html#module-flamingo.segmentation.postprocess">Postprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="segmentation.html#module-flamingo.segmentation.plot">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classification.html">Classification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.features.features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.channels">Channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.test">Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.plot">Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html#module-flamingo.classification.utils">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="command-line-tools">
+<h2>Command-line tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h2>
+<p>Several command-line functions are supplied with the toolbox for batch processing of large datasets.
+Each command-line function serves a specific part of the image analysis.
+See for more information the <em>&#8211;help</em> option of each command.</p>
+<div class="section" id="module-flamingo.rectify">
+<span id="rectify-images"></span><h3>rectify-images<a class="headerlink" href="#module-flamingo.rectify" title="Permalink to this headline">¶</a></h3>
+<p>Ortho-rectify images based on ground control points (GCP)</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd>rectify-image &lt;image&gt; &lt;gcpfile&gt; [&#8211;dist-model=NAME] [&#8211;dist-coefs=VALUES] [&#8211;verbose]</dd>
+<dt>Positional arguments:</dt>
+<dd>image               image to be rectified
+gcpfile             file containing GCP&#8217;s in image (UVXYZ)</dd>
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--dist-model=<var>NAME</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>name of distortion model to use [default: OPENCV]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--dist-coefs=<var>VALUES</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>coefficients used for distortion model [default: 0,0,0,0]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--size=<var>SIZE</var></span></kbd></td>
+<td>size of output figure [default: 30,20]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--rotation=<var>ANGLE</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>rotate resulting image [default: 0]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--translation=<var>DIST</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>translate resulting image [default: 0,0]</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxdistance=<var>DIST</var></span></kbd></td>
+</tr>
+<tr><td>&nbsp;</td><td>maximum distance from origin included in plot [default: 1e4]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--verbose</span></kbd></td>
+<td>print logging messages</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="module-flamingo.classify">
+<span id="classify-images"></span><h3>classify-images<a class="headerlink" href="#module-flamingo.classify" title="Permalink to this headline">¶</a></h3>
+<p>Train, score and use classification models on image datasets.</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd>classify-images preprocess &lt;dataset&gt; [&#8211;segmentate] [&#8211;channels] [&#8211;features] [&#8211;extract] [&#8211;update] [&#8211;normalize] [&#8211;relloc] [&#8211;relloc_maps] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;overwrite] [&#8211;verbose]
+classify-images partition &lt;dataset&gt; [&#8211;n=N] [&#8211;frac=FRAC] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;verbose]
+classify-images train &lt;dataset&gt; [&#8211;type=NAME] [&#8211;partitions=N] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;verbose]
+classify-images score &lt;dataset&gt; [&#8211;model=NAME] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;verbose]
+classify-images predict &lt;dataset&gt; [&#8211;model=NAME] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;overwrite] [&#8211;verbose]
+classify-images regularization &lt;dataset&gt; [&#8211;type=NAME] [&#8211;images=FILE] [&#8211;config=FILE] [&#8211;verbose]</dd>
+<dt>Positional arguments:</dt>
+<dd>dataset            dataset containing the images
+image              image file to be classified</dd>
+<dt>Options:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--segmentate</span></kbd></td>
+<td>create segmentation of images</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--channels</span></kbd></td>
+<td>include channel extraction</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--features</span></kbd></td>
+<td>include feature extraction</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--extract</span></kbd></td>
+<td>extract channels/features</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--update</span></kbd></td>
+<td>update channels/features</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--normalize</span></kbd></td>
+<td>normalize channels/features</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--relloc</span></kbd></td>
+<td>include relative location features</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--relloc_maps</span></kbd></td>
+<td>compute new relative location maps</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--n=<var>N</var></span></kbd></td>
+<td>number of partitions [default: 5]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--frac=<var>FRAC</var></span></kbd></td>
+<td>fraction of images used for testing [default: 0.25]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--type=<var>NAME</var></span></kbd></td>
+<td>model type to train [default: LR]</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--partitions=<var>N</var></span></kbd></td>
+<td>only train these partitions</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--model=<var>NAME</var></span></kbd></td>
+<td>name of model to be scored, uses last trained if omitted</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--images=<var>FILE</var></span></kbd></td>
+<td>images to include in process</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--config=<var>FILE</var></span></kbd></td>
+<td>configuration file to use instead of command line options</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--overwrite</span></kbd></td>
+<td>overwrite existing files</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--verbose</span></kbd></td>
+<td>print logging messages</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div>
+<div class="section" id="module-flamingo.calibrate">
+<span id="calibrate-camera"></span><h3>calibrate-camera<a class="headerlink" href="#module-flamingo.calibrate" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="file-system">
+<h2>File system<a class="headerlink" href="#file-system" title="Permalink to this headline">¶</a></h2>
+<p>The toolbox uses a file system structure for the analysis of datasets.
+The <a class="reference internal" href="#module-flamingo.filesys" title="flamingo.filesys"><tt class="xref py py-mod docutils literal"><span class="pre">flamingo.filesys</span></tt></a> module takes care of any reading and writing of files in this file structure.
+Each dataset is stored in a single directory and can consist out of the following file types:</p>
+<dl class="docutils">
+<dt>Image files</dt>
+<dd>Any image file recognized by the system</dd>
+<dt>Cropped image files</dt>
+<dd>Names start with <em>cropped_</em>. A non-cropped version of the image file should exist.</dd>
+<dt>Export files</dt>
+<dd>Pickle files with data concerning an image. Each export file name has the following format: <em>&lt;image_name&gt;.&lt;key&gt;.pkl</em>.
+A special type of export file is the feature file. Not all features are written to a single export file, but they
+are subdivided into multiple export files depending on the feature block they belong to. The block name is added to the
+export file, just before the file extension.</dd>
+<dt>Log files</dt>
+<dd>Pickle files with data concerning the entire dataset. Log file names can have any name.</dd>
+<dt>Model files</dt>
+<dd>Pickle files with a trained model. Each model file is accompanied by a meta file. Each model file name has the following format:
+<em>model_&lt;model_type&gt;_&lt;dataset&gt;_I&lt;nr_of_images&gt;_B&lt;nr_of_blocks&gt;_&lt;timestamp&gt;.pkl</em>. The corresponding meta file has <em>meta</em> added to
+the name, just before the file extension.</dd>
+</dl>
+<span class="target" id="module-flamingo.filesys"></span><dl class="function">
+<dt id="flamingo.filesys.check_export_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">check_export_file</tt><big>(</big><em>ds</em>, <em>im</em>, <em>ext</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#check_export_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.check_export_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if export file exists</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_dataset_list">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_dataset_list</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_dataset_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_dataset_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of available datasets</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_dataset_path">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_dataset_path</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_dataset_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_dataset_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get path to datasets</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_export_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_export_file</tt><big>(</big><em>ds</em>, <em>im=None</em>, <em>ext=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_export_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_export_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get path to export file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_image_list">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_image_list</tt><big>(</big><em>ds</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_image_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_image_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list with all images in dataset</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_image_location">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_image_location</tt><big>(</big><em>ds</em>, <em>im</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_image_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_image_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get absolute path to specific image in dataset</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_image_path">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_image_path</tt><big>(</big><em>ds</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_image_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_image_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get absolute path to images within dataset</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.get_model_list">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">get_model_list</tt><big>(</big><em>ds</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#get_model_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.get_model_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of model files in dataset</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.has_features">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">has_features</tt><big>(</big><em>ds</em>, <em>im</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#has_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.has_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if features for image are extracted</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.is_classified">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">is_classified</tt><big>(</big><em>ds</em>, <em>im</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#is_classified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.is_classified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if image is annotated</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.is_segmented">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">is_segmented</tt><big>(</big><em>ds</em>, <em>im</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#is_segmented"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.is_segmented" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if image is segmented</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_default_categories">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_default_categories</tt><big>(</big><em>ds</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_default_categories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_default_categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read list of uniquely defined classes in dataset</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_export_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_export_file</tt><big>(</big><em>ds</em>, <em>im</em>, <em>ext</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_export_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_export_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read contents of export file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_feature_files">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_feature_files</tt><big>(</big><em>ds, im, blocks=['extract_blocks_grey', 'extract_blocks_intensity', 'extract_blocks_mask', 'extract_blocks_pixel', 'extract_blocks_shape', 'extract_blocks_intensitystatistics'], ext=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_feature_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_feature_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read features from a collection of export files including only selected feature blocks</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_image_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_image_file</tt><big>(</big><em>ds</em>, <em>im</em>, <em>crop=True</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_image_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_image_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read image file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_log_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_log_file</tt><big>(</big><em>ds</em>, <em>keys=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_log_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read contents of log file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.read_model_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">read_model_file</tt><big>(</big><em>ds</em>, <em>model_name</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#read_model_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.read_model_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a model from export file including meta data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.set_dataset_path">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">set_dataset_path</tt><big>(</big><em>fpath</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#set_dataset_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.set_dataset_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set path to datasets</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.write_export_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">write_export_file</tt><big>(</big><em>ds</em>, <em>im</em>, <em>ext</em>, <em>contents</em>, <em>append=False</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#write_export_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.write_export_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write contents to export file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.write_feature_files">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">write_feature_files</tt><big>(</big><em>ds</em>, <em>im</em>, <em>features</em>, <em>features_in_block</em>, <em>ext=None</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#write_feature_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.write_feature_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write features to a collection of export files depending on their feature block</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.write_log_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">write_log_file</tt><big>(</big><em>ds</em>, <em>contents</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#write_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.write_log_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write contents to log file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.write_model_file">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">write_model_file</tt><big>(</big><em>ds</em>, <em>model</em>, <em>meta</em>, <em>ext=''</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#write_model_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.write_model_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a single model to export file including meta data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.filesys.write_model_files">
+<tt class="descclassname">flamingo.filesys.</tt><tt class="descname">write_model_files</tt><big>(</big><em>ds</em>, <em>models</em>, <em>meta</em>, <em>ext=''</em><big>)</big><a class="reference internal" href="_modules/flamingo/filesys.html#write_model_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.filesys.write_model_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a series of models to export files including meta data</p>
+</dd></dl>
+
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Only the very basic options of the toolbox are exposed through the command-line functions.
+For the full extent of options a configuration file is used. This configuration file is parsed by the <a class="reference internal" href="#module-flamingo.config" title="flamingo.config"><tt class="xref py py-mod docutils literal"><span class="pre">flamingo.config</span></tt></a> module.
+The module also supplies wrappers for the automated updating of a function call based on the configuration file used.</p>
+<span class="target" id="module-flamingo.config"></span><dl class="data">
+<dt id="flamingo.config.CLASSIFICATION_DEFAULTS">
+<tt class="descclassname">flamingo.config.</tt><tt class="descname">CLASSIFICATION_DEFAULTS</tt><em class="property"> = {'channels': {'enabled': True, 'methods': ['gabor', 'gaussian', 'sobel'], 'methods_params': {'frequencies': [0.05, 0.15, 0.25], 'sigmas': [1, 8, 15], 'thetas': [0.0, 0.785, 1.571, 2.356]}}, 'segmentation': {'remove_disjoint': True, 'extract_contours': False, 'enabled': True, 'method': 'slic', 'method_params': {}}, 'relative_location': {'sigma': 2, 'enabled': False, 'n': 100}, 'features': {'feature_blocks': 'all', 'enabled': True, 'blocks_params': {}}, 'score': {}, 'partition': {'n_partitions': 5, 'force_split': False, 'enabled': True, 'frac_test': 0.25, 'frac_validation': 0.0}, 'training': {'partitions': 'all'}, 'regularization': {'C': [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0], 'partition': 0}, 'general': {'model_type': 'LR', 'colorspace': 'rgb', 'class_aggregation': '', 'model_dataset': ''}}</em><a class="headerlink" href="#flamingo.config.CLASSIFICATION_DEFAULTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration constants for classification toolbox</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.config.get_function_args">
+<tt class="descclassname">flamingo.config.</tt><tt class="descname">get_function_args</tt><big>(</big><em>fcn</em>, <em>cfg</em>, <em>sections=[]</em><big>)</big><a class="reference internal" href="_modules/flamingo/config.html#get_function_args"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.config.get_function_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get relevant function arguments given a configuration file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.config.parse_config">
+<tt class="descclassname">flamingo.config.</tt><tt class="descname">parse_config</tt><big>(</big><em>sections=[]</em><big>)</big><a class="reference internal" href="_modules/flamingo/config.html#parse_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.config.parse_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for parsing config file for specific function call</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.config.read_config">
+<tt class="descclassname">flamingo.config.</tt><tt class="descname">read_config</tt><big>(</big><em>cfgfile, defaults={'channels': {'enabled': True, 'methods': ['gabor', 'gaussian', 'sobel'], 'methods_params': {'frequencies': [0.05, 0.15, 0.25], 'sigmas': [1, 8, 15], 'thetas': [0.0, 0.785, 1.571, 2.356]}}, 'segmentation': {'remove_disjoint': True, 'extract_contours': False, 'enabled': True, 'method': 'slic', 'method_params': {}}, 'relative_location': {'sigma': 2, 'enabled': False, 'n': 100}, 'features': {'feature_blocks': 'all', 'enabled': True, 'blocks_params': {}}, 'score': {}, 'partition': {'n_partitions': 5, 'force_split': False, 'enabled': True, 'frac_test': 0.25, 'frac_validation': 0.0}, 'training': {'partitions': 'all'}, 'regularization': {'C': [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0], 'partition': 0}, 'general': {'model_type': 'LR', 'colorspace': 'rgb', 'class_aggregation': '', 'model_dataset': ''}}</em><big>)</big><a class="reference internal" href="_modules/flamingo/config.html#read_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.config.read_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read configuration file and update default settings</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="flamingo.config.write_config">
+<tt class="descclassname">flamingo.config.</tt><tt class="descname">write_config</tt><big>(</big><em>cfgfile, defaults={'channels': {'enabled': True, 'methods': ['gabor', 'gaussian', 'sobel'], 'methods_params': {'frequencies': [0.05, 0.15, 0.25], 'sigmas': [1, 8, 15], 'thetas': [0.0, 0.785, 1.571, 2.356]}}, 'segmentation': {'remove_disjoint': True, 'extract_contours': False, 'enabled': True, 'method': 'slic', 'method_params': {}}, 'relative_location': {'sigma': 2, 'enabled': False, 'n': 100}, 'features': {'feature_blocks': 'all', 'enabled': True, 'blocks_params': {}}, 'score': {}, 'partition': {'n_partitions': 5, 'force_split': False, 'enabled': True, 'frac_test': 0.25, 'frac_validation': 0.0}, 'training': {'partitions': 'all'}, 'regularization': {'C': [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0], 'partition': 0}, 'general': {'model_type': 'LR', 'colorspace': 'rgb', 'class_aggregation': '', 'model_dataset': ''}}</em><big>)</big><a class="reference internal" href="_modules/flamingo/config.html#write_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#flamingo.config.write_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write configuration file</p>
+</dd></dl>
+
+<div class="section" id="example-configuration">
+<h3>Example configuration<a class="headerlink" href="#example-configuration" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>[channels]
+enabled = True
+methods = [&quot;gabor&quot;, &quot;gaussian&quot;, &quot;sobel&quot;]
+methods_params = {&quot;frequencies&quot;: [0.05, 0.15, 0.25], &quot;sigmas&quot;: [1, 8, 15], &quot;thetas&quot;: [0.0, 0.785, 1.571, 2.356]}
+
+[segmentation]
+remove_disjoint = True
+extract_contours = False
+enabled = True
+method = slic
+method_params = {}
+
+[relative_location]
+sigma = 2
+enabled = False
+n = 100
+
+[features]
+feature_blocks = all
+enabled = True
+blocks_params = {}
+
+[score]
+
+[train]
+partitions = all
+
+[partition]
+n_partitions = 5
+force_split = False
+enabled = True
+frac_test = 0.25
+frac_validation = 0.0
+
+[regularization]
+c = [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+partition = 0
+
+[general]
+model_type = LR
+colorspace = rgb
+class_aggregation = 
+model_dataset = 
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Flamingo&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+<li><a class="reference internal" href="#command-line-tools">Command-line tools</a><ul>
+<li><a class="reference internal" href="#module-flamingo.rectify">rectify-images</a></li>
+<li><a class="reference internal" href="#module-flamingo.classify">classify-images</a></li>
+<li><a class="reference internal" href="#module-flamingo.calibrate">calibrate-camera</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#file-system">File system</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#example-configuration">Example configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="rectification.html"
+                        title="next chapter">Rectification</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="rectification.html" title="Rectification"
+             >next</a> |</li>
+        <li><a href="#">Flamingo 1.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Bas Hoonhout.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
