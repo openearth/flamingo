@@ -196,9 +196,13 @@ def rotate_translate(x, y, rotation=None, translation=None):
         NxM matrix containing rotated/translated y-coordinates
     '''
     
+    if translation is not None:
+        x -= translation[0]
+        y -= translation[1] 
+        
     if rotation is not None:
         shp = x.shape
-        rotation = rotation / 180 * np.pi
+        rotation = (0-rotation) / 180 * np.pi
 
         R = np.array([[ np.cos(rotation),np.sin(rotation)],
                       [-np.sin(rotation),np.cos(rotation)]])
@@ -209,9 +213,7 @@ def rotate_translate(x, y, rotation=None, translation=None):
         x = xy[:,0].reshape(shp)
         y = xy[:,1].reshape(shp)
 
-    if translation is not None:
-        x += translation[0]
-        y += translation[1]
+
     
     return x, y
 
