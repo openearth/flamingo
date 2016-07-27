@@ -10,15 +10,16 @@ setup(
     long_description=open('README.txt').read(),
     install_requires=[
         'pandas',
+        'scipy',
         'numpy',
         'docopt',
         'psutil'
         # also opencv but that's not available on pip
     ],
-    setup_requires=[
-        'sphinx',
-        'sphinx_rtd_theme'
-    ],
+    #setup_requires=[
+    #    'sphinx',
+    #    'sphinx_rtd_theme'
+    #],
     tests_require=[
         'nose'
     ],
@@ -31,11 +32,11 @@ setup(
         '{0} = flamingo.calibrate:main'.format(
             'calibrate-camera')
     ]},
-    data_files=[
-        ('images', [
-            "data/argusnl/1399006805.Fri.May.02_05_00_05.UTC.2014.kijkduin.c5.snap.jpg",
-            "data/argusnl/1399019402.Fri.May.02_08_30_02.UTC.2014.kijkduin.c2.snap.jpg"
-        ])
-    ]
+    #data_files=[
+    #    ('images', [
+    #        "data/argusnl/1399006805.Fri.May.02_05_00_05.UTC.2014.kijkduin.c5.snap.jpg",
+    #        "data/argusnl/1399019402.Fri.May.02_08_30_02.UTC.2014.kijkduin.c2.snap.jpg"
+    #    ])
+    #]
 
 )

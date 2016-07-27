@@ -14,17 +14,17 @@ images.
 Superpixels
 -----------
 
-.. automodule:: flamingo.segmentation.superpixels
+.. automodule:: segmentation.superpixels
    :members:
 
 Postprocessing
 --------------
 
-.. automodule:: flamingo.segmentation.postprocess
+.. automodule:: segmentation.postprocess
    :members:
 
 Visualization
 -------------
 
-.. automodule:: flamingo.segmentation.plot
+.. automodule:: segmentation.plot
    :members:

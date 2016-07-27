@@ -14,7 +14,7 @@ the camera matrix and lens distortion parameters should be
 determined.
 
 Subsequently, a homography can be determined using the
-:func:`flamingo.rectification.rectification.find_homography()` function and a projection of the image can be
+:func:`rectification.rectification.find_homography()` function and a projection of the image can be
 plotted using the accompanying :mod:`flamingo.rectification.plot` module.
 
 .. seealso::
@@ -23,11 +23,11 @@ plotted using the accompanying :mod:`flamingo.rectification.plot` module.
 Rectification
 -------------
 
-.. automodule:: flamingo.rectification.rectification
+.. automodule:: rectification.rectification
    :members:
 
 Visualization
 -------------
 
-.. automodule:: flamingo.rectification.plot
+.. automodule:: rectification.plot
    :members:

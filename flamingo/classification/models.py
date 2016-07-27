@@ -372,7 +372,7 @@ def score_models(models, train_sets, test_sets, **kwargs):
     test_sets : list
         List of tuples containing test data corresponding to the model
         list.
-    **kwargs
+    kwargs
         Additional arguments passed to the scoring function
 
     Returns
@@ -397,6 +397,7 @@ def score_models(models, train_sets, test_sets, **kwargs):
                   models.get_model(model_type='CRF', n_states=5, n_features=10)]
     >>> models_trained = models.train_models(models, [(X_train, Y_train)])
     >>> scores = test.score_models(models, [(X_train, Y_train)], [(X_test, Y_test)])
+
     '''
 
     check_sets(train_sets, test_sets, models)

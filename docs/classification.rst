@@ -15,59 +15,59 @@ it provides functions for model training and optimization that are largely based
 Models
 ------
 
-.. automodule:: flamingo.classification.models
+.. automodule:: classification.models
    :members:
 
 Features
 --------
 
-.. automodule:: flamingo.classification.features.features
+.. automodule:: classification.features.features
    :members:
 
 Blocks
 ^^^^^^
 
-.. automodule:: flamingo.classification.features.blocks
+.. automodule:: classification.features.blocks
    :members:
 
 Scale invariant features
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.classification.features.scaleinvariant
+.. automodule:: classification.features.scaleinvariant
    :members:
 
 Normalizing features
 ^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.classification.features.normalize
+.. automodule:: classification.features.normalize
    :members:
 
 Relative location prior
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.classification.features.relativelocation
+.. automodule:: classification.features.relativelocation
    :members:
 
 Channels
 --------
 
-.. automodule:: flamingo.classification.channels
+.. automodule:: classification.channels
    :members:
 
 Test
 ----
 
-.. automodule:: flamingo.classification.test
+.. automodule:: classification.test
    :members:
 
 Visualization
 -------------
 
-.. automodule:: flamingo.classification.plot
+.. automodule:: classification.plot
    :members:
 
 Utils
 -----
 
-.. automodule:: flamingo.classification.utils
+.. automodule:: classification.utils
    :members:

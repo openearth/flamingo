@@ -53,7 +53,7 @@ def compute_learning_curve(models, train_sets, test_sets, step=10, **kwargs):
         list.
     step : integer, optional
         Step size of learning curve (default: 10)
-    **kwargs : dict-like
+    kwargs : dict-like
         All other named arguments are redirected to the function
         models.train_models()
 
