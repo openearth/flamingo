@@ -14,8 +14,9 @@ the camera matrix and lens distortion parameters should be
 determined.
 
 Subsequently, a homography can be determined using the
-:func:`rectification.rectification.find_homography()` function and a projection of the image can be
-plotted using the accompanying :mod:`flamingo.rectification.plot` module.
+:func:`rectification.rectification.find_homography()` function and a
+projection of the image can be plotted using the accompanying
+:mod:`rectification.plot` module.
 
 .. seealso::
    http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html

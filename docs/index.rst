@@ -39,19 +39,19 @@ See for more information the *--help* option of each command.
 rectify-images
 ^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.rectify
+.. automodule:: rectify
                 :members:
 
 classify-images
 ^^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.classify
+.. automodule:: classify
                 :members:
 
 calibrate-camera
 ^^^^^^^^^^^^^^^^
 
-.. automodule:: flamingo.calibrate
+.. automodule:: calibrate
                 :members:
                    
 
@@ -59,8 +59,9 @@ File system
 -----------
 
 The toolbox uses a file system structure for the analysis of datasets.
-The :mod:`flamingo.filesys` module takes care of any reading and writing of files in this file structure.
-Each dataset is stored in a single directory and can consist out of the following file types:
+The :mod:`filesys` module takes care of any reading and writing of
+files in this file structure.  Each dataset is stored in a single
+directory and can consist out of the following file types:
 
 Image files
   Any image file recognized by the system
@@ -78,18 +79,21 @@ Model files
   *model_<model_type>_<dataset>_I<nr_of_images>_B<nr_of_blocks>_<timestamp>.pkl*. The corresponding meta file has *meta* added to
   the name, just before the file extension.
 
-.. automodule:: flamingo.filesys
+.. automodule:: filesys
                 :members:
 
                    
 Configuration
 -------------
 
-Only the very basic options of the toolbox are exposed through the command-line functions.
-For the full extent of options a configuration file is used. This configuration file is parsed by the :mod:`flamingo.config` module.
-The module also supplies wrappers for the automated updating of a function call based on the configuration file used.
+Only the very basic options of the toolbox are exposed through the
+command-line functions.  For the full extent of options a
+configuration file is used. This configuration file is parsed by the
+:mod:`config` module.  The module also supplies wrappers for
+the automated updating of a function call based on the configuration
+file used.
 
-.. automodule:: flamingo.config
+.. automodule:: config
                 :members:
 
 Example configuration
