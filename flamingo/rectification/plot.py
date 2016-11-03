@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-
-__author__ = "Bas Hoonhout"
-__copyright__ = "Copyright 2014, The NEMO Project"
-__credits__ = []
-__license__ = "GPL"
-__version__ = "1.0.1"
-__maintainer__ = "Bas Hoonhout"
-__email__ = "bas.hoonhout@deltares.nl"
-__status__ = "Production"
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -16,7 +5,7 @@ import matplotlib.collections
 import matplotlib.patches
 
 
-def plot_rectified(X, Y, imgs,
+def plot_rectified(X, Y, imgs, slice=1,
                    rotation=None, translation=None, max_distance=1e4,
                    ax=None, figsize=(30,20), cmap='Greys',
                    color=True, n_alpha=0):
@@ -37,6 +26,8 @@ def plot_rectified(X, Y, imgs,
         List of NxM matrix containing real-world y-coordinates
     imgs : list of np.ndarrays
         List of NxMx1 or NxMx3 image matrices
+    slice : int
+        Slice to limit resolution
     rotation : float, optional
         Rotation angle in degrees
     translation : list or tuple, optional
@@ -67,6 +58,8 @@ def plot_rectified(X, Y, imgs,
     else:
         fig = ax.figure
 
+    s = slice
+
     # loop over images
     for x, y, img in zip(X, Y, imgs):
 
@@ -77,11 +70,12 @@ def plot_rectified(X, Y, imgs,
         x, y = rotate_translate(x, y, rotation=rotation, translation=translation)
 
         # plot
-        im = ax.pcolormesh(x[o:,:], y[o:,:], np.mean(img[o:,...], -1), cmap=cmap)
+        im = ax.pcolormesh(x[o::s,::s], y[o::s,::s],
+                           np.mean(img[o::s,::s,...], -1), cmap=cmap, rasterized=True)
 
         # add colors
         if color:
-            rgba = _construct_rgba_vector(img[o:,...], n_alpha=n_alpha)
+            rgba = _construct_rgba_vector(img[o::s,::s,...], n_alpha=n_alpha)
             im.set_array(None) # remove the array
             im.set_edgecolor('none')
             im.set_facecolor(rgba)

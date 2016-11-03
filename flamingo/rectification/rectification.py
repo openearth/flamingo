@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-
-__author__ = "Bas Hoonhout"
-__copyright__ = "Copyright 2014, The NEMO Project"
-__credits__ = []
-__license__ = "GPL"
-__version__ = "1.0.1"
-__maintainer__ = "Bas Hoonhout"
-__email__ = "bas.hoonhout@deltares.nl"
-__status__ = "production"
-
 import numpy as np
 import cv2
 
@@ -54,8 +43,7 @@ def find_homography(UV, XYZ, K, distortion=np.zeros((1,4)), z=0):
     K = np.asarray(K).astype(np.float32)
     
     # compute camera pose
-#    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)[1:]
-    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)
+    rvec, tvec = cv2.solvePnP(XYZ, UV, K, distortion)[-2:]
     
     # convert rotation vector to rotation matrix
     R = cv2.Rodrigues(rvec)[0]

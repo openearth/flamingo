@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-
-__author__ = "Bas Hoonhout"
-__copyright__ = "Copyright 2014, The NEMO Project"
-__credits__ = []
-__license__ = "GPL"
-__version__ = "1.0.1"
-__maintainer__ = "Bas Hoonhout"
-__email__ = "bas.hoonhout@deltares.nl"
-__status__ = "production"
-
 import matplotlib.cm as cm
 import skimage.segmentation
 from skimage.util import img_as_float
