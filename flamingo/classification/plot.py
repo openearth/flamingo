@@ -105,7 +105,8 @@ def plot_confusion_matrix(mtxs, classes, cmap='Reds'):
 def plot_feature_weights(model, meta, normalize=True, sort=True,
                          figsize=(20,5), cmap='bwr'):
 
-    weights = model.coef_
+    n = 162
+    weights = model.w[:n].reshape((2,-1)) #coef_
 
     # sort weights
     idx = range(weights.shape[1])

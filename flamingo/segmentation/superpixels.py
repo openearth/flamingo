@@ -262,9 +262,9 @@ def get_contours(segments):
 
     contours = []
     for i in range(np.max(segments)+1):
-        c, h = cv2.findContours((segments==i).astype(np.uint8),
-                                cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_NONE)
+        c = cv2.findContours((segments==i).astype(np.uint8),
+                             cv2.RETR_EXTERNAL,
+                             cv2.CHAIN_APPROX_NONE)[1]
         contours.append([i.tolist() for i in c])
 
     return contours

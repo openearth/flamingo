@@ -159,7 +159,7 @@ def write_log_file(ds, contents):
     return write_export_file(ds, None, 'log', contents, append=True)
 
 
-def read_image_file(ds, im, crop=True):
+def read_image_file(ds, im, crop=False):
     'Read image file'
     
     fpath = get_image_location(ds, im)

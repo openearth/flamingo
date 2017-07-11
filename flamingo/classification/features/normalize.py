@@ -44,7 +44,7 @@ def normalize_features(features, df_aggregated):
 
     # remove all-nan columns (again) in case column is missing in stats
     for k,v in df_normalized.iteritems():
-        if all(np.isnan(v)):
+        if all(np.isnan(v.values.astype(np.float64))):
             df_normalized = df_normalized.drop(k,1)
 
     return df_normalized

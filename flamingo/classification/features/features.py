@@ -25,7 +25,7 @@ def linearize(features):
     df_features = pandas.DataFrame(features_lin)
 
     for k, v in df_features.iteritems():
-        if all(np.isnan(v)):
+        if all(np.isnan(v.values.astype(np.float64))):
             df_features = df_features.drop(k, 1)
 
     return df_features

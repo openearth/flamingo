@@ -30,7 +30,13 @@ setup(
         '{0} = flamingo.rectify:main'.format(
             'rectify-images'),
         '{0} = flamingo.calibrate:main'.format(
-            'calibrate-camera')
+            'calibrate-camera'),
+        '{0} = flamingo.console:classify'.format(
+            'flamingo-classify'),
+        '{0} = flamingo.console:rectify'.format(
+            'flamingo-rectify'),
+        '{0} = flamingo.console:calibrate'.format(
+            'flamingo-calibrate'),
     ]},
     #data_files=[
     #    ('images', [

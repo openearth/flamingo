@@ -36,6 +36,7 @@ Options:
 import re
 import os
 import sys
+import cv2
 import time
 import json
 import glob
@@ -144,13 +145,18 @@ def run_partitioning(ds,
 
     images = create_image_list(ds, images)
 
+    annotated = []
+    for im in images:
+        if filesys.is_classified(ds, im):
+            annotated.append(im)
+
     logger.info('Defining %d train/test partitions' % n_partitions)
 
     # make train test partitions if requested
     dslog = filesys.read_log_file(ds)
     if force_split or not dslog.has_key('training images'):
         images_part = multiple_partitions(
-            images, n_partitions, frac_test)
+            annotated, n_partitions, frac_test)
         filesys.write_log_file(ds, images_part)
 
 
@@ -262,21 +268,36 @@ def run_prediction(ds, images='all', model=None,
                  feature_blocks=blocks)[0]
 
     for i, im in iterate_images(ds, images, overwrite, 'predict'):
+        if X[i] is None:
+            continue
 
         shp = filesys.read_export_file(
             ds, im, 'meta')['superpixel_grid']
         X[i] = np.asarray(X[i]).reshape((shp[0], shp[1], -1))
 
         # run prediction
-        classes = model.predict([X[i]])[0]
+        try:
+            classes = model.predict([X[i]])[0]
+        except:
+            logger.error('Error predicting %s' % im)
+            continue
 
         # save raw data
         filesys.write_export_file(ds, im, 'predict', classes)
 
         # save plot
-        fig, axs = plot.plot_prediction(ds, im, classes)
-        plot.save_figure(
-            fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
+        img = filesys.read_image_file(ds, im)
+        seg = filesys.read_export_file(ds, im, 'segments')
+        cls = list(set(classes.flatten()))
+        for i, c in enumerate(classes.flatten()):
+            ix = cls.index(c)
+            img[seg==i,ix-1] += .1
+        img = np.minimum(1., img) * 255.
+        fdir, fname = os.path.split(im)
+        cv2.imwrite(os.path.join(fdir, 'predictions', os.path.splitext(fname)[0] + '.classes.png'), img)
+#        fig, axs = plot.plot_prediction(ds, im, classes)
+#        plot.save_figure(
+#            fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
 
 
 def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None):
@@ -526,6 +547,9 @@ def run_feature_update(ds, images=[], feature_blocks=[],
         features, features_in_block = filesys.read_feature_files(
             ds, im, feature_blocks.keys())
 
+        if features is None:
+            continue
+
         # include relative location feature if requested
         if relative_location_prior:
             try:
@@ -595,15 +619,24 @@ def run_feature_normalization(ds, images=[], feature_blocks=[],
                               overwrite=False, cfg=None):
     logger.info('Normalizing features started...')
 
-    logger.info('Aggregate feature statistics')
-    
+    if not overwrite:
+        feature_stats = filesys.read_log_file(ds, 'stats')
+        
     if feature_stats is None:
+        logger.info('Aggregate feature statistics')
+    
         if model_dataset is not None and model_dataset != ds:
             images_model = filesys.get_image_list(model_dataset)
         else:
             images_model = images
-        allstats = [filesys.read_export_file(ds, im, 'meta')['stats']
-                    for im in images_model]
+            
+        allstats = []
+        for im in images_model:
+            meta = filesys.read_export_file(ds, im, 'meta')
+            if meta.has_key('stats'):
+                stats = meta['stats']
+                allstats.append(stats)
+        
         feature_stats = \
             cls.features.normalize.aggregate_feature_stats(allstats)
         l = {'stats': feature_stats,
@@ -621,14 +654,15 @@ def run_feature_normalization(ds, images=[], feature_blocks=[],
 
         features, features_in_block = filesys.read_feature_files(
             ds, im, feature_blocks.keys() + ['relloc'], ext='linear')
-        features = \
-            cls.features.normalize.normalize_features(
-            features, feature_stats)
-        filesys.write_feature_files(
-            ds, im, features, features_in_block, ext='normalized')
 
-        meta = {'last normalized': time.strftime('%d-%b-%Y %H:%M')}
-        filesys.write_export_file(ds, im, 'meta', meta, append=True)
+        if features is not None:
+            features = cls.features.normalize.normalize_features(
+                features, feature_stats)
+            filesys.write_feature_files(
+                ds, im, features, features_in_block, ext='normalized')
+
+            meta = {'last normalized': time.strftime('%d-%b-%Y %H:%M')}
+            filesys.write_export_file(ds, im, 'meta', meta, append=True)
 
     logger.info('Normalizing features finished.')
 
@@ -800,9 +834,14 @@ def initialize_models(ds, images='all', feature_blocks='all',
                                    C=C) for m in model_type]
 
     # construct data arrays from dataframes and partitions
+    annotated = []
+    for im in images:
+        if filesys.is_classified(ds, im):
+            annotated.append(im)
+
     train_sets, test_sets, prior_sets = \
         features_to_input(ds,
-                          images,
+                          annotated,
                           images_train,
                           images_test,
                           X,
@@ -812,7 +851,7 @@ def initialize_models(ds, images='all', feature_blocks='all',
 
     # collect meta information
     meta = [[{'dataset': ds,
-              'images': list(images),
+              'images': list(annotated),
               'images_train': list(images_train[i]),
               'images_test':list(images_test[i]),
               'feature_blocks':[re.sub('^extract_blocks_', '', x)
@@ -871,10 +910,11 @@ def get_data(ds, images=[], feature_blocks=[]):
         # read feature blocks
         X.append(filesys.read_feature_files(
             ds, im, feature_blocks, ext='normalized')[0])
-        X_rlp.append(
-            filesys.read_feature_files(
-                ds, im, ['relloc'], ext='normalized')[0])
-
+        X_rlp_i = filesys.read_feature_files(
+            ds, im, ['relloc'], ext='normalized')[0]
+        if X_rlp_i is not None:
+            X_rlp.append(X_rlp_i)
+ 
         # load classes and append as array
         classes = filesys.read_export_file(ds, im, 'classes')
         Y.append(np.asarray(classes))
@@ -934,7 +974,7 @@ def create_feature_list(feature_blocks):
     return feature_blocks
 
 
-def create_partitions_list(partitions, n=5):
+def create_partitions_list(partitions, n=1):
 
     if type(partitions) is str:
         if partitions == 'all':
@@ -1026,25 +1066,25 @@ def split_data(ds, images, images_train, images_test, X, Y, X_rlp=[]):
         meta = filesys.read_export_file(ds, im, 'meta')
         shp = meta['superpixel_grid']
 
-        if not np.prod(shp) == np.prod(np.asarray(Y[i]).shape):
+        if not np.prod(shp) == np.prod(np.asarray(Y[i]).shape) or X[i] is None:
             continue
 
         Xi = np.asarray(X[i]).reshape((shp[0], shp[1], -1))
         Yi = np.asarray(Y[i]).reshape(shp)
 
-        if len(X_rlp) > 0:
-            Xi_rlp = np.asarray(X_rlp[i]).reshape((shp[0], shp[1], -1))
-        else:
-            Xi_rlp = None
-
         if im in images_train:
             X_train.append(Xi)
             Y_train.append(Yi)
-            X_train_prior.append(Xi_rlp)
         if im in images_test:
             X_test.append(Xi)
             Y_test.append(Yi)
-            X_test_prior.append(Xi_rlp)
+
+        if len(X_rlp) > 0:
+            Xi_rlp = np.asarray(X_rlp[i]).reshape((shp[0], shp[1], -1))
+            if im in images_train:
+                X_train_prior.append(Xi_rlp)
+            if im in images_test:
+                X_test_prior.append(Xi_rlp)
 
     return X_train, X_test, Y_train, Y_test, X_train_prior, X_test_prior
 
@@ -1153,3 +1193,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    

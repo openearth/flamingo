@@ -350,6 +350,6 @@ def merge_blocks(features):
     elif len(features) > 0:
         df = features[0]
     else:
-        df = features
+        df = None
 
     return df
