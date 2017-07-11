@@ -7,10 +7,16 @@ import pandas
 import cv2
 
 import postprocess
+import preprocess
+import logging
+
+
+# initialize log
+logger = logging.getLogger(__name__)
 
 
 def get_segmentation(img, method='slic', method_params={},
-                     extract_contours=False, remove_disjoint=True):
+                     extract_contours=False, remove_disjoint=True, roi=None):
     '''Return segmentation of image
 
     Parameters
@@ -41,6 +47,9 @@ def get_segmentation(img, method='slic', method_params={},
     >>> img = argus2.rest.get_image(station='kijkduin')[0]
     >>> segments = get_segmentation(img)
     '''
+    
+    if roi is not None:
+        img = preprocess.paint_roi(img,roi)
 
     # first segmentation step
     segments = _get_segmentation(img,
@@ -48,6 +57,10 @@ def get_segmentation(img, method='slic', method_params={},
                                  method_params=method_params,
                                  remove_disjoint=remove_disjoint)
     
+    # adjust segmentation for ROI if requested
+    if roi is not None:
+        segments = preprocess.segments_roi(segments,roi)
+
     # extract contours
     if extract_contours:
         contours = get_contours(segments)
@@ -260,12 +273,19 @@ def get_contours(segments):
     >>> plot(contours[0][0][0][0], contours[0][0][0][1]) # plot first contour of first segment
     '''
 
+    logger.debug('Extracting contours...')
+
+    n = np.max(segments)+1
+
     contours = []
-    for i in range(np.max(segments)+1):
-        c = cv2.findContours((segments==i).astype(np.uint8),
-                             cv2.RETR_EXTERNAL,
-                             cv2.CHAIN_APPROX_NONE)[1]
-        contours.append([i.tolist() for i in c])
+    for i in range(n):
+        c, h = cv2.findContours((segments==i).astype(np.uint8),
+                                cv2.RETR_EXTERNAL,
+                                cv2.CHAIN_APPROX_SIMPLE)
+        contours.append([ci.tolist() for ci in c])
+
+        if np.mod(i, 1000) == 0:
+            logger.debug('%10.1f %%' % (100.*i/n))
 
     return contours
 

@@ -380,7 +380,7 @@ def resolve_indices(ds, Y, meta, agg):
 @config.parse_config(['segmentation'])
 def run_segmentation(ds, images=[], method='slic', method_params={},
                      extract_contours=False, remove_disjoint=True,
-                     overwrite=False, cfg=None):
+                     overwrite=False, cfg=None, roi=None):
 
     logger.info('Segmentation started...')
 
@@ -388,10 +388,14 @@ def run_segmentation(ds, images=[], method='slic', method_params={},
 
         img = filesys.read_image_file(ds, im)
 
+        if roi is not None:
+            cnum = int(re.findall('(?<=\.c)[0-9](?=\.)',im)[0]) # Temporary hack to link camera number to roi...
+            roi = filesys.read_roi_file(ds,iroi=cnum-2)
+
         segments, contours = seg.superpixels.get_segmentation(
             img, method=method, method_params=method_params,
             extract_contours=extract_contours,
-            remove_disjoint=remove_disjoint)
+            remove_disjoint=remove_disjoint,roi=roi)
 
         nx, ny = seg.superpixels.get_superpixel_grid(
             segments, img.shape[:2])
@@ -1112,7 +1116,7 @@ def main():
     if arguments['--verbose']:
         logging.basicConfig(
             format='%(asctime)-15s %(name)-8s %(levelname)-8s %(message)s')
-        logging.root.setLevel(logging.NOTSET)
+        logging.root.setLevel(logging.DEBUG)
 
     cfg = config.read_config(arguments['--config'])
 

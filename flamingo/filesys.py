@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import cPickle as pickle
 import matplotlib.pyplot as plt
+import json
 
 from pkg_resources import Requirement, resource_filename
 
@@ -206,6 +207,18 @@ def read_feature_files(ds, im, blocks=feature_blocks.list_blocks().keys(), ext=N
 
     return features, features_in_block
 
+def read_roi_file(ds,iroi=None):
+    'Read ROIs from roi file'
+    
+    fpath = get_image_path(ds)
+    
+    fid = open(os.path.join(fpath,'roi.txt'))
+    roi = json.load(fid)
+
+    if iroi:
+        roi = np.array(roi['ROI%d' %iroi])
+
+    return roi
 
 def get_model_list(ds):
     'Get list of model files in dataset'

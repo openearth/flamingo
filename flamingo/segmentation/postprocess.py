@@ -1,5 +1,10 @@
 import numpy as np
 import collections
+import logging
+
+
+# initialize log
+logger = logging.getLogger(__name__)
 
 
 def remove_disjoint(segments):
@@ -24,6 +29,8 @@ def remove_disjoint(segments):
         NxM matrix with alternative segment numbering with connected
         segments
     '''
+
+    logger.info('Removing disjoint segments...')
     
     seg_new = np.asarray(segments).copy()
     r = []
