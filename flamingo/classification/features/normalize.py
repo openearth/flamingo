@@ -5,19 +5,23 @@ import cPickle as pickle
 
 def compute_feature_stats(features):
 
-    return pandas.DataFrame({'uuid':uuid.uuid4(),
-                             'avg':features.mean(),
-                             'var':features.var(),
-                             'min':features.min(),
-                             'max':features.max(),
-                             'sum':features.sum(),
-                             'n':features.shape[0]})
+    df =  pandas.DataFrame({'uuid':uuid.uuid4().get_urn(),
+                            'avg':features.mean(),
+                            'var':features.var(),
+                            'min':features.min(),
+                            'max':features.max(),
+                            'sum':features.sum(),
+                            'n':features.shape[0]})
+    df.index.name = 'feature'
+    df = df.set_index('uuid', append=True)
+    return df
 
 def aggregate_feature_stats(stats):
      
     df_concat = pandas.concat(stats)
-    df_concat.index.name = 'feature'
-    df_concat = df_concat.set_index('uuid', append=True)
+    if df_concat.index.name != 'feature' and 'feature' not in df_concat.index.names:
+        df_concat.index.name = 'feature'
+        df_concat = df_concat.set_index('uuid', append=True)
 
     # number of items
     ilen = df_concat['n'].sum(level='feature')
@@ -53,7 +57,7 @@ def __repeat_series(avg, stats):
     avg_r = []
     for i in range(len(stats)):
         df = pandas.DataFrame({'avg':avg})
-        df['uuid'] = stats[i]['uuid']
+        df['uuid'] = stats[i].reset_index(1)['uuid']
         avg_r.append(df)
     avg_r = pandas.concat(avg_r)
     avg_r = avg_r.set_index('uuid', append=True)

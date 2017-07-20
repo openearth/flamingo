@@ -193,7 +193,7 @@ def run_training(ds,
         class_aggregation=class_aggregation, partitions=partitions)
     logger.info(
         'Preparation of models, train and test sets finished.')
-
+    
     # fit models
     logger.info('Fitting of models started...')
     models = cls.models.train_models(
@@ -300,7 +300,7 @@ def run_prediction(ds, images='all', model=None,
 #            fig, im, ext='.classes', figsize=(1.30*1392, 1.30*1024))
 
 
-def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None):
+def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None, cmap=None):
  
     if model is list:
         model = model[part]
@@ -316,17 +316,20 @@ def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None)
     n = np.shape(test_sets)[-1]
 
     fig,axs = plt.subplots(n,3,figsize=(20,10 * round(n / 2)))
-
-    cdict = {
-        'red'  :  ((0., .5, .5), (.2, .5, 1.), (.4, 1., .66),
-                   (.6, .66, .13), (.8, .13, .02), (1., .02, .02)),
-        'green':  ((0., .5, .5), (.2, .5, .95), (.4, .95, 1.),
-                   (.6, 1., .69), (.8, .69, .24), (1., .24, .24)),
-        'blue' :  ((0., .5, .5), (.2, .5, 0.), (.4, 0., 1.),
-                   (.6, 1., .30), (.8, .30, .75), (1., .75, .75))
-        }
-    cmap_argus = matplotlib.colors.LinearSegmentedColormap('argus_classes', cdict, 5)
-
+    
+    if cmap == 'argus':
+        cdict = {
+            'red'  :  ((0., .5, .5), (.2, .5, 1.), (.4, 1., .66),
+                       (.6, .66, .13), (.8, .13, .02), (1., .02, .02)),
+            'green':  ((0., .5, .5), (.2, .5, .95), (.4, .95, 1.),
+                       (.6, 1., .69), (.8, .69, .24), (1., .24, .24)),
+            'blue' :  ((0., .5, .5), (.2, .5, 0.), (.4, 0., 1.),
+                       (.6, 1., .30), (.8, .30, .75), (1., .75, .75))
+            }
+        cmap = matplotlib.colors.LinearSegmentedColormap('argus_classes', cdict, 5)
+    elif cmap is None or type(cmap) is not matplotlib.colors.LinearSegmentedColormap:
+        cmap = plt.get_cmap('Paired')
+    
     for i, fname in enumerate(meta['images_test'][:-1]):
         if any(eqinds[:,1] == i):
             gind = np.where(eqinds[:,1] == i)[0][0]
@@ -340,14 +343,14 @@ def plot_predictions(ds, model, meta, test_sets, part=0, class_aggregation=None)
             plot.plot_prediction(ds,
                                  fname,
                                  grnd,
-                                 cm=cmap_argus,
+                                 cm=cmap,
                                  clist=classlist,
                                  axs=axs[i,1])
 
             plot.plot_prediction(ds,
                                  fname,
                                  pred,
-                                 cm=cmap_argus,
+                                 cm=cmap,
                                  clist=classlist,
                                  axs=axs[i,2])
         
@@ -475,7 +478,7 @@ def run_channel_normalization(ds, images=[], model_dataset=None,
 def run_feature_extraction(ds, images=[], feature_blocks=[],
                            colorspace='rgb', model_dataset=None,
                            overwrite=False, image_slice=1,
-                           blocks_params={}, cfg=None):
+                           blocks_params={}, roi=False, cfg=None):
 
     logger.info('Feature extraction started...')
 
@@ -494,10 +497,6 @@ def run_feature_extraction(ds, images=[], feature_blocks=[],
             continue
 
         meta = filesys.read_export_file(ds, im, 'meta')
-        if meta['superpixel_grid_error']:
-            logging.warning(
-                'Invalid segmentation found for image: %s' % im)
-            continue
 
         # load image
         img = filesys.read_export_file(ds, im, 'channels.normalized')
@@ -516,6 +515,11 @@ def run_feature_extraction(ds, images=[], feature_blocks=[],
 
         # remove too large features
         features = cls.features.remove_large_features(features)
+        
+        # remove ROI if present
+        if roi:
+            ns = len(features)
+            features = features.drop(ns,axis=0)
 
         # write features to disk
         filesys.write_feature_files(
@@ -646,7 +650,7 @@ def run_feature_normalization(ds, images=[], feature_blocks=[],
         l = {'stats': feature_stats,
              'last stats computation': time.strftime('%d-%b-%Y %H:%M')}
         filesys.write_log_file(ds, l)
-
+        
     # create feature block list
     feature_blocks = create_feature_list(feature_blocks)
 
@@ -782,7 +786,8 @@ def initialize_models(ds, images='all', feature_blocks='all',
                       partitions='all', C=1.0):
 
     # create image list
-    images = create_image_list(ds, images)
+    if images == 'all':
+        images = create_image_list(ds, images)
 
     # create feature block list
     feature_blocks = create_feature_list(feature_blocks)
@@ -801,7 +806,8 @@ def initialize_models(ds, images='all', feature_blocks='all',
     # get data
     X, Y, X_rlp = get_data(ds,
                            images,
-                           feature_blocks=feature_blocks)
+                           feature_blocks=feature_blocks,
+                           model_type=model_type)
 
     # aggregate classes
     if class_aggregation is not None:
@@ -893,7 +899,7 @@ def reinitialize_model(ds, model, class_aggregation=None):
     return models, meta, train_sets, test_sets, prior_sets
 
 
-def get_data(ds, images=[], feature_blocks=[]):
+def get_data(ds, images=[], feature_blocks=[], model_type='LR'):
     X = []
     Y = []
     X_rlp = []
@@ -906,9 +912,9 @@ def get_data(ds, images=[], feature_blocks=[]):
 
         meta = filesys.read_export_file(ds, im, 'meta')
 
-        if meta is not None:
-            if meta.has_key('superpixel grid error'):
-                if meta['superpixel grid error']:
+        if meta is not None and model_type in ['CRF','SSVM']:
+            if meta.has_key('superpixel_grid_error'):
+                if meta['superpixel_grid_error']:
                     continue
 
         # read feature blocks
@@ -1069,12 +1075,13 @@ def split_data(ds, images, images_train, images_test, X, Y, X_rlp=[]):
     for i, im in enumerate(images):
         meta = filesys.read_export_file(ds, im, 'meta')
         shp = meta['superpixel_grid']
-
-        if not np.prod(shp) == np.prod(np.asarray(Y[i]).shape) or X[i] is None:
-            continue
-
-        Xi = np.asarray(X[i]).reshape((shp[0], shp[1], -1))
-        Yi = np.asarray(Y[i]).reshape(shp)
+        
+        if meta['superpixel_grid_error']:
+            Xi = np.asarray(X[i]).reshape(len(X[i]),-1)
+            Yi = np.asarray(Y[i])
+        else:
+            Xi = np.asarray(X[i]).reshape((shp[0], shp[1], -1))
+            Yi = np.asarray(Y[i]).reshape(shp)
 
         if im in images_train:
             X_train.append(Xi)

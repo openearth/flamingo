@@ -109,10 +109,8 @@ def compute_confusion_matrix(models, test_sets):
         of the confusion matrices
     '''
 
-    check_sets(train_sets, test_sets)
-
     # get model predictions
-    Y = predict_models(models, [[s[0] for s in test_sets]])[0]
+    Y = predict_models(models, [s[0] for s in test_sets])[0]
 
     # get all classes
     classes = list(np.unique(np.concatenate([np.unique(yi) for (x,y) in test_sets for yi in y])))
@@ -120,14 +118,13 @@ def compute_confusion_matrix(models, test_sets):
     # compute confusion matrices
     mtxs = []
     for i, Y1 in enumerate(Y):
-        mtxs.append([])
-        for j, (Y1j, (X2j, Y2j)) in enumerate(zip(Y1, test_sets)):
-            mtxs[i].append(np.zeros((len(classes),len(classes))))
+        mtxs.append(np.zeros((len(classes),len(classes))))
+        for j, (Y1j, Y2j) in enumerate(zip(Y1, test_sets[i][1])):
             for k, (Y1k, Y2k) in enumerate(zip(Y1j, Y2j)):
                 for c1, c2 in zip(Y1k.flatten(), Y2k.flatten()):
                     i1 = classes.index(c1)
                     i2 = classes.index(c2)
                 
-                    mtxs[i][j][i1,i2] += 1
+                    mtxs[i][i1,i2] += 1
                 
     return mtxs, classes

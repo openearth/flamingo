@@ -2,6 +2,8 @@ import numpy as np
 import collections
 import logging
 
+from flamingo import utils
+
 
 # initialize log
 logger = logging.getLogger(__name__)
@@ -240,3 +242,35 @@ def regularize(segments, nx, ny):
         rsegments_ordered[rsegments==n] = i
 
     return rsegments_ordered
+
+def segments_roi(seg,roi): 
+    '''Adjust segmentation for ROI
+
+    All pixels outside the ROI are assigned to a single superpixel.
+    Segment numbers are recalculated to maintain sequential numbering.
+
+    Parameters
+    ----------
+    seg : np.ndarray
+        NxM matrix containing segment numbers
+    roi : np.ndarray
+        Kx2 matrix containing ROI vertices in UV coordinates
+
+    Returns
+    -------
+    np.ndarray
+        NxM matrix containing adjusted segment numbers
+    '''
+    
+    iroi = utils.get_roi_mask(roi,seg.shape)
+    
+    nseg = seg.max() + 1
+    segm = seg.copy()
+    segm[iroi] = nseg
+
+    segnums = np.unique(segm)
+    nseg = len(segnums)
+    for i in range(nseg):
+        seg[segm == segnums[i]] = i
+
+    return seg

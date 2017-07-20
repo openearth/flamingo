@@ -75,29 +75,34 @@ def plot_confusion_matrix(mtxs, classes, cmap='Reds'):
 
     n = len(classes)
 
-    for row in mtxs:
-        for mtx in row:
-            fig, axs = plt.subplots(1,2)
+    for mtx in mtxs:
+        fig, axs = plt.subplots(1,2,figsize=(12,5))
 
-            mtx_norm = mtx / np.repeat(mtx.sum(axis = 1), n).reshape((n,n))
-            mtx_norm[np.isnan(mtx_norm)] = 0
+        mtx_norm = mtx / np.repeat(mtx.sum(axis = 1), n).reshape((n,n))
+        mtx_norm[np.isnan(mtx_norm)] = 0
 
-            axs[0].matshow(mtx_norm, cmap=cmap)
-            axs[0].set_xticks(range(n))
-            axs[0].set_yticks(range(n))
-            axs[0].set_xticklabels(classes, rotation=90)
-            axs[0].set_yticklabels(classes, rotation=0)
-            axs[0].set_ylabel('ground truth')
-            axs[0].set_xlabel('predicted')
+        p0 = axs[0].matshow(mtx_norm, cmap=cmap, vmin=0, vmax=1)
+        axs[0].set_xticks(range(n))
+        axs[0].set_yticks(range(n))
+        axs[0].set_xticklabels(classes, rotation=90, fontsize=14)
+        axs[0].set_yticklabels(classes, rotation=0, fontsize=14)
+        axs[0].set_ylabel('ground truth', fontsize=16)
+        axs[0].set_xlabel('predicted', fontsize=16)
+        axs[0].set_title('Row-normalized',y=1.3,fontsize=18)
+        plt.colorbar(p0,ax=axs[0])
 
-            axs[1].matshow(mtx, cmap=cmap)
-            axs[1].set_xticks(range(n))
-            axs[1].set_yticks([])
-            axs[1].set_xticklabels(classes, rotation=90)
-            axs[1].set_xlabel('predicted')
+        p1 = axs[1].matshow(mtx, cmap=cmap)
+        axs[1].set_xticks(range(n))
+        axs[1].set_yticks([])
+        axs[1].set_xticklabels(classes, rotation=90, fontsize=14)
+        axs[1].set_xlabel('predicted', fontsize=16)
+        axs[1].set_title('Absolute',y=1.3,fontsize=18)
+        plt.colorbar(p1,ax=axs[1])
 
-            figs.append(figs)
-            axss.append(axs)
+        plt.tight_layout()
+
+        figs.append(figs)
+        axss.append(axs)
 
     return figs, axss
 

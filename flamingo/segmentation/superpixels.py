@@ -7,8 +7,8 @@ import pandas
 import cv2
 
 import postprocess
-import preprocess
 import logging
+from flamingo import utils
 
 
 # initialize log
@@ -49,7 +49,7 @@ def get_segmentation(img, method='slic', method_params={},
     '''
     
     if roi is not None:
-        img = preprocess.paint_roi(img,roi)
+        img = utils.paint_roi(img, roi)
 
     # first segmentation step
     segments = _get_segmentation(img,
@@ -59,7 +59,7 @@ def get_segmentation(img, method='slic', method_params={},
     
     # adjust segmentation for ROI if requested
     if roi is not None:
-        segments = preprocess.segments_roi(segments,roi)
+        segments = postprocess.segments_roi(segments,roi)
 
     # extract contours
     if extract_contours:
@@ -279,9 +279,9 @@ def get_contours(segments):
 
     contours = []
     for i in range(n):
-        c, h = cv2.findContours((segments==i).astype(np.uint8),
-                                cv2.RETR_EXTERNAL,
-                                cv2.CHAIN_APPROX_SIMPLE)
+        c = cv2.findContours((segments==i).astype(np.uint8),
+                             cv2.RETR_EXTERNAL,
+                             cv2.CHAIN_APPROX_SIMPLE)[1]
         contours.append([ci.tolist() for ci in c])
 
         if np.mod(i, 1000) == 0:

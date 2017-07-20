@@ -98,10 +98,11 @@ def aggregate_classes(Y, aggregation=None):
                 if np.all([type(y) is np.ndarray for y in Y]):
                     for i in range(len(Y)):
                         Y[i] = aggregate_classes(Y[i], aggregation)
-                elif np.all([type(y) is np.string_ or type(y) is np.unicode_ for y in Y]):
-                    for k,v in aggregation.iteritems():
-                        for vi in v:
-                            Y[np.where(Y == vi)] = k
+                elif len(Y.shape) != 0:
+                    if np.all([type(y) is np.string_ or type(y) is np.unicode_ for y in Y]):
+                        for k,v in aggregation.iteritems():
+                            for vi in v:
+                                Y[np.where(Y == vi)] = k
             except:
                 logging.error('Unexpected aggregation error (numpy)')
         else:
@@ -247,5 +248,3 @@ def labels2image(Y, seg, classes=None):
         prediction[seg == i] = classes.index(c)
 
     return prediction
-
-    
