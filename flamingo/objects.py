@@ -64,6 +64,23 @@ def workflow(stage=0):
     return workflow_decorator
 
 
+class FlamingoHash(str):
+
+    def __new__(cls, x=None, data=None):
+        if x is not None:
+            if not isinstance(x, (str, unicode, FlamingoHash)) or \
+                len(x) != 32:
+                raise ValueError('Invalid hash')
+            return super(FlamingoHash, cls).__new__(cls, x)
+        elif data is not None:
+            if isinstance(data, FlamingoHash):
+                return super(FlamingoHash, cls).__new__(cls, data)
+            else:
+                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
+        else:
+            return super(FlamingoHash, cls).__new__(cls, ' ' * 32)
+
+
 class FlamingoBlockchain(object):
 
     
@@ -90,7 +107,7 @@ class FlamingoBlockchain(object):
         if ix > 0:
             for s in self.stages[ix-1::-1]:
                 return set([x[1] for x in self.chain[s].values()])
-        return [None]
+        return set([None])
             
 
     def check_integrity(self, stage):
@@ -172,14 +189,6 @@ class FlamingoBlockchain(object):
         return list(sorted(self.chain.keys()))
 
 
-    @property
-    def last_hash(self):
-        if len(self.stages) > 0:
-            shackle = self.chain[self.stages[-1]]
-            return sorted(shackle.values(), key=lambda x: x[2])[-1][1] # sort by timestamp
-        return None
-                
-
 class FlamingoBase(object):
     '''Base object for Flamingo data'''
 
@@ -216,7 +225,7 @@ class FlamingoBase(object):
         '''
 
         self._empty = True
-        self._hash = ''
+        self._hash = FlamingoHash()
         self._blockchain = FlamingoBlockchain()
         self._tstamp = 0.
         self._description = description
@@ -291,15 +300,35 @@ class FlamingoBase(object):
 
          
     @workflow(stage=0)
-    def load_config(self, filename):
+    def load_config(self, filename_or_dict):
         '''Load Flamingo configuration file'''
         
-        with open(filename, 'r') as fp:
-            self.config = json.load(fp)
-            self._config = os.path.abspath(filename)
-            self._path = os.path.split(self._config)[0]
-            logger.info('Loaded configuration from %s.' % filename)
-            logger.info('Set working directory to %s.' % self._path)
+        def resolve_file_references(root, obj):
+            if isinstance(obj, (list, tuple, set)):
+                return [resolve_file_references(root, o) for o in obj]
+            elif isinstance(obj, (dict)):
+                return {k:resolve_file_references(root, o) for k, o in obj.items()}
+            elif isinstance(obj, (str, unicode)):
+                fpath = os.path.join(root, obj)
+                try:
+                    return np.loadtxt(fpath)
+                except:
+                    return obj
+            else:
+                return obj
+
+
+        if type(filename_or_dict) is dict:
+            self.config = filename_or_dict
+            self._config = ''
+        else:
+            with open(filename_or_dict, 'r') as fp:
+                self.config = json.load(fp)
+                self._config = os.path.abspath(filename_or_dict)
+                self._path = os.path.split(self._config)[0]
+                self.config = resolve_file_references(self._path, self.config)
+                logger.info('Loaded configuration from %s.' % filename_or_dict)
+                logger.info('Set working directory to %s.' % self._path)
         return self
 
 
@@ -357,12 +386,12 @@ class FlamingoBase(object):
         exclude_attributes.extend(self._exclude_copy)
         exclude_attributes.extend(self._exclude_hash)
 
-        m = hashlib.md5()
-        attrs = self._stringify_attributes(attributes=attributes, 
-                                           exclude_attributes=exclude_attributes)
+        data = ''
+        attrs = self._hash_attributes(attributes=attributes, 
+                                      exclude_attributes=exclude_attributes)
         for name, attr in sorted(attrs.items()):
-            m.update('__%s_%s_' % (name.upper(), attr))
-        self._hash = m.hexdigest()
+            data += '__%s_%s_' % (name.upper(), attr)
+        self._hash = FlamingoHash(data=data)
         logger.debug('Computed hash in %0.1f s.' % (time.time() - self._tstamp))
         return self
 
@@ -377,14 +406,14 @@ class FlamingoBase(object):
         exclude_attributes.extend(self._exclude_hash)
 
         not_reproducible = 0
-        attrs1 = self._stringify_attributes(attributes=attributes, 
-                                            exclude_attributes=exclude_attributes)
+        attrs1 = self._hash_attributes(attributes=attributes, 
+                                       exclude_attributes=exclude_attributes)
         if obj is None:
-            attrs2 = self._stringify_attributes(attributes=attributes, 
-                                                exclude_attributes=exclude_attributes)
+            attrs2 = self._hash_attributes(attributes=attributes, 
+                                           exclude_attributes=exclude_attributes)
         else:
-            attrs2 = obj._stringify_attributes(attributes=attributes, 
-                                               exclude_attributes=exclude_attributes)
+            attrs2 = obj._hash_attributes(attributes=attributes, 
+                                          exclude_attributes=exclude_attributes)
 
         for name in attrs1.keys():
             if attrs1[name] != attrs2[name]:
@@ -398,12 +427,12 @@ class FlamingoBase(object):
             return False
 
 
-    def _stringify_attributes(self, attributes=None, exclude_attributes=[]):
-        '''Convert attributes into hashable strings'''
+    def _hash_attributes(self, attributes=None, exclude_attributes=[]):
+        '''Convert attributes into hashes'''
         attrs = {}
-        for name, att in self.iterate_attributes(attributes=attributes, 
-                                                 exclude_attributes=exclude_attributes):
-            attrs[name] = hashlib.md5(self._stringify(att)).hexdigest()
+        for name, attr in self.iterate_attributes(attributes=attributes, 
+                                                  exclude_attributes=exclude_attributes):
+            attrs[name] = FlamingoHash(data=self._stringify(attr))
         return attrs
 
 
@@ -421,6 +450,8 @@ class FlamingoBase(object):
             return df.as_matrix().tostring()
         elif isinstance(attr, FlamingoBase):
             return attr._hash
+        elif isinstance(attr, FlamingoHash):
+            return attr
         else:
             return str(attr)
             #return pickle.dumps(attr) # slow
@@ -486,7 +517,7 @@ class FlamingoImage(FlamingoBase):
                 roi = [roi]
             
             roi_file = None
-            for r in roi:
+            for i, r in enumerate(roi):
                 if 'filename_pattern' in r.keys():
                     # try unix style file pattern matching
                     if fnmatch.fnmatch(self._name, r['filename_pattern']):
@@ -505,9 +536,9 @@ class FlamingoImage(FlamingoBase):
                     break
 
             if roi_file is not None:
-              self._roi = np.loadtxt(os.path.join(
-                      os.path.split(self._config)[0], roi_file))
-              logger.info('Applied ROI from %s.' % roi_file)
+#              self._roi = np.loadtxt(os.path.join(
+#                      os.path.split(self._config)[0], roi_file))
+              logger.info('Applied ROI #%d.' % (i+1))
         except KeyError:
             pass # no roi defined
         return self
@@ -606,6 +637,20 @@ class FlamingoImage(FlamingoBase):
     def make_prediction(self):
         pass
     
+
+    def get_feature_set(self, exclude_features=None, class_aggregation=None):
+
+        X = self.features
+        if exclude_features is not None:
+            X = X.drop(exclude_features, axis=1)
+        X = X.sort_index(axis=1).as_matrix()
+
+        Y = self.annotation
+        if class_aggregation is not None:
+            Y = fc.utils.aggregate_classes(Y, class_aggregation)
+
+        return X, Y
+
     
     @workflow(stage=0)
     def imread(self, filename):
@@ -677,11 +722,12 @@ class FlamingoDataset(FlamingoBase):
                  description=None, attributes=None,
                  exclude_attributes=[]):
         
-        self._exclude_copy.update(['n_images', 'n_partitions', 'models'])
+        self._exclude_copy.update(['n_images', 'n_partitions'])
 
         self.images = []
         self.statistics = []
         self.partitions = []
+        self.models = []
         
         try:
             super(FlamingoDataset, self).__init__(filename_or_obj=images_or_obj, 
@@ -689,7 +735,7 @@ class FlamingoDataset(FlamingoBase):
                                                   description=description,
                                                   attributes=attributes, 
                                                   exclude_attributes=exclude_attributes)
-        except (IOError, TypeError):
+        except (IOError, TypeError, zipfile.BadZipfile):
             self.add_images(images_or_obj)
             
         self.update_hash()
@@ -698,6 +744,7 @@ class FlamingoDataset(FlamingoBase):
     def __repr__(self):
         s = super(FlamingoDataset, self).__repr__()
         s += '  images : %d\n' % len(self.images)
+        s += '  partitions : %d\n' % len(self.partitions)
         s += '  models : %d\n' % len(self.models)
         return s
 
@@ -722,13 +769,24 @@ class FlamingoDataset(FlamingoBase):
             
     def _append(self, image, attributes=None, exclude_attributes=[]):
         obj = FlamingoImage(image, 
+                            config=self.config,
                             attributes=attributes, 
                             exclude_attributes=exclude_attributes)
         self.images.append(obj)
         logger.info('Added image %s.' % image)
-        
+
 
     @workflow(stage=1)
+    def preprocess(self):
+        for img in self.images:
+            if not img.features:
+                if not img.segmentation:
+                    img.create_segmentation()
+                img.extract_features()
+        return self
+        
+
+    @workflow(stage=2)
     def compute_statistics(self):
         self.statistics = fc.features.normalize.aggregate_feature_stats(
             [img.features_statistics for img in self.images])
@@ -736,7 +794,7 @@ class FlamingoDataset(FlamingoBase):
         return self
 
     
-    @workflow(stage=1)
+    @workflow(stage=2)
     def create_partitions(self):
         try:
             partitions = self.config['paritions']
@@ -751,11 +809,36 @@ class FlamingoDataset(FlamingoBase):
         self.partitions = []
         for i in range(n):
             self.partitions.append(
-                FlamingoDatasetPartition(self).split(**partitions))
+                FlamingoDatasetPartition(self, config=self.config).split(**partitions))
 
         logger.info('Created %d paritions.' % len(self.partitions))
 
         return self
+
+    
+    @workflow(stage=3)
+    def generate_models(self, options, append=False):
+        
+        if not append:
+            self.models = []
+        if not isinstance(options, (list, tuple, set)):
+            options = [options]
+        for kwargs in options:
+            model = FlamingoModel(config=self.config, **kwargs)
+            self.models.append(model)
+            logger.info('Created model "%s"')
+
+
+    @workflow(stage=4)
+    def train_models(self, exclude_features=None, class_aggregation=None):
+        
+        for model in self.models:
+            for partition in self.partition:
+                logger.info('Training model "%s" against partition '
+                            '"%s"...' % (model._hash, partition._hash))
+                model.train(self, partition,
+                exclude_features=exclude_features,
+                class_aggregation=class_aggregation)
 
 
     def get_feature_set(self, partition=None, exclude_features=None,
@@ -764,7 +847,7 @@ class FlamingoDataset(FlamingoBase):
         features = []
         annotations = []
         for img in self.images:
-            features.append(features_normalized)
+            features.append(img.features)
             annotations.append(img.annotation)
 
         if partition is not None:
@@ -806,7 +889,7 @@ class FlamingoDatasetPartition(FlamingoBase):
     _ext = '.fpo'
     
 
-    def __init__(self, dataset_or_obj, config=None,
+    def __init__(self, dataset_or_obj=None, config=None,
                  description=None, attributes=None,
                  exclude_attributes=[]):
         
@@ -815,20 +898,21 @@ class FlamingoDatasetPartition(FlamingoBase):
         self.train = []
         self.test = []
         self.validate = []
-        
-        super(FlamingoDatasetPartition, self).__init__(filename_or_obj=None, 
-                                                       config=config, 
-                                                       description=description,
-                                                       attributes=attributes, 
-                                                       exclude_attributes=exclude_attributes)
 
-        if isinstance(dataset, FlamingoDataset):
-            self.dataset = dataset._hash
-            self.images = [img._hash for img in dataset.images]
-        else:
-            raise ValueError('Expected Flamingo Dataset Object, '
-                             'got %s.' % type(dataset))
-
+        try:
+            super(FlamingoDatasetPartition, self).__init__(filename_or_obj=None, 
+                                                           config=config, 
+                                                           description=description,
+                                                           attributes=attributes, 
+                                                           exclude_attributes=exclude_attributes)
+        except (IOError, TypeError, zipfile.BadZipfile):
+            if isinstance(dataset_or_obj, FlamingoDataset):
+                self.dataset = dataset_or_obj._hash
+                self.images = [img._hash for img in dataset_or_obj.images]
+            else:
+                raise ValueError('Expected FlamingoDataset or FlamingoDatasetPartition, '
+                                 'got %s' % type(dataset_or_obj))
+            
         self.update_hash()
         
         
@@ -874,18 +958,20 @@ class FlamingoModel(FlamingoBase):
                  description=None, attributes=None,
                  exclude_attributes=[], **kwargs):
 
+        self.model = None
         self.dataset = None
         self.partition = None
         self.statistics = None
         self.exclude_features = None
         self.class_aggregation = None
-        self.initialize_model(model_type, **kwargs)
 
         super(FlamingoModel, self).__init__(filename_or_obj=None, 
                                             config=config, 
                                             description=description,
                                             attributes=attributes, 
                                             exclude_attributes=exclude_attributes)
+
+        self.initialize_model(model_type, **kwargs)
 
         self.update_hash()
                 
@@ -925,16 +1011,16 @@ class FlamingoModel(FlamingoBase):
         return self
 
 
-    def predict(self, dataset):
+    def predict(self, image):
 
-        if isinstance(dataset, FlamingoDataset):
-            X = dataset.get_feature_set(exclude_features=self.extract_features,
-                                        class_aggregation=self.class_aggregation)[0]
+        if isinstance(image, FlamingoImage):
+            X = image.get_feature_set(exclude_features=self.extract_features,
+                                      class_aggregation=self.class_aggregation)[0]
 
             if self.statistics is not None:
                 X = fc.features.normalize.normalize_features(X, self.statistics)
         else:
-            raise ValueError('Expected FlamingoDataset, got %s.' % type(dataset))
+            raise ValueError('Expected FlamingoImage, got %s.' % type(image))
 
         return self.model.predict(X)
 
@@ -1059,12 +1145,12 @@ class FlamingoIO:
                 
             # copy attributes
             for fname in fp.namelist():
-                if fname in ['_version']:
-                    continue
-
                 fpath, name = os.path.split(fname)
                 if fpath.startswith('collection' + os.path.sep):
                     fpath, name = os.path.split(fpath)
+
+                if fpath == '':
+                    continue
 
                 if (attributes is not None and name not in attributes) or \
                         name in exclude_attributes:
@@ -1072,12 +1158,14 @@ class FlamingoIO:
                     # if attribute is not loaded, replace it with its
                     # hash to ensure the object hash remains constant
                     if name in atthash.keys():
-                        setattr(obj, name, atthash[name])
+                        setattr(obj, name, FlamingoHash(atthash[name]))
 
                     continue
 
                 try:
-                    if fpath == 'json':
+                    if fpath == 'hash':
+                        setattr(obj, name, FlamingoHash(fp.read(fname)))
+                    elif fpath == 'json':
                         setattr(obj, name, json.loads(fp.read(fname)))
                         logger.debug('Read %s from JSON file.' % name)
                     elif fpath == 'pickle':
@@ -1140,16 +1228,21 @@ class FlamingoIO:
             fp.writestr('_version', json.dumps(self._version))
 
             # store attribute hashes
-            fp.writestr('_hashes', json.dumps(obj._stringify_attributes()))
+            atthash = obj._hash_attributes()
+            fp.writestr('_hashes', json.dumps(atthash))
 
             # store attributes
             for name, attr in obj.iterate_attributes():
             
-                if attributes is not None and name not in attributes:
+                if (attributes is not None and name not in attributes) or \
+                        name in exclude_attributes:
+
+                    # if attribute is not written, replace it with its
+                    # hash to ensure the object hash remains constant
+                    fp.writestr(os.path.join('hash', name), atthash[name])
+
                     continue
-                if name in exclude_attributes:
-                    continue
-            
+
                 if self.is_primitive(attr):
                     # store primitives as json
                     try:
@@ -1261,12 +1354,14 @@ class FlamingoIO:
         '''
 
         if objtype == 'Flamingo Object':
-            return FlamingoObject()
+            return FlamingoBase()
         elif objtype == 'Flamingo Image Object':
-            return FlamingoImageObject()
+            return FlamingoImage()
         elif objtype == 'Flamingo Dataset Object':
-            return FlamingoDatasetObject()
+            return FlamingoDataset()
+        elif objtype == 'Flamingo Dataset Partition Object':
+            return FlamingoDatasetPartition()
         elif objtype == 'Flamingo Model Object':
-            return FlamingoModelObject()
+            return FlamingoModel()
         else:
             raise TypeError('Unknown Flamingo Object type: %s.' % objtype)
