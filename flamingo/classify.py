@@ -166,8 +166,10 @@ def run_training(ds,
                  feature_blocks='all',
                  model_type='LR',
                  class_aggregation=None,
+                 class_balance=None,
                  partitions='all',
-                 cfg=None):
+                 cfg=None,
+                 C=1):
     '''
     Batch function to train and test a PGM with multiple
     train/test partitions
@@ -190,7 +192,7 @@ def run_training(ds,
     models, meta, train_sets, test_sets, prior_sets = \
         initialize_models(
         ds, images, feature_blocks, model_type=model_type,
-        class_aggregation=class_aggregation, partitions=partitions)
+        class_aggregation=class_aggregation, class_balance=class_balance, partitions=partitions,C=C)
     logger.info(
         'Preparation of models, train and test sets finished.')
     
@@ -783,7 +785,7 @@ def run_regularization(ds, images='all', feature_blocks='all',
 
 def initialize_models(ds, images='all', feature_blocks='all',
                       model_type='LR', class_aggregation=None,
-                      partitions='all', C=1.0):
+                      class_balance=None, partitions='all', C=1.0):
 
     # create image list
     if images == 'all':
@@ -813,6 +815,10 @@ def initialize_models(ds, images='all', feature_blocks='all',
     if class_aggregation is not None:
         logger.info('Aggregate classes...')
         Y = cls.utils.aggregate_classes(Y, class_aggregation)
+
+    if class_balance is not None:
+        logger.info('Balancing classes...')
+        X,Y = cls.utils.balance_classes(X, Y, class_balance)
 
     # create category list
     classes = cls.utils.get_classes(Y)

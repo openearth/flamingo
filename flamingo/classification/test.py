@@ -125,6 +125,6 @@ def compute_confusion_matrix(models, test_sets):
                     i1 = classes.index(c1)
                     i2 = classes.index(c2)
                 
-                    mtxs[i][i1,i2] += 1
+                    mtxs[i][i2,i1] += 1
                 
     return mtxs, classes

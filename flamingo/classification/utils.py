@@ -110,6 +110,36 @@ def aggregate_classes(Y, aggregation=None):
     return Y
 
 
+def balance_classes(X,Y,class_balance):
+    valsum = np.sum(class_balance.values())
+    for k,v in class_balance.iteritems():
+        class_balance[k] = v/np.float(valsum)
+    
+    nsamp = {}
+    for k in class_balance.keys():
+        nsamp[k] = np.sum([np.sum(y==k) for y in Y])
+    
+    for k,v in nsamp.iteritems():
+        nreq = np.array([(class_balance[kk]/class_balance[k]*v)/vv for kk,vv in nsamp.iteritems()])
+        if all(nreq <= 1):
+            crat = dict(zip(nsamp.keys(),nreq))
+            break
+    
+    for i,(x,y) in enumerate(zip(X,Y)):
+        idrop = np.array([])
+        for k in class_balance.keys():
+            nsampi = np.sum(y == k)
+            ndrop = np.round(nsampi*(1-crat[k]))
+            
+            seginds, = np.where(y == k)
+            idrop = np.concatenate((idrop,np.random.choice(seginds,int(ndrop),replace=False)),axis=0)
+        
+        X[i] = x.drop(idrop,axis=0)
+        Y[i] = np.delete(y,idrop.astype(np.int))
+    
+    return X,Y
+
+
 def get_classes(Y):
     '''Get list of unique classes in Y
 
