@@ -1,0 +1,16 @@
+* classification
+  * segmentation
+    * preprocessing.py
+    * segmentation.py
+    * postprocessing.py
+  * features
+    * preprocessing.py
+    * features.py
+    * postprocessing.py
+  * models.py
+  * test.py
+  * plot.py
+  * utils.py
+* rectification
+* calibration
+* console.py
