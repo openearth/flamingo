@@ -3,3 +3,9 @@
 *.egg-info
 _build/
 *#
+*.pkl
+*.fio
+*.fdo
+*.fpo
+*.fmo
+*.fo
