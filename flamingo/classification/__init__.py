@@ -1,5 +1,7 @@
-from . import features
-from . import models
-from . import test
-from . import utils
-from . import channels
+import features
+import segmentation
+import models
+import test
+import channels
+import utils
+import plot
