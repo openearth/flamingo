@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+
 import numpy as np
 import collections
 import logging
 
-from flamingo import utils
+from flamingo.classification import roi
 
 
 # initialize log
@@ -262,7 +264,7 @@ def segments_roi(seg,roi):
         NxM matrix containing adjusted segment numbers
     '''
     
-    iroi = utils.get_roi_mask(roi,seg.shape)
+    iroi = roi.get_roi_mask(roi,seg.shape)
     
     nseg = seg.max() + 1
     segm = seg.copy()

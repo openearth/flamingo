@@ -1,10 +1,12 @@
+from __future__ import absolute_import
+
 import numpy as np
 import pandas
 import matplotlib.pyplot as plt
 import sklearn.linear_model
 
-from models import *
-from utils import *
+from flamingo.classification.models import *
+from flamingo.classification.utils import *
 
 
 def aggregate_scores(scores):

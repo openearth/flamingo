@@ -1,8 +1,10 @@
+from __future__ import absolute_import
+
 import re
 import pandas
 import numpy as np
 import uuid
-import cPickle as pickle
+
 
 _LENGTH_FEATURES = {'equivalent_diameter',
                     'major_axis_length',

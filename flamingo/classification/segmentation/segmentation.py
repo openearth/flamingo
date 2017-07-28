@@ -1,14 +1,15 @@
-import matplotlib.cm as cm
+from __future__ import absolute_import
+
 import skimage.segmentation
 from skimage.util import img_as_float
 import numpy as np
 import inspect
 import pandas
 import cv2
-
-import postprocess
 import logging
-from flamingo import utils
+
+import flamingo.classification.postprocess
+from flamingo.classification import roi
 
 
 # initialize log
@@ -49,7 +50,7 @@ def get_segmentation(img, method='slic', method_params={},
     '''
     
     if roi is not None:
-        img = utils.paint_roi(img, roi)
+        img = roi.paint_roi(img, roi)
 
     # first segmentation step
     segments = _get_segmentation(img,

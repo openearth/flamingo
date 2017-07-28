@@ -1,12 +1,12 @@
-import cPickle as pickle
+from __future__ import absolute_import
+
 import numpy as np
 import pandas
 import sklearn.linear_model
 import pystruct.models, pystruct.learners
 
-from features import relativelocation
+from flamingo.classification.utils import *
 
-from utils import *
 
 class LogisticRegression(sklearn.linear_model.LogisticRegression):
     '''Logistic Regressor
@@ -27,90 +27,6 @@ class LogisticRegression(sklearn.linear_model.LogisticRegression):
     def score(self, X, Y):
         Y = linearize_data(Y=Y)
         return super(LogisticRegression, self).score(X, Y)
-
-
-class LogisticRegressionRLP(LogisticRegression):
-    '''Logistic Regressor with support for Relative Location Priors
-
-    Equal to :class:`flamingo.classification.models.LogisticRegression`
-    (inherited), but supports the use of Relative Location Priors as
-    proposed by [Gould2008]_.
-
-    Arguments
-    ---------
-    rlp_maps : dict
-        Dictionary with for each class an np.ndarray with a relative
-        location map
-    rlp_stats : dict
-        Dictionary with for each relative location feature a mean and
-        standard deviation for normalizing to standard normal space
-
-    Notes
-    -----
-    Only arguments additional to :class:`flamingo.classification.models.LogisticRegression` are listed.
-
-    .. [Gould2008] Stephen Gould, Jim Rodgers, David Cohen, Gal Elidan, Daphne Koller (2008). Multi-Class Segmentation with Relative Location Prior. International Journal of Computer Vision. `doi:10.1007/s11263-008-0140-x <http://dx.doi.org/10.1007/s11263-008-0140-x>`_
-    '''
-
-    rlp_maps = None
-    rlp_stats = None
-    rlp_init = False
-    n = 1
-
-    def __init__(self, penalty='l2', dual=False, tol=1e-4, C=1.0,
-                 fit_intercept=True, intercept_scaling=1, class_weight=None,
-                 random_state=None, rlp_maps=None, rlp_stats=None):
-
-        super(LogisticRegressionRLP, self).__init__(penalty=penalty, dual=dual, tol=tol, C=C,
-                                                    fit_intercept=fit_intercept, intercept_scaling=intercept_scaling,
-                                                    class_weight=class_weight, random_state=random_state)
-
-        self.rlp_maps = rlp_maps
-        self.rlp_stats = rlp_stats
-
-    def fit(self, X, X_rlp, Y):
-        X = [np.concatenate((Xi, Xi_rlp), axis=-1) for Xi, Xi_rlp in zip(X, X_rlp)]
-        return super(LogisticRegressionRLP, self).fit(X, Y)
-
-    def predict(self, X):
-        shp = X.shape[:2]
-        X = self.compute_rlp_features(X)
-        Y = super(LogisticRegressionRLP, self).predict(X)
-        return Y
-
-    def score(self, X, Y):
-        scores = []
-        for Xi, Yi in zip(X, Y):
-            scores.append(super(LogisticRegressionRLP, self).score(Xi, Yi))
-            self.n += 1
-        return np.mean(scores)
-
-    def compute_rlp_features(self, X):
-        if self._rlp_initialized():
-
-            # set relative location features to zero
-            n = len(self.rlp_maps.keys())
-            X_ext = np.concatenate((X, np.zeros(list(X.shape[:-1]) + [n])), axis=-1)
-
-            # first prediction round
-            Y = super(LogisticRegressionRLP, self).predict(X_ext).reshape(X.shape[:-1])
-
-            # voting based on first prediction round and relative location prior
-            votes, ivote = relativelocation.vote_image(Y, self.rlp_maps)
-
-            # translate voted probabilities to relative location features
-            for c in votes.items:
-                s = 'prob_%s' % c
-                avg = self.rlp_stats['avg'][s]
-                std = np.sqrt(self.rlp_stats['var'][s])
-                val = votes[c].as_matrix()[...,np.newaxis]
-
-                X = np.concatenate((X, (val - avg) / std), axis=-1)
-
-        return X
-
-    def _rlp_initialized(self):
-        return self.rlp_maps is not None and self.rlp_stats is not None
 
 
 class SupportVectorMachine(sklearn.svm.LinearSVC):

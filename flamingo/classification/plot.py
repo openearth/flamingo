@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import re
 from flamingo.classification import utils
 from matplotlib import pyplot as plt

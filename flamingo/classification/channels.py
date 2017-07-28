@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from itertools import product
 import numpy as np
 import skimage.color

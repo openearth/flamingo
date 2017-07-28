@@ -13,7 +13,8 @@ setup(
         'scipy',
         'numpy',
         'docopt',
-        'psutil'
+        'scikit-image',
+        'scikit-learn',
         # also opencv but that's not available on pip
     ],
     #setup_requires=[

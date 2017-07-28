@@ -15,14 +15,18 @@ import hashlib
 import logging
 import numpy as np
 import pandas as pd
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 # FIXME: this should move to classification module
 from sklearn.cross_validation import train_test_split
 import sklearn.linear_model
 
-import flamingo.segmentation as fs
-import flamingo.classification as fc
+import flamingo.calibration as fca
+import flamingo.rectification as fre
+import flamingo.classification as fcl
 
 
 # initialize logger
@@ -579,7 +583,7 @@ class FlamingoImage(FlamingoBase):
 
         # perform segmentation
         self.segmentation, self.segmentation_contours = \
-            fs.superpixels.get_segmentation(self.image, **kwargs)
+            fcl.segmentation.get_segmentation(self.image, **kwargs)
 
         logger.info('Created %d segments.' % self.n_segments)
 
@@ -595,23 +599,23 @@ class FlamingoImage(FlamingoBase):
             kwargs.update(self.config['features'])
 
         # perform feature extraction
-        self.features = fc.features.blocks.extract_blocks(
+        self.features = fcl.features.blocks.extract_blocks(
             self.image, self.segmentation, **kwargs)[0]
 
         # remove too large features
-        self.features = fc.features.remove_large_features(
+        self.features = fcl.features.remove_large_features(
             self.features)
 
         # make features scale invariant
-        self.features = fc.features.scaleinvariant.scale_features(
+        self.features = fcl.features.scaleinvariant.scale_features(
             self.image, self.features)
 
         # linearize features
-        self.features = fc.features.linearize(
+        self.features = fcl.features.linearize(
             self.features)
 
         # compute feature statistics
-        self.features_statistics = fc.features.normalize.compute_feature_stats(
+        self.features_statistics = fcl.features.normalize.compute_feature_stats(
             self.features)
 
         logger.info('Extracted %d features.' % self.n_features)
@@ -647,7 +651,7 @@ class FlamingoImage(FlamingoBase):
 
         Y = self.annotation
         if class_aggregation is not None:
-            Y = fc.utils.aggregate_classes(Y, class_aggregation)
+            Y = fcl.utils.aggregate_classes(Y, class_aggregation)
 
         return X, Y
 
@@ -788,7 +792,7 @@ class FlamingoDataset(FlamingoBase):
 
     @workflow(stage=2)
     def compute_statistics(self):
-        self.statistics = fc.features.normalize.aggregate_feature_stats(
+        self.statistics = fcl.features.normalize.aggregate_feature_stats(
             [img.features_statistics for img in self.images])
 
         return self
@@ -862,7 +866,7 @@ class FlamingoDataset(FlamingoBase):
 
         Y = np.concatenate(self.annotations[ix])
         if class_aggregation is not None:
-            Y = fc.utils.aggregate_classes(Y, class_aggregation)
+            Y = fcl.utils.aggregate_classes(Y, class_aggregation)
 
         return X, Y
 
@@ -1000,7 +1004,7 @@ class FlamingoModel(FlamingoBase):
                                            class_aggregation=class_aggregation)
 
             if self.statistics is not None:
-                X = fc.features.normalize.normalize_features(X, self.statistics)
+                X = fcl.features.normalize.normalize_features(X, self.statistics)
         else:
             raise ValueError('Expected FlamingoDataset, got %s.' % type(dataset))
 
@@ -1018,7 +1022,7 @@ class FlamingoModel(FlamingoBase):
                                       class_aggregation=self.class_aggregation)[0]
 
             if self.statistics is not None:
-                X = fc.features.normalize.normalize_features(X, self.statistics)
+                X = fcl.features.normalize.normalize_features(X, self.statistics)
         else:
             raise ValueError('Expected FlamingoImage, got %s.' % type(image))
 
