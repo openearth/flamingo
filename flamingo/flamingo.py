@@ -1,14 +1,14 @@
 # This module implements the following classes:
 #   * FlamingoBase
+#     * FlamingoImage
+#     * FlamingoDataset
+#     * FlamingoDatasetPartition
+#     * FlamingoModel
 #   * FlamingoBlockchain
 #   * FlamingoBlockchainException
 #   * FlamingoConfig
-#   * FlamingoDataset
-#   * FlamingoDatasetPartition
 #   * FlamingoHash
-#   * FlamingoImage
 #   * FlamingoIO
-#   * FlamingoModel
 
 from __future__ import absolute_import
 
@@ -16,6 +16,7 @@ import os
 import io
 import re
 import cv2
+import six
 import time
 import zlib
 import json
@@ -29,17 +30,7 @@ import numpy as np
 import pandas as pd
 
 # handle python 2/3 differences
-try:
-    import cPickle as pickle
-except ModuleNotFoundError:
-    import pickle
-
-try:
-    unicode
-except NameError:
-    STRING_TYPES = (str,)
-else:
-    STRING_TYPES = (str, unicode)
+from six.moves import cPickle as pickle
 
 # FIXME: this should move to classification module
 from sklearn.cross_validation import train_test_split
@@ -67,12 +58,78 @@ class FlamingoBlockchainException(Exception):
 def workflow(stage=0):
     '''Workflow decorator to guarantee data integrity
     
-    The workflow decorator can be used on methods of classes with blockchain integrity.
+    The workflow decorator can be used to enforce blockchain integrity
+    of an object. Blockchain integrity ensures that specific methods
+    are called in the right order. Therefore the methods are grouped
+    in stages. Once a method in a higher stage is called, methods in
+    lower stages are disabled. Similarly, previously called methods in
+    a higher stage are forced to be called again once a method in a
+    lower stage is called.
+
+    Any class that uses the workflow decorator should have an
+    attribute ``_blockchain`` that contains a ``FlamingoBlockchain``
+    object. The workflow decorator validates and appends the
+    blockchain while methods are called and throws a
+    ``FlamingoBlockchainException`` whenever the blockchain integrity
+    is violated.
+
+    See ``FlamingoBlockchain`` for more details on the blockchain
+    implementation.
+
+    Parameters
+    ----------
+    stage : int
+      Blockchain stage that the methods belongs to.
+
+    Returns
+    -------
+    function
+      Decrorator function
+
+    Raises
+    ------
+    FlamingoBlockchainException
+      If the blockchain integrity is violated.
+
+    See Also
+    --------
+    FlamingoBlockchain
+    FlamingoBlockchainException
 
     '''
 
-    def workflow_decorator(fcn):
-        def function_wrapper(self, *args, **kwargs):
+    def decorator(fcn):
+        '''Decorator function
+
+        Parameters
+        ----------
+        fcn : function
+          Decorated method
+
+        Returns
+        -------
+        function
+          Method wrapper
+
+        '''
+        
+        def method_wrapper(self, *args, **kwargs):
+            '''Method wrapper
+
+            Parameters
+            ----------
+            self : FlamingoBase
+              Parent object of method
+            args : list
+              Positional arguments passed to decorated method
+            kwargs : dict
+              Keyword arguments passed to decorated method
+
+            Raises
+            ------
+            FlamingoBlockchainException
+
+            '''
 
             if self._blockchain.preserve_integrity:
                 fcnnames = self._blockchain.ascend(stage)
@@ -98,33 +155,100 @@ def workflow(stage=0):
                     'Blockchain broken at stage %d, rerun "%s" '
                     'first.' % (breach['stage'], '" and/or "'.join(breach['fcnnames'])))
             
-        return function_wrapper
-    return workflow_decorator
+        return method_wrapper
+    return decorator
 
 
 class FlamingoHash(str):
+    '''Flamingo hash implementation
+
+    An immutable ``str`` object containing a 32 character MD5
+    hash. The object can be instantiated by a 32 character string,
+    another ``FlamingoHash`` object or by data to be hashed. In any
+    case the result will be a 32 character hash string. An empty hash
+    will result in a string with 32 spaces.
+
+    Raises
+    ------
+    ValueError
+
+    Examples
+    --------
+    >>> FlamingoHash()
+        '                                '
+    >>> FlamingoHash('01234567890123456789012345678912')
+        '01234567890123456789012345678912'
+    >>> FlamingoHash(data='01234567890123456789012345678912')
+        '33cfd831fbdd5d7888c682d48e8eb275'
+    >>> FlamingoHash(data='Hash this!')
+        '7a353955a222e854abfaacc61ab8f215'
+    >>> FlamingoHash(FlamingoHash('01234567890123456789012345678912'))
+        '01234567890123456789012345678912'
+    >>> FlamingoHash(data=FlamingoHash('01234567890123456789012345678912'))
+        '01234567890123456789012345678912'
+    >>> FlamingoHash(FlamingoHash(data='01234567890123456789012345678912'))
+        '33cfd831fbdd5d7888c682d48e8eb275'
+    >>> FlamingoHash(12345678901234567890123456789123)
+        ValueError: Invalid hash
+    >>> FlamingoHash(data=12345678901234567890123456789123)
+        ValueError: Expected string data, got <class 'int'>.
+
+    '''
 
     def __new__(cls, x=None, data=None):
+        '''Construction
+
+        Constructs 32 character hash string from 32 character string,
+        FlamingoHash object or creates a MD5 hash from data. If no
+        construction data is provides it creates a string with 32
+        spaces.
+
+        Parameters
+        ----------
+        x : 32 char str or FlamingoHash, optional
+          Hash string or FlamingoHash object
+        data : str, optional
+          String to be hashed of FlamingoHash object
+
+        Raises
+        ------
+        ValueError
+
+        '''
+        
         if x is not None:
-            if not (isinstance(x, STRING_TYPES) or isinstance(x, FlamingoHash)) or \
+            # construct from 32 character string
+            if not (isinstance(x, six.string_types) or \
+                    isinstance(x, six.text_type) or \
+                    isinstance(x, six.binary_type) or \
+                    isinstance(x, FlamingoHash)) or \
                 len(x) != 32:
                 raise ValueError('Invalid hash')
             return super(FlamingoHash, cls).__new__(cls, x)
         elif data is not None:
+            # construct from hashable data
             if isinstance(data, FlamingoHash):
                 return super(FlamingoHash, cls).__new__(cls, data)
-            else:
+            elif isinstance(data, six.string_types) or \
+                 isinstance(data, six.text_type) or \
+                 isinstance(data, six.binary_type):
                 try:
+                    # try hashing data directly
                     return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
                 except:
                     pass
 
+                # otherwise encode as UTF-8
                 return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data.encode('utf-8')).hexdigest())
+            else:
+                raise ValueError('Expected string data, got %s.' % type(data))
         else:
+            # construct 32 character empty string
             return super(FlamingoHash, cls).__new__(cls, ' ' * 32)
 
 
 class FlamingoBlockchain(object):
+    '''Flamingo '''
 
     
     def __init__(self):
@@ -264,7 +388,9 @@ class FlamingoConfig(object):
             self.config = filename_or_dict
             self._file = ''
             self._path = ''
-        elif isinstance(filename_or_dict, STRING_TYPES):
+        elif isinstance(filename_or_dict, six.string_types) or \
+             isinstance(filename_or_dict, six.text_type) or \
+             isinstance(filename_or_dict, six.binary_type):
             with open(filename_or_dict, 'r') as fp:
                 self.config = json.load(fp)
                 self._file = os.path.abspath(filename_or_dict)
@@ -281,7 +407,9 @@ class FlamingoConfig(object):
             return [self.resolve_file_references(o) for o in obj]
         elif isinstance(obj, (dict)):
             return {k:self.resolve_file_references(o) for k, o in obj.items()}
-        elif isinstance(obj, STRING_TYPES):
+        elif isinstance(obj, six.string_types) or \
+             isinstance(obj, six.text_type) or \
+             isinstance(obj, six.binary_type):
             fpath = os.path.join(self._path, obj)
             try:
                 return np.loadtxt(fpath)
@@ -293,7 +421,6 @@ class FlamingoConfig(object):
 
 class FlamingoBase(object):
     '''Base object for Flamingo data'''
-
     
     _type = 'Flamingo Object'
     _ext = '.fo'
@@ -350,7 +477,7 @@ class FlamingoBase(object):
                 raise TypeError('Expect str or FlamingoBase, '
                                 '%s found' % type(filename_or_obj).__name__)
     
-    
+
     def __repr__(self):
         s = '%s:\n' % self._type
         if self._empty:
@@ -1104,7 +1231,7 @@ class FlamingoModel(FlamingoBase):
         return self.model.predict(X)
 
 
-class FlamingoIO:
+class FlamingoIO(object):
     '''Class implements reading and writing of Flamingo objects from
     and to disk. Flamingo objects are stored as a compressed zip
     archive containing the object attributes. Each attribute is stored
@@ -1385,7 +1512,12 @@ class FlamingoIO:
 
         '''
 
-        if isinstance(attr, (int, float)) or isinstance(attr, STRING_TYPES) or attr is None:
+        if isinstance(attr, float) or \
+           isinstance(attr, six.integer_types) or \
+           isinstance(attr, six.string_types) or \
+           isinstance(attr, six.text_type) or \
+           isinstance(attr, six.binary_type) or \
+           attr is None:
             return True
         elif isinstance(attr, (list, tuple, set)):
             return np.all([self.is_primitive(a) for a in attr])
