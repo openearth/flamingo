@@ -33,8 +33,8 @@ def linearize(features):
     '''convert all items in each matrix feature into individual features'''
 
     features_lin = [{} for i in range(len(features))]
-    for name, values in features.iteritems():
-        for i, value in values.iteritems():
+    for name, values in features.items():
+        for i, value in values.items():
             arr = np.asarray(value)
             if np.prod(arr.shape) > _MAX_SIZE:
                 # skip features with more than _MAX_SIZE items, probably an
@@ -48,7 +48,7 @@ def linearize(features):
 
     df_features = pandas.DataFrame(features_lin)
 
-    for k, v in df_features.iteritems():
+    for k, v in df_features.items():
         if all(np.isnan(v.values.astype(np.float64))):
             df_features = df_features.drop(k, 1)
 
@@ -57,7 +57,7 @@ def linearize(features):
 
 def extend_feature_blocks(features, features_in_block):
     blocks = {}
-    for block, cols in features_in_block.iteritems():
+    for block, cols in features_in_block.items():
         blocks[block] = []
         for col in cols:
             blocks[block].extend([c for c in features.columns if re.sub(
@@ -68,7 +68,7 @@ def extend_feature_blocks(features, features_in_block):
 
 
 def remove_large_features(features):
-    for k, v in features.ix[1].iteritems():
+    for k, v in features.ix[1].items():
         if type(v) is np.ndarray or type(v) is np.ma.core.MaskedArray:
             if np.prod(v.shape) > _MAX_SIZE:
                 del features[k]
@@ -120,7 +120,7 @@ def normalize_features(features, df_aggregated):
     df_normalized = (features - df_aggregated['avg']) / sigma
 
     # remove all-nan columns (again) in case column is missing in stats
-    for k,v in df_normalized.iteritems():
+    for k,v in df_normalized.items():
         if all(np.isnan(v.values.astype(np.float64))):
             df_normalized = df_normalized.drop(k,1)
 

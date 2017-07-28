@@ -15,10 +15,19 @@ import hashlib
 import logging
 import numpy as np
 import pandas as pd
+
+# handle python 2/3 differences
 try:
     import cPickle as pickle
-except:
+except ModuleNotFoundError:
     import pickle
+
+try:
+    unicode
+except NameError:
+    STRING_TYPES = (str,)
+else:
+    STRING_TYPES = (str, unicode)
 
 # FIXME: this should move to classification module
 from sklearn.cross_validation import train_test_split
@@ -72,13 +81,15 @@ class FlamingoHash(str):
 
     def __new__(cls, x=None, data=None):
         if x is not None:
-            if not isinstance(x, (str, unicode, FlamingoHash)) or \
+            if not isinstance(x, STRING_TYPES) or isinstance(x, FlamingoHash) or \
                 len(x) != 32:
                 raise ValueError('Invalid hash')
             return super(FlamingoHash, cls).__new__(cls, x)
         elif data is not None:
             if isinstance(data, FlamingoHash):
                 return super(FlamingoHash, cls).__new__(cls, data)
+            elif isinstance(data, STRING_TYPES):
+                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data.encode('utf-8')).hexdigest())
             else:
                 return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
         else:
@@ -312,7 +323,7 @@ class FlamingoBase(object):
                 return [resolve_file_references(root, o) for o in obj]
             elif isinstance(obj, (dict)):
                 return {k:resolve_file_references(root, o) for k, o in obj.items()}
-            elif isinstance(obj, (str, unicode)):
+            elif isinstance(obj, STRING_TYPES):
                 fpath = os.path.join(root, obj)
                 try:
                     return np.loadtxt(fpath)
@@ -1303,7 +1314,7 @@ class FlamingoIO:
 
         '''
 
-        if isinstance(attr, (str, int, float, unicode)) or attr is None:
+        if isinstance(attr, (int, float)) or isinstance(attr, STRING_TYPES) or attr is None:
             return True
         elif isinstance(attr, (list, tuple, set)):
             return np.all([self.is_primitive(a) for a in attr])

@@ -8,7 +8,7 @@ import pandas
 import cv2
 import logging
 
-import flamingo.classification.postprocess
+from flamingo.classification.segmentation import postprocess
 from flamingo.classification import roi
 
 
@@ -110,13 +110,13 @@ def _get_segmentation(img, method='slic', method_params={}, remove_disjoint=True
                                    'ratio',
                                    'compactness',
                                    'convert2lab',
-                                   'sigma'] if method_params.has_key(x)}
+                                   'sigma'] if x in method_params.keys()}
 
         if remove_disjoint and __supports_connectivity():
-            if method_params.has_key('n_segments'):
+            if 'n_segments' in method_params.keys():
                 n_segments = method_params['n_segments']
             else:
-                n_segments = 100.
+                n_segments = 100
             nx, ny = get_superpixel_grid(n_segments, img.shape[:2])
             img_superpix = skimage.segmentation.slic(img,
                                                      enforce_connectivity=True,
@@ -132,7 +132,7 @@ def _get_segmentation(img, method='slic', method_params={}, remove_disjoint=True
     elif method.lower() == 'quickshift':
         method_params       = {x:method_params[x]
                                for x in ['ratio', 'convert2lab']
-                               if method_params.has_key(x)}
+                               if x in method_params.keys()}
         img_superpix = skimage.segmentation.quickshift(img, **method_params)
     elif method.lower() == 'felzenszwalb':
         img_superpix = skimage.segmentation.felzenszwalb(img)

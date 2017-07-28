@@ -1,0 +1,54 @@
+{
+    "image": {
+        "crop": [
+            0, 
+            0, 
+            0, 
+            0
+        ]
+    }, 
+    "classification": {
+        "roi": [
+            {
+                "filename_pattern": "*.c3.*", 
+                "roi_file": "roi1.txt"
+            }, 
+            {
+                "filename_pattern": "*.c4.*", 
+                "roi_file": "roi2.txt"
+            }
+        ], 
+        "segmentation": {
+            "extract_contours": true, 
+            "remove_disjoint": false, 
+            "method_params": {
+                "n_segments": 200, 
+                "compactness": 10
+            }, 
+            "method": "slic"
+        }, 
+        "features": {
+            "colorspace": "rgb", 
+            "blocks": [
+                "pixel", 
+                "intensity", 
+                "shape"
+            ], 
+            "blocks_params": {
+                "properties_intensity": [
+                    "mean_intensity"
+                ]
+            }
+        }, 
+        "partitions": {
+            "test": 0.25, 
+            "validate": 0.0, 
+            "train": 0.75, 
+            "n": 3
+        }
+    },
+    "rectification": {
+    },
+    "calibration": {
+    }
+}

@@ -169,7 +169,7 @@ def save_figure(fig, filename, ext='', figsize=None, dpi=30, **kwargs):
     w, h = fig_size[0], fig_size[1]
     fig.patch.set_alpha(0)
 
-    if kwargs.has_key('orig_size'): # Aspect ratio scaling if required
+    if 'orig_size' in kwargs.keys(): # Aspect ratio scaling if required
         w,h = kwargs['orig_size']
         w2,h2 = fig_size[0],fig_size[1]
         fig.set_size_inches([(w2/w)*w,(w2/w)*h])

@@ -51,7 +51,7 @@ _TEMP_FEATURES = {'image',
 
 def list_blocks():
     '''List all block extraction functions in module'''
-    return {k: v for k, v in globals().iteritems() if k.startswith('extract_blocks_')}
+    return {k: v for k, v in globals().items() if k.startswith('extract_blocks_')}
 
 
 def extract_blocks(data, segments, colorspace='rgb', blocks=None, blocks_params={}):
@@ -69,7 +69,7 @@ def extract_blocks(data, segments, colorspace='rgb', blocks=None, blocks_params=
     done = []
     while True:
         n = len(done)
-        for block, fcn in blocks.iteritems():
+        for block, fcn in blocks.items():
             if not block in done:
                 try:
                     features = fcn(data,
@@ -372,7 +372,7 @@ def list_features(feature_blocks):
 
     feature_blocks = {
         k:v
-        for k, v in allfb.iteritems()
+        for k, v in allfb.items()
         if k in feature_blocks or k.replace(
             'extract_blocks_', '') in feature_blocks}
 

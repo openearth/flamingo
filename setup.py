@@ -15,6 +15,8 @@ setup(
         'docopt',
         'scikit-image',
         'scikit-learn',
+        'cvxopt', # required by pystruct
+        'pystruct',
         # also opencv but that's not available on pip
     ],
     #setup_requires=[

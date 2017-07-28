@@ -100,7 +100,7 @@ def aggregate_classes(Y, aggregation=None):
                         Y[i] = aggregate_classes(Y[i], aggregation)
                 elif len(Y.shape) != 0:
                     if np.all([type(y) is np.string_ or type(y) is np.unicode_ for y in Y]):
-                        for k,v in aggregation.iteritems():
+                        for k,v in aggregation.items():
                             for vi in v:
                                 Y[np.where(Y == vi)] = k
             except:
@@ -112,15 +112,15 @@ def aggregate_classes(Y, aggregation=None):
 
 def balance_classes(X,Y,class_balance):
     valsum = np.sum(class_balance.values())
-    for k,v in class_balance.iteritems():
+    for k,v in class_balance.items():
         class_balance[k] = v/np.float(valsum)
     
     nsamp = {}
     for k in class_balance.keys():
         nsamp[k] = np.sum([np.sum(y==k) for y in Y])
     
-    for k,v in nsamp.iteritems():
-        nreq = np.array([(class_balance[kk]/class_balance[k]*v)/vv for kk,vv in nsamp.iteritems()])
+    for k,v in nsamp.items():
+        nreq = np.array([(class_balance[kk]/class_balance[k]*v)/vv for kk,vv in nsamp.items()])
         if all(nreq <= 1):
             crat = dict(zip(nsamp.keys(),nreq))
             break
@@ -243,7 +243,7 @@ def int2labels(Y, classes=None):
     if classes is None:
         classes = np.unique(linearize_data(Y=Y))
 
-    Ystr = [y.astype(unicode, copy=True) for y in Y]
+    Ystr = [y.astype(str, copy=True) for y in Y]
     for i, y in enumerate(Y):
         for j, c in enumerate(classes):
             Ystr[i][y == j] = c

@@ -1,9 +1,15 @@
+from __future__ import absolute_import
+
 import numpy as np
-import cStringIO
 import matplotlib.pyplot as plt
 import skimage.segmentation
 
-import superpixels
+try:
+    import cStringIO
+except:
+    from io import StringIO
+
+from flamingo.classification.segmentation import *
 
 
 def plot(img, segments, mark_boundaries=True, shuffle=False,
@@ -42,11 +48,11 @@ def plot(img, segments, mark_boundaries=True, shuffle=False,
 
     # shuffle pixels  
     if shuffle and not average:
-        segments = superpixels.shuffle_pixels(segments)
+        segments = shuffle_pixels(segments)
 
     # average colors per superpixel    
     if average:
-        segments = superpixels.average_colors(img, segments)
+        segments = average_colors(img, segments)
 
     # mark boundaries of superpixels        
     if mark_boundaries:
