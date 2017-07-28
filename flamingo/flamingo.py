@@ -1,3 +1,15 @@
+# This module implements the following classes:
+#   * FlamingoBase
+#   * FlamingoBlockchain
+#   * FlamingoBlockchainException
+#   * FlamingoConfig
+#   * FlamingoDataset
+#   * FlamingoDatasetPartition
+#   * FlamingoHash
+#   * FlamingoImage
+#   * FlamingoIO
+#   * FlamingoModel
+
 from __future__ import absolute_import
 
 import os
@@ -33,6 +45,7 @@ else:
 from sklearn.cross_validation import train_test_split
 import sklearn.linear_model
 
+# import subpackages
 import flamingo.calibration as fca
 import flamingo.rectification as fre
 import flamingo.classification as fcl
@@ -46,8 +59,17 @@ logger = logging.getLogger(__name__)
 zlib.Z_DEFAULT_COMPRESSION = zlib.Z_BEST_COMPRESSION
 
 
+class FlamingoBlockchainException(Exception):
+    '''Exception class for blockchain violations'''
+    pass
+
+
 def workflow(stage=0):
-    '''Workflow decorator to guarantee data integrity'''
+    '''Workflow decorator to guarantee data integrity
+    
+    The workflow decorator can be used on methods of classes with blockchain integrity.
+
+    '''
 
     def workflow_decorator(fcn):
         def function_wrapper(self, *args, **kwargs):
@@ -55,10 +77,12 @@ def workflow(stage=0):
             if self._blockchain.preserve_integrity:
                 fcnnames = self._blockchain.ascend(stage)
                 if len(fcnnames) > 0:
-                    raise ValueError('Modification of stage %d by rerunning "%s" might break '
-                                     'the blockchain and force you to rerun "%s". If this '
-                                     'is intentional, set object.preserve_integrity=False. '
-                                     'Good luck.' % (stage, fcn.__name__, '" and "'.join(fcnnames)))
+                    raise FlamingoBlockchainException(
+                        'Modification of stage %d by rerunning "%s" '
+                        'might break the blockchain and force you to '
+                        'rerun "%s". If this is intentional, set '
+                        'object.preserve_integrity=False. Good luck.' % \
+                        (stage, fcn.__name__, '" and "'.join(fcnnames)))
                 
             if self._blockchain.check_integrity(stage):
                 fcn(self, *args, **kwargs)
@@ -70,8 +94,9 @@ def workflow(stage=0):
                                         time.time())
             else:
                 breach = self._blockchain.breach
-                raise ValueError('Blockchain broken at stage %d, rerun "%s" '
-                                 'first.' % (breach['stage'], '" and/or "'.join(breach['fcnnames'])))
+                raise FlamingoBlockchainException(
+                    'Blockchain broken at stage %d, rerun "%s" '
+                    'first.' % (breach['stage'], '" and/or "'.join(breach['fcnnames'])))
             
         return function_wrapper
     return workflow_decorator
@@ -81,17 +106,20 @@ class FlamingoHash(str):
 
     def __new__(cls, x=None, data=None):
         if x is not None:
-            if not isinstance(x, STRING_TYPES) or isinstance(x, FlamingoHash) or \
+            if not (isinstance(x, STRING_TYPES) or isinstance(x, FlamingoHash)) or \
                 len(x) != 32:
                 raise ValueError('Invalid hash')
             return super(FlamingoHash, cls).__new__(cls, x)
         elif data is not None:
             if isinstance(data, FlamingoHash):
                 return super(FlamingoHash, cls).__new__(cls, data)
-            elif isinstance(data, STRING_TYPES):
-                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data.encode('utf-8')).hexdigest())
             else:
-                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
+                try:
+                    return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
+                except:
+                    pass
+
+                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data.encode('utf-8')).hexdigest())
         else:
             return super(FlamingoHash, cls).__new__(cls, ' ' * 32)
 
@@ -204,6 +232,65 @@ class FlamingoBlockchain(object):
         return list(sorted(self.chain.keys()))
 
 
+class FlamingoConfig(object):
+    '''Flamingo configuration reader'''
+
+
+    def __init__(self, filename_or_dict=None):
+
+        self.config = {}
+        self._file = ''
+        self._path = ''
+        
+        self.load(filename_or_dict)
+
+
+    def __call__(self, *args):
+        cfg = self.config
+        for arg in args:
+            if isinstance(cfg, dict) and arg in cfg.keys():
+                cfg = cfg[arg]
+            else:
+                return None
+        return cfg
+
+
+    def load(self, filename_or_dict):
+        if isinstance(filename_or_dict, FlamingoConfig):
+            self.config = filename_or_dict.config
+            self._file = filename_or_dict._file
+            self._path = filename_or_dict._path
+        if isinstance(filename_or_dict, dict):
+            self.config = filename_or_dict
+            self._file = ''
+            self._path = ''
+        elif isinstance(filename_or_dict, STRING_TYPES):
+            with open(filename_or_dict, 'r') as fp:
+                self.config = json.load(fp)
+                self._file = os.path.abspath(filename_or_dict)
+                self._path = os.path.split(self._file)[0]
+                self.config = self.resolve_file_references()
+                
+            logger.info('Loaded configuration from %s.' % filename_or_dict)
+                
+
+    def resolve_file_references(self, obj=None):
+        if obj is None:
+            obj = self.config
+        if isinstance(obj, (list, tuple, set)):
+            return [self.resolve_file_references(o) for o in obj]
+        elif isinstance(obj, (dict)):
+            return {k:self.resolve_file_references(o) for k, o in obj.items()}
+        elif isinstance(obj, STRING_TYPES):
+            fpath = os.path.join(self._path, obj)
+            try:
+                return np.loadtxt(fpath)
+            except:
+                return obj
+        else:
+            return obj
+
+
 class FlamingoBase(object):
     '''Base object for Flamingo data'''
 
@@ -244,14 +331,9 @@ class FlamingoBase(object):
         self._blockchain = FlamingoBlockchain()
         self._tstamp = 0.
         self._description = description
-        self._config = ''
-        self._path = ''
         self._fromhash = ''
     
-        self.config = {}
-        
-        if config:
-            self.load_config(config)
+        self.load_config(config)
             
         if filename_or_obj:
             if isinstance(filename_or_obj, FlamingoBase):
@@ -317,33 +399,10 @@ class FlamingoBase(object):
     @workflow(stage=0)
     def load_config(self, filename_or_dict):
         '''Load Flamingo configuration file'''
+
+        self.config = FlamingoConfig(filename_or_dict)
+        self._path = self.config._path
         
-        def resolve_file_references(root, obj):
-            if isinstance(obj, (list, tuple, set)):
-                return [resolve_file_references(root, o) for o in obj]
-            elif isinstance(obj, (dict)):
-                return {k:resolve_file_references(root, o) for k, o in obj.items()}
-            elif isinstance(obj, STRING_TYPES):
-                fpath = os.path.join(root, obj)
-                try:
-                    return np.loadtxt(fpath)
-                except:
-                    return obj
-            else:
-                return obj
-
-
-        if type(filename_or_dict) is dict:
-            self.config = filename_or_dict
-            self._config = ''
-        else:
-            with open(filename_or_dict, 'r') as fp:
-                self.config = json.load(fp)
-                self._config = os.path.abspath(filename_or_dict)
-                self._path = os.path.split(self._config)[0]
-                self.config = resolve_file_references(self._path, self.config)
-                logger.info('Loaded configuration from %s.' % filename_or_dict)
-                logger.info('Set working directory to %s.' % self._path)
         return self
 
 
@@ -456,6 +515,11 @@ class FlamingoBase(object):
 
         if isinstance(attr, list):
             return '_'.join([self._stringify(a) for a in attr])
+        elif isinstance(attr, dict):
+            return self._stringify([self._stringify(k) + '=' + self._stringify(a)
+                                    for k,v in sorted(attr.items())])
+        elif isinstance(attr, set):
+            return self._stringify(sorted(attr))
         elif isinstance(attr, np.ndarray):
             return attr.tostring()
         elif isinstance(attr, pd.DataFrame):
@@ -465,6 +529,8 @@ class FlamingoBase(object):
             return df.as_matrix().tostring()
         elif isinstance(attr, FlamingoBase):
             return attr._hash
+        elif isinstance(attr, FlamingoConfig):
+            return self._stringify(attr.config)
         elif isinstance(attr, FlamingoHash):
             return attr
         else:
@@ -526,9 +592,9 @@ class FlamingoImage(FlamingoBase):
 
     @workflow(stage=0)
     def apply_roi(self):
-        try:
-            roi = self.config['segmentation']['roi']
-            if type(roi) is not list:
+        roi = self.config('classification', 'roi')
+        if roi is not None:
+            if not isinstance(roi, list):
                 roi = [roi]
             
             roi_file = None
@@ -551,30 +617,23 @@ class FlamingoImage(FlamingoBase):
                     break
 
             if roi_file is not None:
-#              self._roi = np.loadtxt(os.path.join(
-#                      os.path.split(self._config)[0], roi_file))
-              logger.info('Applied ROI #%d.' % (i+1))
-        except KeyError:
-            pass # no roi defined
+                logger.info('Applied ROI #%d.' % (i+1))
         return self
 
 
     @workflow(stage=0)
     def apply_crop(self):
-        try:
-            crop = self.config['image']['crop']
-            if type(crop) is list:
+        crop = self.config('image', 'crop')
+        if crop is not None:
+            if isinstance(crop, list):
                 if len(crop) == 4:
                     self._crop = crop
-            elif type(crop) is int:
+            elif isinstance(crop, int):
                 self._crop = [crop] * 4
             else:
                 raise ValueError('Crop should be defined as integer or 4-item list.')
 
             logger.info('Applied crop %s.' % str(self._crop))
-
-        except KeyError:
-            pass # no crop defined
         return self
 
 
@@ -588,8 +647,9 @@ class FlamingoImage(FlamingoBase):
 
         # collect segmentation settings
         kwargs = {}
-        if 'segmentation' in self.config.keys():
-            kwargs.update(self.config['segmentation'])
+        cfg = self.config('classification', 'segmentation')
+        if isinstance(cfg, dict):
+            kwargs.update(cfg)
         kwargs['roi'] = self._roi
 
         # perform segmentation
@@ -606,27 +666,28 @@ class FlamingoImage(FlamingoBase):
 
         # collect feature extraction settings
         kwargs = {}
-        if 'features' in self.config.keys():
-            kwargs.update(self.config['features'])
+        cfg = self.config('classification', 'features')
+        if isinstance(cfg, dict):
+            kwargs.update(cfg)
 
         # perform feature extraction
-        self.features = fcl.features.blocks.extract_blocks(
+        self.features = fcl.features.extract_blocks(
             self.image, self.segmentation, **kwargs)[0]
 
         # remove too large features
-        self.features = fcl.features.remove_large_features(
+        self.features = fcl.features.postprocess.remove_large_features(
             self.features)
 
         # make features scale invariant
-        self.features = fcl.features.scaleinvariant.scale_features(
+        self.features = fcl.features.postprocess.scale_features(
             self.image, self.features)
 
         # linearize features
-        self.features = fcl.features.linearize(
+        self.features = fcl.features.postprocess.linearize(
             self.features)
 
         # compute feature statistics
-        self.features_statistics = fcl.features.normalize.compute_feature_stats(
+        self.features_statistics = fcl.features.postprocess.compute_feature_stats(
             self.features)
 
         logger.info('Extracted %d features.' % self.n_features)
@@ -737,7 +798,7 @@ class FlamingoDataset(FlamingoBase):
                  description=None, attributes=None,
                  exclude_attributes=[]):
         
-        self._exclude_copy.update(['n_images', 'n_partitions'])
+        self._exclude_copy.update(['n_images', 'n_partitions', 'n_models'])
 
         self.images = []
         self.statistics = []
@@ -792,7 +853,7 @@ class FlamingoDataset(FlamingoBase):
 
 
     @workflow(stage=1)
-    def preprocess(self):
+    def preprocess_classification(self):
         for img in self.images:
             if not img.features:
                 if not img.segmentation:
@@ -803,7 +864,7 @@ class FlamingoDataset(FlamingoBase):
 
     @workflow(stage=2)
     def compute_statistics(self):
-        self.statistics = fcl.features.normalize.aggregate_feature_stats(
+        self.statistics = fcl.features.postprocess.aggregate_feature_stats(
             [img.features_statistics for img in self.images])
 
         return self
@@ -811,10 +872,13 @@ class FlamingoDataset(FlamingoBase):
     
     @workflow(stage=2)
     def create_partitions(self):
-        try:
-            partitions = self.config['paritions']
-            n = partitions.pop('n')
-        except KeyError:
+        partitions = self.config('classification', 'paritions')
+        if isinstance(partitions, dict):
+            if 'n' in partitions.keys():
+                n = partitions.pop('n')
+            else:
+                n = 1
+        else:
             # no partitions defined, assume single set
             n = 1
             partitions = dict(test = 0.,
@@ -1015,7 +1079,7 @@ class FlamingoModel(FlamingoBase):
                                            class_aggregation=class_aggregation)
 
             if self.statistics is not None:
-                X = fcl.features.normalize.normalize_features(X, self.statistics)
+                X = fcl.features.postprocess.normalize_features(X, self.statistics)
         else:
             raise ValueError('Expected FlamingoDataset, got %s.' % type(dataset))
 
@@ -1033,7 +1097,7 @@ class FlamingoModel(FlamingoBase):
                                       class_aggregation=self.class_aggregation)[0]
 
             if self.statistics is not None:
-                X = fcl.features.normalize.normalize_features(X, self.statistics)
+                X = fcl.features.postprocess.normalize_features(X, self.statistics)
         else:
             raise ValueError('Expected FlamingoImage, got %s.' % type(image))
 
@@ -1173,35 +1237,41 @@ class FlamingoIO:
                     # if attribute is not loaded, replace it with its
                     # hash to ensure the object hash remains constant
                     if name in atthash.keys():
-                        setattr(obj, name, FlamingoHash(atthash[name]))
+                        try:
+                            logger.debug('Replace %s by hash.' % name)
+                            setattr(obj, name, FlamingoHash(atthash[name]))
+                        except AttributeError:
+                            # probably a dynamic property, ignore.
+                            pass
 
                     continue
 
                 try:
                     if fpath == 'hash':
+                        logger.debug('Read hash for %s.' % name)
                         setattr(obj, name, FlamingoHash(fp.read(fname)))
                     elif fpath == 'json':
-                        setattr(obj, name, json.loads(fp.read(fname)))
                         logger.debug('Read %s from JSON file.' % name)
+                        setattr(obj, name, json.loads(fp.read(fname)))
                     elif fpath == 'pickle':
-                        setattr(obj, name, pickle.loads(fp.read(fname)))
                         logger.debug('Read %s from pickle file.' % name)
+                        setattr(obj, name, pickle.loads(fp.read(fname)))
                     elif fpath == 'collection':
+                        attr = getattr(obj, name)
+                        logger.debug('Read item %d of %s from collection' % 
+                                     (len(attr)+1, name))
                         fo = io.BytesIO(fp.read(fname))
                         item = FlamingoIO(fo).read(
                             attributes=attributes, 
                             exclude_attributes=exclude_attributes)
-                        attr = getattr(obj, name)
                         attr.append(item)
                         setattr(obj, name, attr)
                         fo.close()
-                        logger.debug('Read item %d of %s from collection' % 
-                                     (len(attr), name))
                     else:
                         logger.warn('Unknown attribute format: %s. Ignore.' % fpath)
                 except AttributeError:
-                    logger.debug('Attribute not writable or does not exist: %s. '
-                                 'Ignore.' % name)
+                    logger.warn('Attribute not writable or does not exist: %s. '
+                                'Ignore.' % name)
 
             # store original hash
             setattr(obj, '_fromhash', objhash)
@@ -1251,6 +1321,7 @@ class FlamingoIO:
             
                 if (attributes is not None and name not in attributes) or \
                         name in exclude_attributes:
+                    logger.debug('Store hash for %s.' % name)
 
                     # if attribute is not written, replace it with its
                     # hash to ensure the object hash remains constant
@@ -1261,9 +1332,9 @@ class FlamingoIO:
                 if self.is_primitive(attr):
                     # store primitives as json
                     try:
+                        logger.debug('Store %s as JSON file.' % name)
                         fp.writestr(os.path.join('json', name), 
                                     json.dumps(attr, indent=4))
-                        logger.debug('Stored %s as JSON file.' % name)
                     except:
                         logger.debug('Tried to write %s as JSON, but failed. '
                                      'Will store as pickle now.' % name)
@@ -1274,22 +1345,22 @@ class FlamingoIO:
                     # store flamingo object collections as a series of
                     # Flamingo object files
                     for i, a in enumerate(attr):
+                        logger.debug('Store item #%d from %s as uncompressed '
+                                     'zip file.' % (i, name))
                         fo = io.BytesIO()
                         FlamingoIO(fo, compression=zipfile.ZIP_STORED).write(
                             a, attributes=attributes, 
                             exclude_attributes=exclude_attributes)
-                        nbytes = fo.seek(0, io.SEEK_END)
+                        #nbytes = fo.seek(0, io.SEEK_END)
                         fo.seek(0, io.SEEK_SET)
-                        logger.debug('Store item #%d from %s as uncompressed '
-                                     'zip file (%d bytes).' % (i, name, nbytes))
                         fp.writestr(os.path.join('collection', name, '%04d' % i), 
                                     fo.getvalue()) 
                         fo.close()
                     continue
 
                 # store as pickle otherwise
+                logger.debug('Store %s as pickle file.' % name)
                 fp.writestr(os.path.join('pickle', name), pickle.dumps(attr))
-                logger.debug('Stored %s as pickle file.' % name)
 
         logger.info('Wrote object to %s in %0.1f s.' % (self.filename_or_fileobj, 
                                                         time.time() - t0))

@@ -33,8 +33,8 @@ def linearize(features):
     '''convert all items in each matrix feature into individual features'''
 
     features_lin = [{} for i in range(len(features))]
-    for name, values in features.items():
-        for i, value in values.items():
+    for name, values in features.iteritems():
+        for i, value in values.iteritems():
             arr = np.asarray(value)
             if np.prod(arr.shape) > _MAX_SIZE:
                 # skip features with more than _MAX_SIZE items, probably an
@@ -48,7 +48,7 @@ def linearize(features):
 
     df_features = pandas.DataFrame(features_lin)
 
-    for k, v in df_features.items():
+    for k, v in df_features.iteritems():
         if all(np.isnan(v.values.astype(np.float64))):
             df_features = df_features.drop(k, 1)
 
@@ -68,7 +68,7 @@ def extend_feature_blocks(features, features_in_block):
 
 
 def remove_large_features(features):
-    for k, v in features.ix[1].items():
+    for k, v in features.ix[1].iteritems():
         if type(v) is np.ndarray or type(v) is np.ma.core.MaskedArray:
             if np.prod(v.shape) > _MAX_SIZE:
                 del features[k]
@@ -78,7 +78,7 @@ def remove_large_features(features):
 
 def compute_feature_stats(features):
 
-    df =  pandas.DataFrame({'uuid':uuid.uuid4().get_urn(),
+    df =  pandas.DataFrame({'uuid':uuid.uuid4().hex,
                             'avg':features.mean(),
                             'var':features.var(),
                             'min':features.min(),
@@ -88,6 +88,7 @@ def compute_feature_stats(features):
     df.index.name = 'feature'
     df = df.set_index('uuid', append=True)
     return df
+
 
 def aggregate_feature_stats(stats):
      

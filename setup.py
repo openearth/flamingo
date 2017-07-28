@@ -9,14 +9,14 @@ setup(
     description='Flamingo Image Analysis Toolbox',
     long_description=open('README.txt').read(),
     install_requires=[
+        'pystruct',
+        'scikit-learn',
+        'scikit-image',
         'pandas',
         'scipy',
         'numpy',
         'docopt',
-        'scikit-image',
-        'scikit-learn',
         'cvxopt', # required by pystruct
-        'pystruct',
         # also opencv but that's not available on pip
     ],
     #setup_requires=[
