@@ -37,8 +37,8 @@ from sklearn.cross_validation import train_test_split
 import sklearn.linear_model
 
 # import subpackages
-import flamingo.calibration as fca
-import flamingo.rectification as fre
+#import flamingo.calibration as fca
+#import flamingo.rectification as fre
 import flamingo.classification as fcl
 
 
@@ -67,13 +67,13 @@ def workflow(stage=0):
     lower stage is called.
 
     Any class that uses the workflow decorator should have an
-    attribute ``_blockchain`` that contains a ``FlamingoBlockchain``
-    object. The workflow decorator validates and appends the
-    blockchain while methods are called and throws a
-    ``FlamingoBlockchainException`` whenever the blockchain integrity
-    is violated.
+    attribute ``_blockchain`` that contains a
+    :class:`FlamingoBlockchain` object. The workflow decorator
+    validates and appends the blockchain while methods are called and
+    throws a :class:`FlamingoBlockchainException` whenever the
+    blockchain integrity is violated.
 
-    See ``FlamingoBlockchain`` for more details on the blockchain
+    See :class:`FlamingoBlockchain` for more details on the blockchain
     implementation.
 
     Parameters
@@ -164,9 +164,9 @@ class FlamingoHash(str):
 
     An immutable ``str`` object containing a 32 character MD5
     hash. The object can be instantiated by a 32 character string,
-    another ``FlamingoHash`` object or by data to be hashed. In any
-    case the result will be a 32 character hash string. An empty hash
-    will result in a string with 32 spaces.
+    another :class:`FlamingoHash` object or by data to be hashed. In
+    any case the result will be a 32 character hash string. An empty
+    hash will result in a string with 32 spaces.
 
     Raises
     ------
@@ -188,6 +188,8 @@ class FlamingoHash(str):
         '01234567890123456789012345678912'
     >>> FlamingoHash(FlamingoHash(data='01234567890123456789012345678912'))
         '33cfd831fbdd5d7888c682d48e8eb275'
+    >>> FlamingoHash('0123456789')
+        ValueError: Invalid hash
     >>> FlamingoHash(12345678901234567890123456789123)
         ValueError: Invalid hash
     >>> FlamingoHash(data=12345678901234567890123456789123)
@@ -218,7 +220,8 @@ class FlamingoHash(str):
         
         if x is not None:
             # construct from 32 character string
-            if not (isinstance(x, six.string_types) or \
+            if not (isinstance(x, str) or \
+                    isinstance(x, six.string_types) or \
                     isinstance(x, six.text_type) or \
                     isinstance(x, six.binary_type) or \
                     isinstance(x, FlamingoHash)) or \
@@ -229,17 +232,20 @@ class FlamingoHash(str):
             # construct from hashable data
             if isinstance(data, FlamingoHash):
                 return super(FlamingoHash, cls).__new__(cls, data)
-            elif isinstance(data, six.string_types) or \
+            elif isinstance(data, str) or \
+                 isinstance(data, six.string_types) or \
                  isinstance(data, six.text_type) or \
                  isinstance(data, six.binary_type):
                 try:
                     # try hashing data directly
-                    return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data).hexdigest())
+                    return super(FlamingoHash, cls).__new__(
+                        cls, hashlib.md5(data).hexdigest())
                 except:
                     pass
 
                 # otherwise encode as UTF-8
-                return super(FlamingoHash, cls).__new__(cls, hashlib.md5(data.encode('utf-8')).hexdigest())
+                return super(FlamingoHash, cls).__new__(
+                    cls, hashlib.md5(data.encode('utf-8')).hexdigest())
             else:
                 raise ValueError('Expected string data, got %s.' % type(data))
         else:
@@ -248,10 +254,55 @@ class FlamingoHash(str):
 
 
 class FlamingoBlockchain(object):
-    '''Flamingo '''
+    '''Flamingo blockchain implementation
+
+    A blockchain logs the order in which specific methods are
+    called. The order is logged by logging hashes representing the
+    current object state just before and after calling a
+    method. Methods are grouped in stages. By comparing the `after`
+    hashes logged by all methods called in a single stage with the
+    `before` hashes logged by a method in the next stage, the order of
+    the calls can be reestablished. This order is called the
+    blockchain. If a previously called method is called again, the
+    method is pushed to the end of the blockchain as the `before` hash
+    matches the last `after` hash.
+
+    Each called method is logged with exactly one `after`
+    hash. However, methods in a blockchain are grouped in stages. The
+    group of `after` hashes of all methods in a single stage are used
+    as `before` hashes for the next stage. Therefore, there can be
+    multiple `before` hashes.
+
+    An example of a blockchain is:
+
+    ..code-block::
+
+      Stage  Function  Hashes (before)                  Hashes (after)                  
+      
+      0      fcn1      None                             8a56f75c86875ccce5b4012e61ee166c
+             fcn2      None                             a113c6a0214ac8a53ada7a0bebe207bc
+      2      fcn3      a113c6a0214ac8a53ada7a0bebe207bc 6cef867cf5262928edde3e1ecaac5c54
+                       8a56f75c86875ccce5b4012e61ee166c
+      3      fcn4      6cef867cf5262928edde3e1ecaac5c54 cfc2016d32b06135a77c61c7b7fd6e7b
+
+      Consistent chainage: True
+
+    A blockchain can be used to ensure that specific methods are
+    called in a prescribed right order. A method decorator can be used
+    to register the prescribed call order, validate the blockchain and
+    raise an exception if the blockchain is broken or about to
+    break. An example of such decorator is implemented in
+    :func:`workflow`.
+
+    See Also
+    --------
+    workflow
+
+    '''
 
     
     def __init__(self):
+        '''Instantiation'''
 
         self.chain = {}
         self.breach = None
@@ -259,6 +310,20 @@ class FlamingoBlockchain(object):
 
 
     def ascend(self, stage):
+        '''Collects all called methods after a given stage by ascending the blockchain
+
+        Parameters
+        ----------
+        stage : int
+          Stage where to start the ascend
+
+        Returns
+        -------
+        fcnnames : list
+          List with method names called in higher stages
+
+        '''
+        
         fcnnames = []
         ix = self.index(stage)
         logger.debug('Ascend blockchain from stage "%s".' % str(ix))
@@ -269,6 +334,20 @@ class FlamingoBlockchain(object):
 
         
     def descend(self, stage):
+        '''Collects all `after` hashes before a given stage by descending the blockchain
+
+        Parameters
+        ----------
+        stage : int
+          Stage where to start the descend
+
+        Returns
+        -------
+        set
+          Set with `after` hashes logged in lower stages
+
+        '''
+        
         ix = self.index(stage)
         logger.debug('Descend blockchain from stage "%s".' % str(ix))
         if ix > 0:
@@ -278,6 +357,23 @@ class FlamingoBlockchain(object):
             
 
     def check_integrity(self, stage):
+        '''Check the integrity of the blockchain before a given stage
+
+        If the blockchain is broken, the breach is registered in the
+        ``breach`` attribute that can be used by error handlers.
+
+        Parameters
+        ----------
+        stage : int
+          Stage where to start the integrity check
+
+        Returns
+        -------
+        bool
+          Boolean indicating whether blockchain integrity is valid
+
+        '''
+        
         ix = self.index(stage)
         previous_hashes = set([None])
         for s in self.stages[:ix]:
@@ -297,7 +393,9 @@ class FlamingoBlockchain(object):
             # affecting the results. this situation is not ideal, but
             # accepted.
             ixs = self.index(s)
-            future_hashes = [s2[1] for s1 in self.stages[ixs:] for s2 in self.chain[s1].values()]
+            future_hashes = [s2[1]
+                             for s1 in self.stages[ixs:]
+                             for s2 in self.chain[s1].values()]
             for missing_hash in list(previous_hashes.difference(hashes[0])):
                 if missing_hash not in future_hashes:
                     break
@@ -316,12 +414,47 @@ class FlamingoBlockchain(object):
     
         
     def append(self, stage, fcnname, *args):
+        '''Append a shackle to the blockchain
+
+        Parameters
+        ----------
+        stage : int
+          Stage where the function belongs to
+        fcnname : str
+          Method name that was called
+        args : 2-tuple
+          Tuple with `before` and `after` hash
+
+        '''
+        
         if stage not in self.stages:
             self.chain[stage] = {}
         self.chain[stage][fcnname] = args
 
 
     def index(self, stage, default=None):
+        '''Returns index of a stage
+
+        Returns the index of the stage in the blockchain or, if the
+        stage doesn't exist the index that it would have if the stage
+        was appended to the blockchain. Alternatively, a ``default``
+        value can be provided that is returned if the requested stage
+        does not exist.
+
+        Parameters
+        ----------
+        stage : int
+          Stage for which the index should be determined.
+        default : int
+          Alternative index in case requested stage does not exist.
+
+        Returns
+        -------
+        int
+          Index of requested stage.
+
+        '''
+
         if stage in self.stages:
             return self.stages.index(stage)
         elif default is None:
@@ -332,7 +465,8 @@ class FlamingoBlockchain(object):
 
 
     def print_chainage(self):
-        
+        '''Print current blockchain'''
+
         fmt = '%-10s %-20s %-32s %-32s'
         header = fmt % ('Stage', 'Function', 'Hashes (before)', 'Hashes (after)')
         
@@ -340,7 +474,7 @@ class FlamingoBlockchain(object):
         print('-' * len(header))
 
         for stage, shackle in sorted(self.chain.items()):
-            for fcn, hashes in sorted(list(shackle.items()), key=lambda x: x[1][2]): # sort by timestamp
+            for fcn, hashes in sorted(list(shackle.items()), key=lambda x: x[1][2]):
                 hashes0 = list(hashes[0])
                 hashes1 = hashes[1]
                 for i in range(len(hashes0)):
@@ -353,6 +487,7 @@ class FlamingoBlockchain(object):
 
     @property
     def stages(self):
+        '''List with logged stages in order'''
         return list(sorted(self.chain.keys()))
 
 
@@ -388,7 +523,8 @@ class FlamingoConfig(object):
             self.config = filename_or_dict
             self._file = ''
             self._path = ''
-        elif isinstance(filename_or_dict, six.string_types) or \
+        elif isinstance(filename_or_dict, str) or \
+             isinstance(filename_or_dict, six.string_types) or \
              isinstance(filename_or_dict, six.text_type) or \
              isinstance(filename_or_dict, six.binary_type):
             with open(filename_or_dict, 'r') as fp:
@@ -407,7 +543,8 @@ class FlamingoConfig(object):
             return [self.resolve_file_references(o) for o in obj]
         elif isinstance(obj, (dict)):
             return {k:self.resolve_file_references(o) for k, o in obj.items()}
-        elif isinstance(obj, six.string_types) or \
+        elif isinstance(obj, str) or \
+             isinstance(obj, six.string_types) or \
              isinstance(obj, six.text_type) or \
              isinstance(obj, six.binary_type):
             fpath = os.path.join(self._path, obj)
@@ -1106,11 +1243,12 @@ class FlamingoDatasetPartition(FlamingoBase):
         self.validate = []
 
         try:
-            super(FlamingoDatasetPartition, self).__init__(filename_or_obj=None, 
-                                                           config=config, 
-                                                           description=description,
-                                                           attributes=attributes, 
-                                                           exclude_attributes=exclude_attributes)
+            super(FlamingoDatasetPartition, self).__init__(
+                filename_or_obj=None, 
+                config=config, 
+                description=description,
+                attributes=attributes, 
+                exclude_attributes=exclude_attributes)
         except (IOError, TypeError, zipfile.BadZipfile):
             if isinstance(dataset_or_obj, FlamingoDataset):
                 self.dataset = dataset_or_obj._hash
@@ -1513,6 +1651,7 @@ class FlamingoIO(object):
         '''
 
         if isinstance(attr, float) or \
+           isinstance(attr, str) or \
            isinstance(attr, six.integer_types) or \
            isinstance(attr, six.string_types) or \
            isinstance(attr, six.text_type) or \
